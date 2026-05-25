@@ -1,0 +1,343 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { Plus, FileText, Wrench, Settings, LogOut, Trash2, ChevronRight, CheckCircle2, Clock, ChevronLeft, Users } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import type { ServiceReport } from "@/types/report";
+import { SERVICE_TYPE_LABELS } from "@/types/report";
+import { getReports, saveReport, deleteReport, getBusinessProfile, getCustomers, clearCustomers, migrateCustomersFromReports, DEFAULT_BUSINESS } from "@/lib/storage";
+import type { BusinessProfile } from "@/types/report";
+import { SAMPLE_REPORTS } from "@/lib/sampleData";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { cn } from "@/lib/utils";
+
+interface DashboardProps {
+  onNewReport: () => void;
+  onOpenReport: (report: ServiceReport) => void;
+  onSettings: () => void;
+  onCustomers: () => void;
+}
+
+type View = "dashboard" | "completed" | "drafts";
+
+const RECENT_LIMIT = 5;
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString("en-CA", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+// ── Shared job card ────────────────────────────────────────────────────────────
+function JobCard({
+  report,
+  onOpen,
+  onDelete,
+  showStatus = false,
+}: {
+  report: ServiceReport;
+  onOpen: (r: ServiceReport) => void;
+  onDelete: (e: React.MouseEvent, id: string) => void;
+  showStatus?: boolean;
+}) {
+  return (
+    <button
+      onClick={() => onOpen(report)}
+      className="w-full text-left bg-white rounded-2xl shadow-card hover:shadow-card-hover active:scale-[0.99] transition-all overflow-hidden"
+    >
+      <div className="flex items-center gap-3 p-4">
+        <div className="w-11 h-11 rounded-2xl bg-orange-50 flex items-center justify-center shrink-0">
+          <Wrench className="w-5 h-5 text-orange-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-slate-900 truncate leading-snug">
+            {report.job.customerName || "Unknown customer"}
+          </p>
+          <p className="text-xs text-slate-500 truncate mt-0.5">
+            {SERVICE_TYPE_LABELS[report.job.serviceType]}
+            {report.job.serviceAddress ? ` · ${report.job.serviceAddress}` : ""}
+          </p>
+          <p className="text-xs text-slate-400 mt-0.5">
+            {formatDate(report.job.jobDate)}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {showStatus && (
+            <Badge
+              className={cn(
+                "text-[11px] font-semibold border-0",
+                report.status === "complete"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-amber-100 text-amber-700"
+              )}
+            >
+              {report.status === "complete" ? "Complete" : "Draft"}
+            </Badge>
+          )}
+          <button
+            onClick={(e) => onDelete(e, report.id)}
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-300 hover:text-red-400 hover:bg-red-50 active:bg-red-100 transition-colors"
+            aria-label="Delete report"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+          <ChevronRight className="w-4 h-4 text-slate-300" />
+        </div>
+      </div>
+    </button>
+  );
+}
+
+export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCustomers }: DashboardProps) {
+  const [reports, setReports] = useState<ServiceReport[]>([]);
+  const [view, setView] = useState<View>("dashboard");
+  const [profile, setProfile] = useState<BusinessProfile>(DEFAULT_BUSINESS);
+  const [customerCount, setCustomerCount] = useState(0);
+  const { user, signOut } = useAuth();
+  const firstName = profile.technicianName.split(" ")[0];
+
+  useEffect(() => {
+    setProfile(getBusinessProfile());
+    migrateCustomersFromReports();
+    setCustomerCount(getCustomers().length);
+    const stored = getReports();
+    const allDemo = stored.length > 0 && stored.every((r) => r.id.startsWith("sample_"));
+    if (stored.length === 0 || allDemo) {
+      // Clear all old sample entries and any migrated customers before re-seeding
+      stored.forEach((r) => deleteReport(r.id));
+      clearCustomers();
+      SAMPLE_REPORTS.forEach((r) => saveReport(r));
+      setReports(SAMPLE_REPORTS);
+    } else {
+      setReports(stored);
+    }
+  }, []);
+
+  const sorted = [...reports].sort(
+    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  );
+
+  const complete = sorted.filter((r) => r.status === "complete");
+  const drafts = sorted.filter((r) => r.status === "draft");
+  const recent = sorted.slice(0, RECENT_LIMIT);
+
+  function handleDelete(e: React.MouseEvent, id: string) {
+    e.stopPropagation();
+    deleteReport(id);
+    setReports((prev) => prev.filter((r) => r.id !== id));
+  }
+
+  // ── Folder view (Completed or Drafts) ──────────────────────────────────────
+  if (view === "completed" || view === "drafts") {
+    const isCompleted = view === "completed";
+    const folderJobs = isCompleted ? complete : drafts;
+    const title = isCompleted ? "Completed" : "Drafts";
+    const accentBg = isCompleted ? "bg-green-500" : "bg-amber-500";
+    const Icon = isCompleted ? CheckCircle2 : Clock;
+
+    return (
+      <div className="min-h-screen bg-slate-100 animate-screen-enter">
+        {/* Folder header */}
+        <header className="bg-white border-b border-slate-100 sticky top-0 z-10">
+          <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
+            <button
+              onClick={() => setView("dashboard")}
+              className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
+              aria-label="Back"
+            >
+              <ChevronLeft className="w-5 h-5 text-slate-600" />
+            </button>
+            <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", accentBg)}>
+              <Icon className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1 flex items-center gap-2">
+              <span className="font-bold text-slate-900">{title}</span>
+              <span className="bg-slate-900 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full leading-none">
+                {folderJobs.length}
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <main className="max-w-lg mx-auto px-4 py-5 pb-10">
+          {folderJobs.length === 0 ? (
+            <div className="bg-white rounded-2xl p-10 text-center shadow-card mt-2">
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                <FileText className="w-7 h-7 text-slate-300" />
+              </div>
+              <p className="text-slate-800 text-sm font-semibold">
+                {isCompleted ? "No completed jobs yet" : "No drafts"}
+              </p>
+              <p className="text-slate-400 text-sm mt-1 leading-relaxed">
+                {isCompleted
+                  ? "Finished jobs will appear here."
+                  : "Jobs saved as draft will appear here."}
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2.5 mt-2">
+              {folderJobs.map((report) => (
+                <JobCard
+                  key={report.id}
+                  report={report}
+                  onOpen={onOpenReport}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          )}
+        </main>
+      </div>
+    );
+  }
+
+  // ── Main dashboard ─────────────────────────────────────────────────────────
+  return (
+    <div className="min-h-screen bg-slate-100 animate-screen-enter">
+      {/* Dark header */}
+      <header className="bg-slate-900">
+        <div className="max-w-lg mx-auto px-4 flex items-center justify-between py-4">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">
+              <Wrench className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <p className="text-base font-bold text-white leading-tight tracking-tight">JobWrap</p>
+              <p className="text-xs text-white/40 leading-tight">{profile.businessName}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={onSettings}
+              className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center active:bg-white/20 transition-colors"
+              aria-label="Settings"
+            >
+              <Settings className="w-4 h-4 text-white/70" />
+            </button>
+            {user && (
+              <button
+                onClick={async () => { await signOut(); window.location.href = "/login"; }}
+                className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center active:bg-white/20 transition-colors ml-1"
+                aria-label="Sign out"
+              >
+                <LogOut className="w-4 h-4 text-white/50" />
+              </button>
+            )}
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-lg mx-auto px-4 py-6 space-y-5">
+        {/* Greeting */}
+        <div>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+            {getGreeting()}, {firstName}
+          </h1>
+          <p className="text-sm text-slate-500 mt-0.5">Ready to wrap up a job?</p>
+        </div>
+
+        {/* New job CTA */}
+        <button
+          onClick={onNewReport}
+          className="w-full bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white rounded-2xl h-14 flex items-center justify-center gap-2.5 font-bold text-base transition-colors shadow-md shadow-orange-200"
+        >
+          <Plus className="w-5 h-5" />
+          Start New Job
+        </button>
+
+        {/* Customers */}
+        <button
+          onClick={onCustomers}
+          className="w-full rounded-2xl p-4 flex items-center gap-3 bg-white shadow-card hover:bg-blue-50 active:scale-[0.99] transition-all"
+        >
+          <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0">
+            <Users className="w-5 h-5 text-blue-500" />
+          </div>
+          <div className="text-left flex-1">
+            <p className="text-sm font-bold text-slate-900">Customers</p>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {customerCount === 0 ? "No customers yet" : `${customerCount} saved`}
+            </p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-slate-300 shrink-0" />
+        </button>
+
+        {/* Folder cards */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Completed */}
+          <button
+            onClick={() => setView("completed")}
+            className="rounded-2xl p-4 flex items-center gap-3 bg-white shadow-card hover:bg-green-50 active:scale-[0.98] transition-all"
+          >
+            <div className="w-10 h-10 rounded-2xl bg-green-50 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-5 h-5 text-green-500" />
+            </div>
+            <div className="text-left">
+              <p className="text-2xl font-bold leading-none text-slate-900">{complete.length}</p>
+              <p className="text-xs font-medium mt-1 text-slate-400">Completed</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-300 ml-auto" />
+          </button>
+
+          {/* Drafts */}
+          <button
+            onClick={() => setView("drafts")}
+            className="rounded-2xl p-4 flex items-center gap-3 bg-white shadow-card hover:bg-amber-50 active:scale-[0.98] transition-all"
+          >
+            <div className="w-10 h-10 rounded-2xl bg-amber-50 flex items-center justify-center shrink-0">
+              <Clock className="w-5 h-5 text-amber-500" />
+            </div>
+            <div className="text-left">
+              <p className="text-2xl font-bold leading-none text-slate-900">{drafts.length}</p>
+              <p className="text-xs font-medium mt-1 text-slate-400">Drafts</p>
+            </div>
+            <ChevronRight className="w-4 h-4 text-slate-300 ml-auto" />
+          </button>
+        </div>
+
+        {/* Recent jobs */}
+        <div>
+          <div className="flex items-center gap-2 mb-3">
+            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+              Recent Jobs
+            </h2>
+          </div>
+
+          {recent.length === 0 ? (
+            <div className="bg-white rounded-2xl p-10 text-center shadow-card">
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                <FileText className="w-7 h-7 text-slate-300" />
+              </div>
+              <p className="text-slate-800 text-sm font-semibold">No jobs yet</p>
+              <p className="text-slate-400 text-sm mt-1 leading-relaxed">
+                Tap Start New Job to record your first report.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2.5">
+              {recent.map((report) => (
+                <JobCard
+                  key={report.id}
+                  report={report}
+                  onOpen={onOpenReport}
+                  onDelete={handleDelete}
+                  showStatus
+                />
+              ))}
+            </div>
+          )}
+        </div>
+
+      </main>
+    </div>
+  );
+}

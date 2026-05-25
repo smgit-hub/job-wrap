@@ -1,65 +1,199 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import Dashboard from "@/components/Dashboard";
+import NewReportForm from "@/components/NewReportForm";
+import ReportEditor from "@/components/ReportEditor";
+import ReportPreview from "@/components/ReportPreview";
+import BrandingSettings from "@/components/BrandingSettings";
+import CustomerSelectScreen from "@/components/CustomerSelectScreen";
+import type { ServiceReport, JobDetails, BusinessProfile, GeneratedReport, Customer } from "@/types/report";
+import {
+  getBusinessProfile,
+  saveBusinessProfile,
+  saveReport,
+  clearDraft,
+  generateId,
+  upsertCustomerFromJob,
+} from "@/lib/storage";
+
+type Screen = "dashboard" | "customer-select" | "customers" | "new-report" | "editor" | "preview" | "settings";
 
 export default function Home() {
+  const [screen, setScreen] = useState<Screen>("dashboard");
+  const [activeReport, setActiveReport] = useState<ServiceReport | null>(null);
+  const [isNewReport, setIsNewReport] = useState(false);
+  const [wasMock, setWasMock] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+
+  function handleNewReport() {
+    setActiveReport(null);
+    setSelectedCustomer(null);
+    setScreen("customer-select");
+  }
+
+  function handleOpenReport(report: ServiceReport) {
+    // Always use current branding when opening a report so settings changes
+    // are reflected immediately without needing to regenerate.
+    const withCurrentBranding = { ...report, business: getBusinessProfile() };
+    setActiveReport(withCurrentBranding);
+    setIsNewReport(false);
+    // Completed reports land on Preview (formatted view + download).
+    // Drafts land in the Editor to continue working.
+    setScreen(report.status === "complete" ? "preview" : "editor");
+  }
+
+  // Async: calls the API route, throws on failure so NewReportForm can show the error
+  async function handleGenerate(job: JobDetails): Promise<void> {
+    const business = getBusinessProfile();
+
+    const response = await fetch("/api/generate-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        serviceType: job.serviceType,
+        customServiceType: job.customServiceType,
+        customerName: job.customerName,
+        technicianName: business.technicianName,
+        jobDate: job.jobDate,
+        voiceNotes: job.voiceNotes,
+      }),
+    });
+
+    if (!response.ok) {
+      const data = (await response.json().catch(() => ({}))) as { error?: string };
+      throw new Error(data.error ?? "Report generation failed. Please try again.");
+    }
+
+    const data = (await response.json()) as { report: GeneratedReport; isMock: boolean };
+
+    const report: ServiceReport = {
+      id: generateId(),
+      status: "draft",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      business,
+      job,
+      report: data.report,
+    };
+
+    // Auto-save / update the customer record from confirmed job details
+    upsertCustomerFromJob(job);
+
+    saveReport(report);
+    clearDraft();
+    setActiveReport(report);
+    setIsNewReport(true);
+    setWasMock(data.isMock);
+    setScreen("editor");
+  }
+
+  async function handleRegenerate(job: JobDetails): Promise<GeneratedReport> {
+    const business = getBusinessProfile();
+    const response = await fetch("/api/generate-report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        serviceType: job.serviceType,
+        customServiceType: job.customServiceType,
+        customerName: job.customerName,
+        technicianName: business.technicianName,
+        jobDate: job.jobDate,
+        voiceNotes: job.voiceNotes,
+      }),
+    });
+    if (!response.ok) {
+      const data = (await response.json().catch(() => ({}))) as { error?: string };
+      throw new Error(data.error ?? "Regeneration failed. Please try again.");
+    }
+    const data = (await response.json()) as { report: GeneratedReport };
+    return data.report;
+  }
+
+  function handlePreview(report: ServiceReport) {
+    setActiveReport(report);
+    setScreen("preview");
+  }
+
+  function handleSaveSettings(profile: BusinessProfile) {
+    saveBusinessProfile(profile);
+    // Propagate new branding to any report currently in memory
+    if (activeReport) {
+      setActiveReport({ ...activeReport, business: profile });
+    }
+    setScreen("dashboard");
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <>
+      {screen === "dashboard" && (
+        <Dashboard
+          onNewReport={handleNewReport}
+          onOpenReport={handleOpenReport}
+          onSettings={() => setScreen("settings")}
+          onCustomers={() => setScreen("customers")}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+      )}
+
+      {screen === "customer-select" && (
+        <CustomerSelectScreen
+          onBack={() => setScreen("dashboard")}
+          onSelectCustomer={(customer) => {
+            setSelectedCustomer(customer);
+            setScreen("new-report");
+          }}
+          onNewCustomer={() => {
+            setSelectedCustomer(null);
+            setScreen("new-report");
+          }}
+        />
+      )}
+
+      {screen === "customers" && (
+        <CustomerSelectScreen
+          standalone
+          onBack={() => setScreen("dashboard")}
+          onSelectCustomer={() => {}}
+          onNewCustomer={() => {}}
+        />
+      )}
+
+      {screen === "new-report" && (
+        <NewReportForm
+          initialCustomer={selectedCustomer}
+          onBack={() => setScreen("customer-select")}
+          onGenerate={handleGenerate}
+        />
+      )}
+
+      {screen === "editor" && activeReport && (
+        <ReportEditor
+          report={activeReport}
+          isNewReport={isNewReport}
+          wasMock={wasMock}
+          onBack={() => setScreen("dashboard")}
+          onPreview={handlePreview}
+          onRegenerate={handleRegenerate}
+        />
+      )}
+
+      {screen === "preview" && activeReport && (
+        <ReportPreview
+          report={activeReport}
+          isNewReport={isNewReport}
+          onBack={isNewReport ? () => setScreen("editor") : () => setScreen("dashboard")}
+          onEdit={() => setScreen("editor")}
+          onDone={() => setScreen("dashboard")}
+        />
+      )}
+
+      {screen === "settings" && (
+        <BrandingSettings
+          profile={getBusinessProfile()}
+          onBack={() => setScreen("dashboard")}
+          onSave={handleSaveSettings}
+        />
+      )}
+    </>
   );
 }

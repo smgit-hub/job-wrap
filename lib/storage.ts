@@ -1,0 +1,149 @@
+import type { ServiceReport, BusinessProfile, Customer, JobDetails } from "@/types/report";
+
+const DRAFT_KEY = "jobwrap_draft";
+const REPORTS_KEY = "jobwrap_reports";
+const BUSINESS_KEY = "jobwrap_business";
+const CUSTOMERS_KEY = "jobwrap_customers";
+
+export const DEFAULT_BUSINESS: BusinessProfile = {
+  businessName: "Apex Climate Services",
+  technicianName: "Alex Morgan",
+  phone: "+1 555 012 3456",
+  email: "hello@apexclimate.com",
+  licenseNumber: "REG-2024-0147",
+  brandColor: "#0ea5e9",
+  tagline: "",
+  website: "",
+};
+
+function safeGet<T>(key: string, fallback: T): T {
+  if (typeof window === "undefined") return fallback;
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function safeSet(key: string, value: unknown): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // localStorage may be unavailable in private mode
+  }
+}
+
+// Draft (in-progress report)
+export function getDraft(): Partial<ServiceReport> | null {
+  return safeGet<Partial<ServiceReport> | null>(DRAFT_KEY, null);
+}
+
+export function saveDraft(draft: Partial<ServiceReport>): void {
+  safeSet(DRAFT_KEY, draft);
+}
+
+export function clearDraft(): void {
+  if (typeof window !== "undefined") localStorage.removeItem(DRAFT_KEY);
+}
+
+// Saved reports
+export function getReports(): ServiceReport[] {
+  return safeGet<ServiceReport[]>(REPORTS_KEY, []);
+}
+
+export function saveReport(report: ServiceReport): void {
+  const existing = getReports();
+  const idx = existing.findIndex((r) => r.id === report.id);
+  if (idx >= 0) {
+    existing[idx] = report;
+  } else {
+    existing.unshift(report);
+  }
+  safeSet(REPORTS_KEY, existing);
+}
+
+export function deleteReport(id: string): void {
+  const updated = getReports().filter((r) => r.id !== id);
+  safeSet(REPORTS_KEY, updated);
+}
+
+// Business profile
+export function getBusinessProfile(): BusinessProfile {
+  return safeGet<BusinessProfile>(BUSINESS_KEY, DEFAULT_BUSINESS);
+}
+
+export function saveBusinessProfile(profile: BusinessProfile): void {
+  safeSet(BUSINESS_KEY, profile);
+}
+
+export function generateId(): string {
+  return `rpt_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+}
+
+// ── Customers ─────────────────────────────────────────────────────────────────
+
+export function getCustomers(): Customer[] {
+  return safeGet<Customer[]>(CUSTOMERS_KEY, []);
+}
+
+export function saveCustomer(customer: Customer): void {
+  const all = getCustomers();
+  const idx = all.findIndex((c) => c.id === customer.id);
+  if (idx >= 0) {
+    all[idx] = customer;
+  } else {
+    all.unshift(customer);
+  }
+  safeSet(CUSTOMERS_KEY, all);
+}
+
+export function deleteCustomer(id: string): void {
+  safeSet(CUSTOMERS_KEY, getCustomers().filter((c) => c.id !== id));
+}
+
+export function clearCustomers(): void {
+  if (typeof window !== "undefined") localStorage.removeItem(CUSTOMERS_KEY);
+}
+
+// One-time migration: seed customer records from all existing saved reports.
+// Safe to call repeatedly — skips customers that already exist by name.
+export function migrateCustomersFromReports(): void {
+  const reports = getReports();
+  if (reports.length === 0) return;
+  reports.forEach((r) => {
+    if (r.job?.customerName?.trim()) {
+      upsertCustomerFromJob(r.job);
+    }
+  });
+}
+
+// Create or update a customer record from a completed job.
+// Matches by name (case-insensitive). Never overwrites with empty strings.
+export function upsertCustomerFromJob(job: JobDetails): void {
+  if (!job.customerName.trim()) return;
+  const all = getCustomers();
+  const existing = all.find(
+    (c) => c.name.toLowerCase() === job.customerName.trim().toLowerCase()
+  );
+  const now = new Date().toISOString();
+  if (existing) {
+    saveCustomer({
+      ...existing,
+      address: job.serviceAddress || existing.address,
+      equipmentDetails: job.voiceNotes.equipmentDetails || existing.equipmentDetails,
+      updatedAt: now,
+    });
+  } else {
+    saveCustomer({
+      id: `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      name: job.customerName.trim(),
+      address: job.serviceAddress,
+      equipmentDetails: job.voiceNotes.equipmentDetails,
+      siteNotes: "",
+      createdAt: now,
+      updatedAt: now,
+    });
+  }
+}
