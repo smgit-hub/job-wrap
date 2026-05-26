@@ -1,12 +1,14 @@
 "use client";
 
 // ---------------------------------------------------------------------------
-// FreeformRecordingFlow
-// One continuous recording — speak naturally, AI structures the report.
+// FreeformRecordingFlow — two guided recordings
+//
+// Step 1: "What happened today?" — job notes (findings + work in one narrative)
+// Step 2: "Anything they need next?" — recommendations (optional, skippable)
 // ---------------------------------------------------------------------------
 
 import { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ArrowRight, Mic, Square, Loader2, MicOff } from "lucide-react";
+import { ChevronLeft, ArrowRight, Mic, Square, Loader2, MicOff, SkipForward } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import type { JobDetails, VoiceNotes } from "@/types/report";
@@ -15,36 +17,26 @@ import { saveDraft } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 
-// ── Hint dots ────────────────────────────────────────────────────────────────
-// Green when the transcript appears to cover that topic.
-// Informational only — never block progress.
+type RecordingStep = "job-notes" | "recommendations";
 
-const HINTS = [
-  {
-    key: "jobinfo",
-    label: "Job info & equipment",
-    match: (t: string) =>
-      /\b(carrier|lennox|trane|daikin|goodman|bryant|rheem|york|mitsubishi|fujitsu|bosch|amana|ruud|heil)\b|\b\d+(?:\.\d+)?\s*ton\b|\bheat pump\b|\bfurnace\b|\bsplit system\b|\bmini[\s-]?split\b|\bair handler\b|\bboiler\b/i.test(t) ||
-      /\bat\s+\d+|\bfor\s+[a-z]+\s+[a-z]+|\bcustomer\b|\bhomeowner\b/i.test(t),
+const STEP_CONFIG = {
+  "job-notes": {
+    title: "Job Notes",
+    prompt: "What happened today?",
+    hint: "Describe what you found and what you did — speak naturally.",
+    placeholder: "Tap the mic to start, or type here…",
+    nextLabel: "Next",
+    skippable: false,
   },
-  {
-    key: "work",
-    label: "Work performed",
-    match: (t: string) => t.trim().length > 20,
+  "recommendations": {
+    title: "Recommendations",
+    prompt: "Anything they need next?",
+    hint: "Any follow-up actions or advice for the customer — or skip if nothing.",
+    placeholder: "Tap the mic to start, or type here…",
+    nextLabel: "Done",
+    skippable: true,
   },
-  {
-    key: "diagnostics",
-    label: "Diagnostics & findings",
-    match: (t: string) =>
-      /\d+\s*°|\bpsi\b|\bamps?\b|\bvolts?\b|\bµf\b|\bpressure\b|\breading\b|\brefrig|\bdiagnos|\bfinding|\btest|\binspect|\bcondition|\bfault|\berror|\bleaking|\bfailed|\bnormal|\bwithin spec/i.test(t),
-  },
-  {
-    key: "recommendations",
-    label: "Recommendations",
-    match: (t: string) =>
-      /\brecommend|\bsuggest|\bshould\b|\bbook\b|\bschedul|\breplac|\bnext service|\bfollow.?up|\bmonitor/i.test(t),
-  },
-] as const;
+} as const;
 
 interface FreeformRecordingFlowProps {
   job: JobDetails;
@@ -57,38 +49,50 @@ export default function FreeformRecordingFlow({
   onBack,
   onComplete,
 }: FreeformRecordingFlowProps) {
-  const [text, setText] = useState(job.voiceNotes.workCompleted);
+  const [recordingStep, setRecordingStep] = useState<RecordingStep>("job-notes");
+  const [jobNotes, setJobNotes] = useState(job.voiceNotes.jobNotes);
+  const [recommendations, setRecommendations] = useState(job.voiceNotes.recommendations);
   const [confirmBack, setConfirmBack] = useState(false);
   const speech = useSpeechRecognition();
 
   const textBeforeRecordingRef = useRef("");
-  const pendingCompleteRef = useRef(false);
+  const pendingActionRef = useRef<"next" | "skip" | null>(null);
 
-  // Persist draft on every text change
+  const currentText = recordingStep === "job-notes" ? jobNotes : recommendations;
+  const setCurrentText = recordingStep === "job-notes" ? setJobNotes : setRecommendations;
+  const config = STEP_CONFIG[recordingStep];
+
+  // Persist draft on text change
   useEffect(() => {
     saveDraft({
-      job: { ...job, voiceNotes: { ...EMPTY_VOICE_NOTES, workCompleted: text } },
+      job: {
+        ...job,
+        voiceNotes: { jobNotes, recommendations },
+      },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [text]);
+  }, [jobNotes, recommendations]);
 
   // Commit transcript + handle deferred navigation when recording stops
   useEffect(() => {
     if (speech.isListening) return;
 
-    let committed = text;
+    let committed = currentText;
     if (speech.transcript) {
       const base = textBeforeRecordingRef.current.trim();
       const added = speech.transcript.trim();
       committed = base ? `${base}\n${added}` : added;
-      setText(committed);
+      setCurrentText(committed);
       speech.resetTranscript();
     }
     textBeforeRecordingRef.current = "";
 
-    if (pendingCompleteRef.current) {
-      pendingCompleteRef.current = false;
-      onComplete({ ...EMPTY_VOICE_NOTES, workCompleted: committed });
+    if (pendingActionRef.current === "next") {
+      pendingActionRef.current = null;
+      handleAdvance(committed);
+    } else if (pendingActionRef.current === "skip") {
+      pendingActionRef.current = null;
+      handleSkip();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [speech.isListening]);
@@ -97,36 +101,68 @@ export default function FreeformRecordingFlow({
     if (speech.isListening) {
       speech.stopListening();
     } else {
-      textBeforeRecordingRef.current = text;
+      textBeforeRecordingRef.current = currentText;
       speech.startListening();
     }
   }
 
-  function handleContinue() {
+  function handleAdvance(text: string) {
+    const finalJobNotes = recordingStep === "job-notes" ? text : jobNotes;
+    const finalRecs = recordingStep === "recommendations" ? text : recommendations;
+
+    if (recordingStep === "job-notes") {
+      setJobNotes(finalJobNotes);
+      setRecordingStep("recommendations");
+      window.scrollTo({ top: 0 });
+    } else {
+      onComplete({ jobNotes: finalJobNotes, recommendations: finalRecs });
+    }
+  }
+
+  function handleSkip() {
+    onComplete({ jobNotes, recommendations: "" });
+  }
+
+  function handleNext() {
     if (speech.isListening || speech.state === "stopping") {
-      pendingCompleteRef.current = true;
+      pendingActionRef.current = "next";
       speech.stopListening();
       return;
     }
-    onComplete({ ...EMPTY_VOICE_NOTES, workCompleted: text });
+    handleAdvance(currentText);
   }
 
-  const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
-  const hasEnoughText = text.trim().length >= 5;
-  const isStopping = speech.state === "stopping";
+  function handleSkipClick() {
+    if (speech.isListening || speech.state === "stopping") {
+      pendingActionRef.current = "skip";
+      speech.stopListening();
+      return;
+    }
+    handleSkip();
+  }
 
-  // While recording, show committed text + live transcript directly in the textarea.
-  // Reading textBeforeRecordingRef.current during render is intentional — the ref
-  // captures the pre-recording snapshot and doesn't need to trigger re-renders.
-  /* eslint-disable react-hooks/refs */
+  function handleBack() {
+    if (speech.isListening) speech.stopListening();
+    if (recordingStep === "recommendations") {
+      setRecordingStep("job-notes");
+      window.scrollTo({ top: 0 });
+    } else if (jobNotes.trim()) {
+      setConfirmBack(true);
+    } else {
+      onBack();
+    }
+  }
+
+  const isStopping = speech.state === "stopping";
+  const hasEnoughText = currentText.trim().length >= 5;
+
   const displayValue = speech.isListening
     ? (() => {
         const base = textBeforeRecordingRef.current.trim();
         const live = (speech.transcript + speech.interimTranscript).trim();
         return base && live ? `${base}\n${live}` : base || live;
       })()
-    : text;
-  /* eslint-enable react-hooks/refs */
+    : currentText;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
@@ -135,32 +171,25 @@ export default function FreeformRecordingFlow({
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
           <button
-            onClick={() => {
-              if (speech.isListening) speech.stopListening();
-              if (text.trim()) {
-                setConfirmBack(true);
-              } else {
-                onBack();
-              }
-            }}
+            onClick={handleBack}
             className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
             aria-label="Back"
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <span className="flex-1 font-bold text-slate-900 ml-3">Job Notes</span>
+          <span className="flex-1 font-bold text-slate-900 ml-3">{config.title}</span>
         </div>
-
         <StepIndicator steps={REPORT_STEPS} currentStep={1} />
       </header>
 
       {/* ── Main ── */}
       <main className="flex-1 max-w-lg mx-auto w-full px-4 pt-6 pb-28 flex flex-col gap-6">
 
-        {/* ── Intro ── */}
-        <p className="text-center text-sm text-slate-500">
-          Speak naturally about the job — JobWrap will structure your report.
-        </p>
+        {/* ── Prompt ── */}
+        <div className="text-center space-y-1">
+          <p className="text-xl font-bold text-slate-900">{config.prompt}</p>
+          <p className="text-sm text-slate-500">{config.hint}</p>
+        </div>
 
         {/* ── Circular mic button ── */}
         <div className="flex flex-col items-center gap-3">
@@ -187,11 +216,7 @@ export default function FreeformRecordingFlow({
                 )}
               </button>
               <span className="text-sm font-medium text-slate-500">
-                {isStopping
-                  ? "Finishing…"
-                  : speech.isListening
-                  ? "Tap to stop"
-                  : "Tap mic to start"}
+                {isStopping ? "Finishing…" : speech.isListening ? "Tap to stop" : "Tap mic to start"}
               </span>
             </>
           ) : (
@@ -200,39 +225,6 @@ export default function FreeformRecordingFlow({
               <span>Voice requires Chrome or Safari — type below instead</span>
             </div>
           )}
-        </div>
-
-        {/* Hint dots */}
-        <div className="bg-white rounded-2xl px-4 py-4 shadow-card space-y-3">
-          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Cover these topics</p>
-          {HINTS.map((hint) => {
-            const covered = hint.match(displayValue);
-            return (
-              <div key={hint.key} className="flex items-center gap-3">
-                <div
-                  className={cn(
-                    "w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300",
-                    covered ? "bg-green-100" : "bg-slate-100"
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "w-2.5 h-2.5 rounded-full transition-colors duration-300",
-                      covered ? "bg-green-500" : "bg-slate-300"
-                    )}
-                  />
-                </div>
-                <span
-                  className={cn(
-                    "text-sm transition-colors duration-300",
-                    covered ? "text-slate-800 font-medium" : "text-slate-400"
-                  )}
-                >
-                  {hint.label}
-                </span>
-              </div>
-            );
-          })}
         </div>
 
         {/* ── Notes textarea ── */}
@@ -247,13 +239,13 @@ export default function FreeformRecordingFlow({
                 </span>
               )}
             </span>
-            {wordCount > 0 && !speech.isListening && (
+            {currentText.trim() && !speech.isListening && (
               <button
                 type="button"
                 onClick={() => {
                   speech.resetTranscript();
                   textBeforeRecordingRef.current = "";
-                  setText("");
+                  setCurrentText("");
                 }}
                 className="text-orange-500 text-sm font-semibold active:text-orange-700 transition-colors"
               >
@@ -262,9 +254,9 @@ export default function FreeformRecordingFlow({
             )}
           </div>
           <Textarea
-            placeholder="Tap the mic to start, or type here…"
+            placeholder={config.placeholder}
             value={displayValue}
-            onChange={(e) => !speech.isListening && setText(e.target.value)}
+            onChange={(e) => !speech.isListening && setCurrentText(e.target.value)}
             readOnly={speech.isListening}
             enterKeyHint="done"
             className={cn(
@@ -301,9 +293,9 @@ export default function FreeformRecordingFlow({
 
       {/* ── Sticky footer ── */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
-        <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer">
+        <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer space-y-2">
           <button
-            onClick={handleContinue}
+            onClick={handleNext}
             disabled={!hasEnoughText || isStopping}
             className={cn(
               "w-full h-14 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 transition-all",
@@ -312,9 +304,20 @@ export default function FreeformRecordingFlow({
                 : "bg-slate-300"
             )}
           >
-            Next
+            {config.nextLabel}
             <ArrowRight className="w-5 h-5" />
           </button>
+
+          {config.skippable && (
+            <button
+              onClick={handleSkipClick}
+              disabled={isStopping}
+              className="w-full h-10 flex items-center justify-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors"
+            >
+              <SkipForward className="w-4 h-4" />
+              Skip — no recommendations
+            </button>
+          )}
         </div>
       </div>
     </div>

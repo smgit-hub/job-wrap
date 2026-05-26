@@ -23,7 +23,6 @@ export default function Home() {
   const [screen, setScreen] = useState<Screen>("dashboard");
   const [activeReport, setActiveReport] = useState<ServiceReport | null>(null);
   const [isNewReport, setIsNewReport] = useState(false);
-  const [wasMock, setWasMock] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   function handleNewReport() {
@@ -65,7 +64,7 @@ export default function Home() {
       throw new Error(data.error ?? "Report generation failed. Please try again.");
     }
 
-    const data = (await response.json()) as { report: GeneratedReport; isMock: boolean };
+    const data = (await response.json()) as { report: GeneratedReport };
 
     const report: ServiceReport = {
       id: generateId(),
@@ -84,7 +83,6 @@ export default function Home() {
     clearDraft();
     setActiveReport(report);
     setIsNewReport(true);
-    setWasMock(data.isMock);
     setScreen("editor");
   }
 
@@ -163,7 +161,6 @@ export default function Home() {
         <ReportEditor
           report={activeReport}
           isNewReport={isNewReport}
-          wasMock={wasMock}
           onBack={() => setScreen("dashboard")}
           onPreview={handlePreview}
           onRegenerate={handleRegenerate}

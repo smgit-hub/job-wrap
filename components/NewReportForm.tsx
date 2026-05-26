@@ -48,10 +48,6 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
     ...EMPTY_JOB,
     customerName: initialCustomer?.name ?? "",
     serviceAddress: initialCustomer?.address ?? "",
-    voiceNotes: {
-      ...EMPTY_VOICE_NOTES,
-      equipmentDetails: initialCustomer?.equipmentDetails ?? "",
-    },
   }));
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
@@ -61,12 +57,10 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
     if (initialCustomer) return;
     const draft = getDraft();
     if (!draft?.job) return;
-    const raw = draft.job as JobDetails & { roughNotes?: string; equipmentType?: string };
+    const raw = draft.job as JobDetails & { roughNotes?: string };
+    // Migrate old draft format
     if (raw.roughNotes !== undefined && !raw.voiceNotes) {
-      raw.voiceNotes = { ...EMPTY_VOICE_NOTES, workCompleted: raw.roughNotes };
-    }
-    if (raw.equipmentType && raw.voiceNotes && !raw.voiceNotes.equipmentDetails) {
-      raw.voiceNotes = { ...EMPTY_VOICE_NOTES, ...raw.voiceNotes, equipmentDetails: raw.equipmentType };
+      raw.voiceNotes = { ...EMPTY_VOICE_NOTES, jobNotes: raw.roughNotes };
     }
     if (raw.voiceNotes) {
       raw.voiceNotes = { ...EMPTY_VOICE_NOTES, ...raw.voiceNotes };
@@ -81,26 +75,18 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
   }, [job]);
 
   function handleRecordingComplete(finalNotes: VoiceNotes) {
-    const extracted = extractJobInfo(finalNotes.workCompleted);
+    const extracted = extractJobInfo(finalNotes.jobNotes);
     setJob((prev) => ({
       ...prev,
       customerName: extracted.customerName || prev.customerName,
       serviceAddress: extracted.serviceAddress || prev.serviceAddress,
       serviceType: extracted.serviceType || prev.serviceType,
-      voiceNotes: {
-        ...finalNotes,
-        equipmentDetails: extracted.equipmentDetails || finalNotes.equipmentDetails || prev.voiceNotes.equipmentDetails,
-      },
+      voiceNotes: finalNotes,
     }));
     setFormStep("job-details");
     window.scrollTo({ top: 0 });
   }
 
-  // TODO(performance): if generation takes >15 s, show a "Still working…" message
-  // to reassure the user. The AI providers all have 30 s timeouts server-side
-  // (see lib/ai/providers/*) but no progress feedback is shown client-side.
-  // Consider: add a useEffect that sets a "taking longer than expected" flag after
-  // 12 s of isGenerating === true and renders a secondary status line.
   function handleSaveForLater() {
     const draft: ServiceReport = {
       id: generateId(),
@@ -109,7 +95,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
       updatedAt: new Date().toISOString(),
       business: getBusinessProfile(),
       job,
-      report: { customerSummary: "", workCompleted: "", diagnostics: "", recommendations: "" },
+      report: { customerSummary: "", findings: "", workPerformed: "", recommendations: "" },
     };
     saveReport(draft);
     clearDraft();
@@ -193,26 +179,6 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
           />
         </div>
 
-        {/* Equipment Details */}
-        <div className="space-y-1.5">
-          <Label htmlFor="equipmentDetails" className="text-slate-700 font-semibold text-sm">
-            Equipment <span className="text-slate-400 font-normal">(optional)</span>
-          </Label>
-          <Input
-            id="equipmentDetails"
-            placeholder="e.g. Daikin 3-ton split system, model MXZ-AP50VGD"
-            value={job.voiceNotes.equipmentDetails}
-            onChange={(e) => setJob((prev) => ({
-              ...prev,
-              voiceNotes: { ...prev.voiceNotes, equipmentDetails: e.target.value },
-            }))}
-            autoComplete="off"
-            inputMode="text"
-            enterKeyHint="next"
-            className="h-12 text-base bg-white border-slate-200"
-          />
-        </div>
-
         {/* Service Type */}
         <div className="space-y-1.5">
           <Label htmlFor="serviceType" className="text-slate-700 font-semibold text-sm">Service Type</Label>
@@ -285,9 +251,6 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
       </main>
 
       {/* Sticky Generate button */}
-      {/* TODO(mobile): when a text input is focused on iOS the virtual keyboard pushes this
-          bar up, which is correct, but the bar may obscure the focused input on short screens.
-          Consider using the VirtualKeyboard API (Chrome) or a scroll-into-view workaround. */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
         <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer">
           <p className="text-center text-[11px] text-slate-400 mb-2">

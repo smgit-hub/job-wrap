@@ -16,7 +16,6 @@ import { cn } from "@/lib/utils";
 interface ReportEditorProps {
   report: ServiceReport;
   isNewReport: boolean;
-  wasMock?: boolean;
   onBack: () => void;
   onPreview: (report: ServiceReport) => void;
   onRegenerate?: (job: JobDetails) => Promise<GeneratedReport>;
@@ -43,26 +42,26 @@ const SECTIONS: { key: SectionKey; label: string; rows: number; hint?: string }[
     hint: "Plain-English intro for the customer — no jargon, warm tone",
   },
   {
-    key: "workCompleted",
+    key: "findings",
+    label: "Findings",
+    rows: 4,
+    hint: "What was found, observed, or diagnosed on site",
+  },
+  {
+    key: "workPerformed",
     label: "Work Performed",
     rows: 5,
     hint: "Use bullet points (•) for each completed task",
   },
   {
-    key: "diagnostics",
-    label: "Diagnostics & Findings",
-    rows: 4,
-    hint: "Readings, test results, and system condition",
-  },
-  {
     key: "recommendations",
     label: "Recommendations",
-    rows: 4,
-    hint: "Suggested actions and next service for the customer",
+    rows: 3,
+    hint: "Suggested actions and next steps for the customer",
   },
 ];
 
-export default function ReportEditor({ report, isNewReport, wasMock = false, onBack, onPreview, onRegenerate }: ReportEditorProps) {
+export default function ReportEditor({ report, isNewReport, onBack, onPreview, onRegenerate }: ReportEditorProps) {
   const [draft, setDraft] = useState<ServiceReport>(report);
   const [autoSaved, setAutoSaved] = useState(false);
   const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -71,13 +70,13 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [regenError, setRegenError] = useState<string | null>(null);
   const [showNotes, setShowNotes] = useState(false);
+  const [showRecs, setShowRecs] = useState(false);
 
-  const originalNotes = draft.job.voiceNotes.workCompleted.trim();
+  const originalNotes = draft.job.voiceNotes.jobNotes.trim();
+  const originalRecs = draft.job.voiceNotes.recommendations.trim();
   const isUngenerated =
     !draft.report.customerSummary &&
-    !draft.report.workCompleted &&
-    !draft.report.diagnostics &&
-    !draft.report.recommendations;
+    !draft.report.workPerformed;
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -126,18 +125,7 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
     });
   }
 
-  function updateEquipment(value: string) {
-    setAutoSaved(false);
-    setDraft((prev) => {
-      const updated = {
-        ...prev,
-        job: { ...prev.job, voiceNotes: { ...prev.job.voiceNotes, equipmentDetails: value } },
-      };
-      return updated;
-    });
-  }
-
-  const handleBlur = useCallback((current: ServiceReport) => {
+const handleBlur = useCallback((current: ServiceReport) => {
     try {
       const updated: ServiceReport = {
         ...current,
@@ -209,19 +197,6 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
                 className="h-11 text-base"
               />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="ed-equipment">
-                Equipment <span className="text-slate-400 font-normal">(optional)</span>
-              </Label>
-              <Input
-                id="ed-equipment"
-                value={draft.job.voiceNotes.equipmentDetails}
-                onChange={(e) => updateEquipment(e.target.value)}
-                onBlur={() => handleBlur(draft)}
-                placeholder="e.g. Daikin 3-ton split system, model MXZ-AP50VGD"
-                className="h-11 text-base"
-              />
-            </div>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="ed-date">Date</Label>
@@ -276,19 +251,62 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
             {(showNotes || isUngenerated) && (
               <CardContent className="px-4 pb-4">
                 <Textarea
-                  value={draft.job.voiceNotes.workCompleted}
+                  value={draft.job.voiceNotes.jobNotes}
                   onChange={(e) => {
                     setDraft((prev) => ({
                       ...prev,
                       job: {
                         ...prev.job,
-                        voiceNotes: { ...prev.job.voiceNotes, workCompleted: e.target.value },
+                        voiceNotes: { ...prev.job.voiceNotes, jobNotes: e.target.value },
                       },
                     }));
                   }}
                   onBlur={() => handleBlur(draft)}
                   rows={5}
                   placeholder="Add or edit your job notes here…"
+                  enterKeyHint="done"
+                  className="text-base leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
+                />
+              </CardContent>
+            )}
+          </Card>
+        )}
+
+        {/* Recommendation notes */}
+        {originalRecs && (
+          <Card className="border border-slate-100 shadow-card">
+            <CardHeader className="pb-2 px-4 pt-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Recommendation Notes</CardTitle>
+                <button
+                  onClick={() => setShowRecs((v) => !v)}
+                  className="text-xs text-orange-500 font-semibold"
+                >
+                  {showRecs ? "Hide" : "Show"}
+                </button>
+              </div>
+              {!showRecs && (
+                <p className="text-sm text-slate-500 mt-1 truncate normal-case tracking-normal font-normal">
+                  {originalRecs.slice(0, 80)}{originalRecs.length > 80 ? "…" : ""}
+                </p>
+              )}
+            </CardHeader>
+            {showRecs && (
+              <CardContent className="px-4 pb-4">
+                <Textarea
+                  value={draft.job.voiceNotes.recommendations}
+                  onChange={(e) => {
+                    setDraft((prev) => ({
+                      ...prev,
+                      job: {
+                        ...prev.job,
+                        voiceNotes: { ...prev.job.voiceNotes, recommendations: e.target.value },
+                      },
+                    }));
+                  }}
+                  onBlur={() => handleBlur(draft)}
+                  rows={3}
+                  placeholder="Add or edit your recommendation notes here…"
                   enterKeyHint="done"
                   className="text-base leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
                 />
@@ -340,16 +358,6 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
           <div className="flex items-start gap-3 bg-red-50 border border-red-100 rounded-2xl px-4 py-3">
             <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
             <p className="text-xs text-red-700">{regenError}</p>
-          </div>
-        )}
-
-        {/* Mock fallback warning */}
-        {wasMock && (
-          <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-4 py-3">
-            <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-            <p className="text-xs text-amber-800 leading-relaxed">
-              <span className="font-semibold">AI API not reached</span> — this report was generated using the local fallback. Check your API key in <code className="font-mono bg-amber-100 px-1 rounded">.env.local</code>.
-            </p>
           </div>
         )}
 

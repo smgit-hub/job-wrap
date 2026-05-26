@@ -6,8 +6,9 @@ import OpenAI from "openai";
 import type { GeneratedReport } from "@/types/report";
 import { parseResponse } from "../prompt";
 
-// 30-second timeout — prevents infinite hangs on slow or unresponsive requests.
-const TIMEOUT_MS = 30_000;
+// 55-second timeout — prevents infinite hangs on slow or unresponsive requests.
+// Keep under 60s so the fallback chain still has time to try Anthropic.
+const TIMEOUT_MS = 55_000;
 
 export async function callOpenAI(prompt: string): Promise<GeneratedReport> {
   const apiKey = process.env.OPENAI_API_KEY;

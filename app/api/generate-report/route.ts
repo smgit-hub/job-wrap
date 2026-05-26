@@ -4,12 +4,6 @@
 //
 // TODO (future): add rate limiting (e.g. Upstash) before public deployment.
 // TODO (future): once Supabase Auth is wired to this route, validate session token.
-//
-// Prompt injection note: user strings (customerName, voiceNotes, etc.) are
-// interpolated into the prompt in lib/ai/prompt.ts. The prompt structure uses
-// labelled sections and a strict JSON output constraint which limits injection
-// risk considerably. For additional hardening, consider truncating field lengths
-// before passing to buildPrompt() — e.g. cap voiceNotes fields at 2000 chars.
 
 export const runtime = "nodejs";
 
@@ -50,18 +44,17 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid serviceType" }, { status: 400 });
   }
 
-  // Validate structured voice notes — workCompleted is the only required section
+  // Validate voice notes — jobNotes is the only required field
   const voiceNotes = body.voiceNotes as Record<string, unknown> | undefined;
-  const workCompleted = str(voiceNotes?.workCompleted);
-  if (workCompleted.trim().length < 5) {
+  const jobNotes = str(voiceNotes?.jobNotes);
+  if (jobNotes.trim().length < 5) {
     return NextResponse.json(
-      { error: "workCompleted must be at least 5 characters" },
+      { error: "jobNotes must be at least 5 characters" },
       { status: 400 }
     );
   }
 
-  // Truncate string fields to prevent excessively large prompts and reduce
-  // prompt injection surface. Field lengths are generous for real-world use.
+  // Truncate to prevent oversized prompts and reduce injection surface
   function truncate(s: string, max: number): string {
     return s.length > max ? s.slice(0, max) : s;
   }
@@ -73,22 +66,14 @@ export async function POST(request: Request) {
     technicianName: truncate(str(body.technicianName), 120),
     jobDate: str(body.jobDate, new Date().toISOString().split("T")[0]),
     voiceNotes: {
-      equipmentDetails: truncate(str(voiceNotes?.equipmentDetails).trim(), 500),
-      workCompleted: truncate(workCompleted.trim(), 2000),
-      diagnostics: truncate(str(voiceNotes?.diagnostics).trim(), 2000),
+      jobNotes: truncate(jobNotes.trim(), 3000),
       recommendations: truncate(str(voiceNotes?.recommendations).trim(), 1000),
     },
   };
 
   try {
-    const { report, isMock } = await generateReport(input);
-    return NextResponse.json(
-      { report, isMock },
-      {
-        status: 200,
-        headers: { "X-Generation-Mode": isMock ? "mock" : "ai" },
-      }
-    );
+    const report = await generateReport(input);
+    return NextResponse.json({ report }, { status: 200 });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed";
     console.error("[generate-report]", message);

@@ -42,13 +42,13 @@ function buildPlainText(report: ServiceReport): string {
     lines.push(rpt.customerSummary, "");
   }
 
-  if (rpt.workCompleted) {
-    lines.push("WORK PERFORMED");
-    lines.push(rpt.workCompleted, "");
+  if (rpt.findings) {
+    lines.push("FINDINGS");
+    lines.push(rpt.findings, "");
   }
-  if (rpt.diagnostics) {
-    lines.push("DIAGNOSTICS & FINDINGS");
-    lines.push(rpt.diagnostics, "");
+  if (rpt.workPerformed) {
+    lines.push("WORK PERFORMED");
+    lines.push(rpt.workPerformed, "");
   }
   if (rpt.recommendations) {
     lines.push("RECOMMENDATIONS");
@@ -258,9 +258,6 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             {job.serviceAddress && (
               <p className="text-sm text-slate-500 mt-1">{job.serviceAddress}</p>
             )}
-            {job.voiceNotes?.equipmentDetails && (
-              <p className="text-sm text-slate-500 mt-1">{job.voiceNotes.equipmentDetails}</p>
-            )}
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-3">
               {SERVICE_TYPE_LABELS[job.serviceType]}  ·  {formatDate(job.jobDate)}
             </p>
@@ -276,23 +273,23 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
 
           {/* Report sections */}
           <div className="px-5 py-5 space-y-5">
-            {rpt.workCompleted && (
+            {rpt.findings && (
               <div>
                 <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
-                  Work Performed
+                  Findings
                 </h3>
-                <BulletSection text={rpt.workCompleted} />
+                <BulletSection text={rpt.findings} />
               </div>
             )}
 
-            {rpt.diagnostics && (
+            {rpt.workPerformed && (
               <>
-                <Separator />
+                {rpt.findings && <Separator />}
                 <div>
                   <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
-                    Diagnostics & Findings
+                    Work Performed
                   </h3>
-                  <BulletSection text={rpt.diagnostics} />
+                  <BulletSection text={rpt.workPerformed} />
                 </div>
               </>
             )}

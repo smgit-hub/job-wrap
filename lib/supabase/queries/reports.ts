@@ -28,9 +28,9 @@ export function toReportInsert(report: ServiceReport, userId: string): ReportIns
     customer_name: report.job.customerName,
     service_address: report.job.serviceAddress,
     service_type: report.job.serviceType,
-    equipment_type: report.job.voiceNotes?.equipmentDetails ?? "",
+    equipment_type: "",
     job_date: report.job.jobDate,
-    rough_notes: report.job.voiceNotes?.workCompleted ?? "",
+    rough_notes: report.job.voiceNotes?.jobNotes ?? "",
     // Store the full generated report + business profile as JSONB
     // This makes the row self-contained for PDF regeneration later
     report_data: {

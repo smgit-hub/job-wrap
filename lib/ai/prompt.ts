@@ -25,9 +25,9 @@ const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {
   other: "Field Service",
 };
 
-function section(label: string, value: string): string {
-  return value.trim() ? `${label}: ${value.trim()}` : `${label}: (not provided)`;
-}
+// Recommendations fallback — used when tech recorded nothing for that field.
+// Applied in code before the prompt is built so the AI never decides.
+export const RECOMMENDATIONS_FALLBACK = "• Schedule next routine service when due";
 
 export function buildPrompt(input: GenerateReportInput): string {
   const serviceLabel =
@@ -35,30 +35,54 @@ export function buildPrompt(input: GenerateReportInput): string {
       ? input.customServiceType.trim()
       : (SERVICE_TYPE_LABELS[input.serviceType] ?? "Field Service");
   const technician = input.technicianName || "Technician";
-  const { voiceNotes } = input;
+  const { jobNotes } = input.voiceNotes;
 
-  return `You are a senior field service technician writing up your own job report. Your task is to transform rough voice notes into a polished, professional service report — the quality a licensed tradesperson would produce for a customer record.
+  // recommendations is handled in code — only passed to the prompt if present
+  const hasRecommendations = input.voiceNotes.recommendations.trim().length > 0;
+  const recommendationsBlock = hasRecommendations
+    ? `TECHNICIAN'S RECOMMENDATIONS:\n${input.voiceNotes.recommendations.trim()}`
+    : "";
+
+  return `You are a documentation assistant that formats technician field notes into a structured service report. Your only job is to clean up language and format — you do not add content, draw conclusions, or apply domain knowledge. Every statement in the output must trace directly to the technician's notes below.
 
 RULES:
 - NEVER invent specific values: pressures, temperatures, voltages, amperages, vacuum levels, part numbers, model numbers, or serial numbers not present in the notes.
-- If a test result is described as pass/fail without a reading, use the tech's words to describe the outcome — NEVER substitute an industry-standard figure you happen to know. EXAMPLE: tech said "pulled vacuum, held leak free" → write "evacuated system — confirmed leak-free". Do NOT write "evacuated to 500 microns" — that figure is not in the notes and is invented. This applies everywhere: work performed, diagnostics, and customer summary.
-- NEVER add tasks, checks, or findings that were not mentioned or directly implied by the notes. If the tech said "replaced the filter and cleaned the coil", do not add "verified condensate drain", "tested thermostat", or "checked electrical connections" — those were not done as far as the record shows.
-- NEVER omit a task the tech explicitly mentioned. If the bullet limit requires combining, group closely related steps on one line (e.g. "Flared, pressure-tested, and evacuated refrigerant lines") — do not drop any stated task.
-- DO elevate the language of what was actually said — transform casual shorthand into professional trade terminology. "cleaned the coil" → "Cleaned outdoor condenser coil of accumulated debris and environmental contaminants". Improve how things are described, not how many things are listed.
-- DO infer reasonable outcomes from context. A completed repair implies the system was restored to operation. A maintenance visit implies the system was left in serviceable condition.
-- DO distribute a single narrative across all three sections rather than repeating content.
-- Write clearly: professional enough for a trade record, readable by a non-technical customer.
-- Use plain trade language — "filter" not "filtration media", "condenser coil" not "heat exchange assembly", "system" not "HVAC apparatus". Write how a competent technician would actually write, not how a spec sheet reads. Keep each bullet under 90 characters where possible.
+- NEVER add tasks, checks, findings, or recommendations not explicitly stated in the notes.
+- DO elevate the language of what was actually said — transform casual shorthand into professional trade terminology.
+- DO infer reasonable outcomes where directly implied by the tech's own words: a completed repair implies the system was restored to operation.
+- Use plain trade language. Keep each bullet under 120 characters where possible.
+- Use strong past-tense verbs — "Replaced", "Cleaned", "Confirmed", "Inspected".
+- Where the tech gave a result or detail, include it after a dash — e.g. "Cleaned burner assembly — oxidation residue removed" or "Inspected heat exchanger — no cracks detected".
+- Do not end bullets with a full stop.
 
-SECTION GUIDANCE:
+SECTION RULES:
 
-customerSummary — A plain-English summary written FOR the customer, not the technician. 2–3 sentences maximum. No jargon, no technical values, no bullet points — flowing prose only. Warm, reassuring tone. Structure: what was done → outcome → what's next. Do NOT open with a greeting (e.g. "Good morning", "Good afternoon", "Dear [name]") — start directly with what was done.
+customerSummary
+  3 sentences, plain English, no jargon, no bullets, flowing prose, warm tone. Address the customer as "you/your" and use "we" for the technician.
+  Sentence 1 — what was done: mention the key tasks carried out (e.g. "We serviced your ducted heating system today, cleaning the burner assembly, replacing the filter, and testing all zones.").
+  Sentence 2 — honest outcome: state how the system is now. If findings include an issue or notable observation, acknowledge it — do not claim the system is fault-free when findings show otherwise.
+  Sentence 3 — what's next: ONLY include this sentence if a TECHNICIAN'S RECOMMENDATIONS block appears below. If no such block is present, stop after sentence 2 — do not add any forward-looking or next-visit statement.
+  Do NOT open with a greeting. Do NOT mention anything not in the notes.
 
-workCompleted — Tasks carried out on site, past tense, bullet points (•). Maximum 6 bullets. Only include tasks explicitly mentioned or directly implied in the notes — do not pad with standard maintenance tasks not referenced. If more tasks were performed than bullets allow, combine closely related steps on one line rather than dropping any stated task. Elevate the language of each task without inventing new ones. Use strong, confident verbs — "Replaced", "Cleaned", "Confirmed", "Verified" — not weak ones like "Evaluated" or "Checked". Do NOT insert specific readings into task descriptions unless the tech stated them — e.g. if the tech said "pulled vacuum" with no reading, write "Evacuated refrigerant lines — confirmed leak-free", not "Evacuated to 500 microns".
+findings
+  What was found, observed, or diagnosed — extracted from the job notes.
+  Bullet points (•), up to 5 bullets.
+  State the observation only — do not include what was done about it. Actions belong in workPerformed.
+  Only include observations the tech explicitly stated. Do not add standard checks or expected findings.
+  If no findings are mentioned in the notes, output an empty string "".
 
-diagnostics — What was found, observed, or confirmed. Bullet points (•). Maximum 2 bullets. If no specific readings or faults were mentioned, write a single concise system status line — do not list individual components as "within spec" or "functioning as designed" when no specific checks were noted. One clear outcome line is better than three that all say the same thing. e.g. "System operating within normal parameters following service — no faults or deficiencies identified." CRITICAL: if a test result is described as pass/fail without a specific reading (e.g. "held pressure", "vacuum held leak-free", "no leaks"), use the tech's own words to describe the outcome — do NOT convert a pass/fail result into a specific figure. "Held 600 PSI" is in the notes → use it. "Held leak-free" is in the notes → say "leak-free", not "500 microns" or any other value.
+workPerformed
+  Tasks carried out on site — extracted from the job notes.
+  One bullet per distinct task the tech mentioned. Do NOT merge or drop any stated task — if the tech listed 8 tasks, output 8 bullets.
+  If the tech stated the result of a check without explicitly naming it as a task (e.g. "refrigerant charge sitting fine", "gas pressure spot on", "flue draw was good"), treat the check as a task and include it here (e.g. "Verified refrigerant charge — confirmed within specification", "Verified gas supply pressure — within specification"). The result also belongs in findings.
+  Do NOT insert specific readings unless the tech stated them.
 
-recommendations — What should happen next. Bullet points (•). Maximum 3 bullets, one line each. If the tech specified a timeframe (e.g. "before summer", "in 3 months"), use that — do not substitute a generic interval. CRITICAL: if the tech gave NO recommendations, write exactly one line — "• Schedule next routine service when due" — and nothing else. PROHIBITED unless the tech explicitly stated them — warranty registration, service intervals, filter reminders, product registration, maintenance schedules. These are common industry advice but they are NOT in the notes and must NOT appear. Use strong, specific verbs — "Schedule", "Monitor", "Replace" — not vague language.
+recommendations
+  IMPORTANT: Only generate this field if TECHNICIAN'S RECOMMENDATIONS are provided below.
+  If provided, format them as bullet points (•), one bullet per distinct recommendation.
+  Preserve all specific timeframes, durations, and dates exactly as the tech stated them (e.g. "12–18 months", "2–3 years", "next May") — do not paraphrase or omit them.
+  Write only what the tech stated. Do not add warranty registration, service intervals, or any advice not given.
+  If no recommendations section appears below, output an empty string "".
 
 JOB INFORMATION:
 Service Type: ${serviceLabel}
@@ -66,25 +90,23 @@ Customer: ${input.customerName || "Customer"}
 Technician: ${technician}
 Date: ${input.jobDate}
 
-TECHNICIAN'S NOTES:
-${section("Equipment / system details", voiceNotes.equipmentDetails)}
-${section("Work performed", voiceNotes.workCompleted)}
-${section("Diagnostics & findings", voiceNotes.diagnostics)}
-${section("Recommendations", voiceNotes.recommendations)}
+TECHNICIAN'S JOB NOTES:
+${jobNotes}
+${recommendationsBlock ? `\n${recommendationsBlock}` : ""}
 
 Return ONLY a valid JSON object — no markdown fences, no explanation:
 {
-  "customerSummary": "string (2–4 sentences, plain English, no bullets)",
-  "workCompleted": "string (• bullets separated by \\n)",
-  "diagnostics": "string (• bullets separated by \\n)",
-  "recommendations": "string (• bullets separated by \\n)"
+  "customerSummary": "string",
+  "findings": "string (• bullets separated by \\n, or empty string)",
+  "workPerformed": "string (• bullets separated by \\n)",
+  "recommendations": "string (• bullets separated by \\n, or empty string)"
 }`;
 }
 
 const FALLBACK_REPORT: GeneratedReport = {
   customerSummary: "",
-  workCompleted: "",
-  diagnostics: "",
+  findings: "",
+  workPerformed: "",
   recommendations: "",
 };
 
@@ -122,8 +144,8 @@ export function parseResponse(text: string): GeneratedReport {
 
   return {
     customerSummary: typeof parsed.customerSummary === "string" ? parsed.customerSummary.trim() : "",
-    workCompleted: cleanBullets(parsed.workCompleted),
-    diagnostics: cleanBullets(parsed.diagnostics),
+    findings: cleanBullets(parsed.findings),
+    workPerformed: cleanBullets(parsed.workPerformed),
     recommendations: cleanBullets(parsed.recommendations),
   };
 }

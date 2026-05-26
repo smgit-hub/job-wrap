@@ -1,111 +1,85 @@
 // ---------------------------------------------------------------------------
 // AI Report Generator — server-side only
 //
-// Providers: anthropic (default) | openai | gemini
-// Controlled by AI_PROVIDER env var. Falls back to mock if no key is set.
+// Providers: openai | anthropic | gemini
+// Controlled by AI_PROVIDER env var. Throws if no key is configured.
 //
 // Auto-detection order (when AI_PROVIDER is unset):
-//   ANTHROPIC_API_KEY → OPENAI_API_KEY → GOOGLE_GENERATIVE_AI_API_KEY → mock
+//   OPENAI_API_KEY → ANTHROPIC_API_KEY
 //
-// Quota / rate-limit errors from any provider fall back to mock silently.
-// Force mock at any time with: AI_PROVIDER=mock
+// Gemini is NOT included in auto-detection — it does not reliably follow
+// prompt constraints and may produce reports with invented values.
+// It can still be forced explicitly with: AI_PROVIDER=gemini
 // ---------------------------------------------------------------------------
 
 import type { GeneratedReport } from "@/types/report";
-import { buildPrompt, type GenerateReportInput } from "./prompt";
+import { buildPrompt, parseResponse, RECOMMENDATIONS_FALLBACK, type GenerateReportInput } from "./prompt";
 import { callAnthropic } from "./providers/anthropic";
 import { callOpenAI } from "./providers/openai";
 import { callGemini } from "./providers/gemini";
 
 export type { GenerateReportInput };
 
-// ── Quota / rate-limit detection ─────────────────────────────────────────────
+// ── Per-provider wrappers ─────────────────────────────────────────────────────
 
-function isQuotaError(err: unknown): boolean {
-  if (err instanceof Error) {
-    const msg = err.message.toLowerCase();
-    return (
-      msg.includes("429") ||
-      msg.includes("quota") ||
-      msg.includes("rate limit") ||
-      msg.includes("billing") ||
-      msg.includes("exceeded") ||
-      msg.includes("resource_exhausted")   // Gemini gRPC code
-    );
-  }
-  return false;
+async function runAnthropic(prompt: string): Promise<GeneratedReport> {
+  return callAnthropic(prompt);
 }
 
-// ── Mock fallback ─────────────────────────────────────────────────────────────
-
-async function getMockReport(input: GenerateReportInput): Promise<GeneratedReport> {
-  const { generateMockReport } = await import("@/lib/mockReportGenerator");
-  return generateMockReport({
-    customerName: input.customerName,
-    serviceAddress: "",
-    serviceType: input.serviceType,
-    customServiceType: input.customServiceType,
-    jobDate: input.jobDate,
-    voiceNotes: input.voiceNotes,
-  });
+async function runOpenAI(prompt: string): Promise<GeneratedReport> {
+  return callOpenAI(prompt);
 }
 
-// ── Per-provider wrappers (build prompt here, pass string to provider) ────────
-
-async function runAnthropic(input: GenerateReportInput): Promise<GeneratedReport> {
-  return callAnthropic(buildPrompt(input));
+async function runGemini(prompt: string): Promise<GeneratedReport> {
+  return callGemini(prompt);
 }
 
-async function runOpenAI(input: GenerateReportInput): Promise<GeneratedReport> {
-  return callOpenAI(buildPrompt(input));
+// ── Provider runner ───────────────────────────────────────────────────────────
+
+type ProviderFn = (prompt: string) => Promise<GeneratedReport>;
+
+function run(name: string, fn: ProviderFn, prompt: string): Promise<GeneratedReport> {
+  console.log(`[generate-report] Using provider: ${name}`);
+  return fn(prompt);
 }
 
-async function runGemini(input: GenerateReportInput): Promise<GeneratedReport> {
-  return callGemini(buildPrompt(input));
-}
+// ── Post-process: apply code-level fallbacks ──────────────────────────────────
+// Recommendations are only passed to the AI if the tech recorded them.
+// If not, we apply the fallback here — the AI never decides.
 
-// ── Provider runner with quota fallback ───────────────────────────────────────
-
-type ProviderFn = (input: GenerateReportInput) => Promise<GeneratedReport>;
-
-async function withFallback(
-  name: string,
-  fn: ProviderFn,
-  input: GenerateReportInput
-): Promise<{ report: GeneratedReport; isMock: boolean }> {
-  try {
-    return { report: await fn(input), isMock: false };
-  } catch (err) {
-    if (isQuotaError(err)) {
-      console.warn(`[generate-report] ${name} quota exceeded — using mock fallback`);
-      return { report: await getMockReport(input), isMock: true };
-    }
-    throw err;
-  }
+function applyFallbacks(report: GeneratedReport, input: GenerateReportInput): GeneratedReport {
+  return {
+    ...report,
+    recommendations: input.voiceNotes.recommendations.trim()
+      ? report.recommendations || RECOMMENDATIONS_FALLBACK
+      : RECOMMENDATIONS_FALLBACK,
+  };
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
 
-export async function generateReport(
-  input: GenerateReportInput
-): Promise<{ report: GeneratedReport; isMock: boolean }> {
+export async function generateReport(input: GenerateReportInput): Promise<GeneratedReport> {
   const provider = process.env.AI_PROVIDER;
+  const prompt = buildPrompt(input);
 
-  // Explicit mock override
-  if (provider === "mock") {
-    return { report: await getMockReport(input), isMock: true };
-  }
+  let report: GeneratedReport;
 
   // Explicit provider selection
-  if (provider === "anthropic") return withFallback("Anthropic", runAnthropic, input);
-  if (provider === "openai")    return withFallback("OpenAI",    runOpenAI,    input);
-  if (provider === "gemini")    return withFallback("Gemini",    runGemini,    input);
+  if (provider === "anthropic") report = await run("Anthropic", runAnthropic, prompt);
+  else if (provider === "openai") report = await run("OpenAI", runOpenAI, prompt);
+  else if (provider === "gemini") report = await run("Gemini", runGemini, prompt);
+  // Auto-detect from whichever key is present (Gemini excluded — see header comment)
+  // If the primary provider fails, fall back to the secondary automatically.
+  else if (process.env.OPENAI_API_KEY && process.env.ANTHROPIC_API_KEY) {
+    try {
+      report = await run("OpenAI", runOpenAI, prompt);
+    } catch (openAiErr) {
+      console.warn("[generate-report] OpenAI failed, falling back to Anthropic:", openAiErr);
+      report = await run("Anthropic", runAnthropic, prompt);
+    }
+  } else if (process.env.OPENAI_API_KEY) report = await run("OpenAI", runOpenAI, prompt);
+  else if (process.env.ANTHROPIC_API_KEY) report = await run("Anthropic", runAnthropic, prompt);
+  else throw new Error("AI unavailable — please try again later.");
 
-  // Auto-detect from whichever key is present
-  if (process.env.ANTHROPIC_API_KEY)            return withFallback("Anthropic", runAnthropic, input);
-  if (process.env.OPENAI_API_KEY)               return withFallback("OpenAI",    runOpenAI,    input);
-  if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) return withFallback("Gemini",    runGemini,    input);
-
-  // No key configured — mock
-  return { report: await getMockReport(input), isMock: true };
+  return applyFallbacks(report, input);
 }

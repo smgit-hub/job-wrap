@@ -144,7 +144,6 @@ export function upsertCustomerFromJob(job: JobDetails): void {
     saveCustomer({
       ...existing,
       address: job.serviceAddress || existing.address,
-      equipmentDetails: job.voiceNotes.equipmentDetails || existing.equipmentDetails,
       updatedAt: now,
     });
   } else {
@@ -152,7 +151,7 @@ export function upsertCustomerFromJob(job: JobDetails): void {
       id: `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       name: job.customerName.trim(),
       address: job.serviceAddress,
-      equipmentDetails: job.voiceNotes.equipmentDetails,
+      equipmentDetails: "",
       siteNotes: "",
       createdAt: now,
       updatedAt: now,

@@ -290,7 +290,7 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
     business.website || null,
   ].filter((x): x is string => Boolean(x));
 
-  const hasEquipment = Boolean(job.voiceNotes?.equipmentDetails);
+  const hasEquipment = false;
 
   return (
     <Document>
@@ -347,14 +347,7 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
               </View>
             )}
 
-            {hasEquipment && (
-              <View style={s.infoHalf}>
-                <Text style={s.infoLabel}>Equipment / System</Text>
-                <Text style={s.infoValue}>{job.voiceNotes.equipmentDetails}</Text>
-              </View>
-            )}
-
-            <View style={hasEquipment ? s.infoHalf : s.infoFull}>
+            <View style={s.infoFull}>
               <Text style={s.infoLabel}>Service Type</Text>
               <Text style={s.infoValue}>{SERVICE_TYPE_LABELS[job.serviceType]}</Text>
             </View>
@@ -368,21 +361,21 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
             </View>
           )}
 
-          {/* Work Performed */}
-          {Boolean(rpt.workCompleted) && (
+          {/* Findings */}
+          {Boolean(rpt.findings) && (
             <>
               <Divider />
-              <Text style={s.sectionLabel}>Work Performed</Text>
-              <BulletList text={rpt.workCompleted} />
+              <Text style={s.sectionLabel}>Findings</Text>
+              <BulletList text={rpt.findings} />
             </>
           )}
 
-          {/* Diagnostics & Findings */}
-          {Boolean(rpt.diagnostics) && (
+          {/* Work Performed */}
+          {Boolean(rpt.workPerformed) && (
             <>
               <Divider />
-              <Text style={s.sectionLabel}>Diagnostics & Findings</Text>
-              <BulletList text={rpt.diagnostics} />
+              <Text style={s.sectionLabel}>Work Performed</Text>
+              <BulletList text={rpt.workPerformed} />
             </>
           )}
 

@@ -34,19 +34,16 @@ export interface Customer {
 }
 
 // ── Structured voice capture ─────────────────────────────────────────────────
-// Five focused sections, each maps 1-to-1 to a guided recording step.
-// Future: add per-ServiceType variants (commercial, refrigeration, etc.) here.
+// Two focused recordings — job notes (what happened) + recommendations (what's next).
+// jobNotes feeds both Findings and Work Performed via AI extraction.
+// recommendations is optional — code returns fallback if empty, AI never decides.
 export interface VoiceNotes {
-  equipmentDetails: string; // "What equipment are you working on?"
-  workCompleted: string;    // "What tasks did you complete?"
-  diagnostics: string;      // "Diagnostics & findings — readings, test results, condition"
-  recommendations: string;  // "Recommendations and next steps"
+  jobNotes: string;         // "What happened today?" — findings + work in one narrative
+  recommendations: string;  // "Anything they need next?" — optional, separate recording
 }
 
 export const EMPTY_VOICE_NOTES: VoiceNotes = {
-  equipmentDetails: "",
-  workCompleted: "",
-  diagnostics: "",
+  jobNotes: "",
   recommendations: "",
 };
 
@@ -73,9 +70,9 @@ export interface JobDetails {
 }
 
 export interface GeneratedReport {
-  customerSummary?: string; // Plain-English summary for the customer — optional for backward compat
-  workCompleted: string;
-  diagnostics: string;
+  customerSummary: string;
+  findings: string;      // extracted from jobNotes — empty string if nothing found
+  workPerformed: string; // extracted from jobNotes
   recommendations: string;
 }
 
