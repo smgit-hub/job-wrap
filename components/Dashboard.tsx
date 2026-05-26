@@ -115,12 +115,18 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
     setCustomerCount(getCustomers().length);
     const stored = getReports();
     const allDemo = stored.length > 0 && stored.every((r) => r.id.startsWith("sample_"));
-    if (stored.length === 0 || allDemo) {
-      // Clear all old sample entries and any migrated customers before re-seeding
+    if (process.env.NODE_ENV !== "production" && (stored.length === 0 || allDemo)) {
+      // Dev-only: seed sample reports so the app is non-empty on first run.
+      // In production real users start with an empty dashboard.
       stored.forEach((r) => deleteReport(r.id));
       clearCustomers();
       SAMPLE_REPORTS.forEach((r) => saveReport(r));
       setReports(SAMPLE_REPORTS);
+    } else if (allDemo) {
+      // Production: user somehow has leftover sample data — clear it
+      stored.forEach((r) => deleteReport(r.id));
+      clearCustomers();
+      setReports([]);
     } else {
       setReports(stored);
     }
