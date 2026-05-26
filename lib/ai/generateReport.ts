@@ -5,7 +5,7 @@
 // Controlled by AI_PROVIDER env var. Falls back to mock if no key is set.
 //
 // Auto-detection order (when AI_PROVIDER is unset):
-//   ANTHROPIC_API_KEY → GOOGLE_GENERATIVE_AI_API_KEY → OPENAI_API_KEY → mock
+//   ANTHROPIC_API_KEY → OPENAI_API_KEY → GOOGLE_GENERATIVE_AI_API_KEY → mock
 //
 // Quota / rate-limit errors from any provider fall back to mock silently.
 // Force mock at any time with: AI_PROVIDER=mock
@@ -102,9 +102,9 @@ export async function generateReport(
   if (provider === "gemini")    return withFallback("Gemini",    runGemini,    input);
 
   // Auto-detect from whichever key is present
-  if (process.env.ANTHROPIC_API_KEY)           return withFallback("Anthropic", runAnthropic, input);
+  if (process.env.ANTHROPIC_API_KEY)            return withFallback("Anthropic", runAnthropic, input);
+  if (process.env.OPENAI_API_KEY)               return withFallback("OpenAI",    runOpenAI,    input);
   if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) return withFallback("Gemini",    runGemini,    input);
-  if (process.env.OPENAI_API_KEY)              return withFallback("OpenAI",    runOpenAI,    input);
 
   // No key configured — mock
   return { report: await getMockReport(input), isMock: true };

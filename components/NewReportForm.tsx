@@ -153,18 +153,14 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <span className="flex-1 text-center font-bold text-slate-900">Confirm Details</span>
-          <div className="w-9 h-9 shrink-0" />
+          <span className="flex-1 font-bold text-slate-900 ml-3">Confirm Details</span>
         </div>
 
         <StepIndicator steps={REPORT_STEPS} currentStep={2} />
       </header>
 
       <main className="flex-1 max-w-lg mx-auto w-full px-4 pt-6 pb-32 space-y-5">
-        <div>
-          <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Confirm Details</h2>
-          <p className="text-sm text-slate-500 mt-0.5">We&apos;ve filled in what we caught — correct anything that&apos;s wrong.</p>
-        </div>
+        <p className="text-sm text-slate-500">We&apos;ve filled in what we caught — correct anything that&apos;s wrong.</p>
 
         {/* Customer Name */}
         <div className="space-y-1.5">

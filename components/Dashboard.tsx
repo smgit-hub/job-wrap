@@ -154,14 +154,11 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
     const isCompleted = view === "completed";
     const folderJobs = isCompleted ? complete : drafts;
     const title = isCompleted ? "Completed" : "Drafts";
-    const accentBg = isCompleted ? "bg-green-500" : "bg-amber-500";
-    const Icon = isCompleted ? CheckCircle2 : Clock;
-
     return (
       <div className="min-h-screen bg-slate-100 animate-screen-enter">
         {/* Folder header */}
-        <header className="bg-white border-b border-slate-100 sticky top-0 z-10">
-          <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
+        <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
+          <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
             <button
               onClick={() => setView("dashboard")}
               className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
@@ -169,10 +166,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
             >
               <ChevronLeft className="w-5 h-5 text-slate-600" />
             </button>
-            <div className={cn("w-8 h-8 rounded-xl flex items-center justify-center shrink-0", accentBg)}>
-              <Icon className="w-4 h-4 text-white" />
-            </div>
-            <div className="flex-1 flex items-center gap-2">
+            <div className="flex-1 flex items-center gap-2 ml-3">
               <span className="font-bold text-slate-900">{title}</span>
               <span className="bg-slate-900 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full leading-none">
                 {folderJobs.length}

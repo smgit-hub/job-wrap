@@ -101,7 +101,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <span className="flex-1 text-center font-bold text-slate-900">Business Settings</span>
+          <span className="flex-1 font-bold text-slate-900 ml-3">Business Settings</span>
           <div className="w-9 h-9 flex items-center justify-center shrink-0">
             {saved && (
               <span className="text-xs text-green-600 flex items-center gap-1">

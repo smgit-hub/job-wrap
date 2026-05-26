@@ -196,7 +196,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <span className="flex-1 text-center font-bold text-slate-900">Service Report</span>
+          <span className="flex-1 font-bold text-slate-900 ml-3">Service Report</span>
           <div className="flex items-center gap-1">
             {!isNewReport && (
               <button

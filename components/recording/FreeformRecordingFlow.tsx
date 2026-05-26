@@ -148,9 +148,7 @@ export default function FreeformRecordingFlow({
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <span className="flex-1 text-center font-bold text-slate-900">Job Notes</span>
-          {/* Spacer to keep title centred */}
-          <div className="w-9 h-9 shrink-0" />
+          <span className="flex-1 font-bold text-slate-900 ml-3">Job Notes</span>
         </div>
 
         <StepIndicator steps={REPORT_STEPS} currentStep={1} />

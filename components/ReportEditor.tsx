@@ -6,7 +6,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 import type { ServiceReport, GeneratedReport, JobPhoto, JobDetails } from "@/types/report";
 import { saveReport } from "@/lib/storage";
@@ -176,8 +175,7 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <span className="flex-1 text-center font-bold text-slate-900">Edit Report</span>
-          <div className="w-9 h-9 shrink-0" />
+          <span className="flex-1 font-bold text-slate-900 ml-3">Edit Report</span>
         </div>
         {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={3} />}
       </header>
@@ -186,19 +184,7 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
         {/* Job Details card — editable */}
         <Card className="border border-slate-100 shadow-card">
           <CardHeader className="pb-2 px-4 pt-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Job Details</CardTitle>
-              <Badge
-                className={cn(
-                  "text-[11px] font-semibold border-0 shrink-0",
-                  draft.status === "complete"
-                    ? "bg-green-100 text-green-700"
-                    : "bg-amber-100 text-amber-700"
-                )}
-              >
-                {draft.status === "complete" ? "Complete" : "Draft"}
-              </Badge>
-            </div>
+            <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Job Details</CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4 space-y-3">
             <div className="space-y-1.5">

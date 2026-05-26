@@ -148,7 +148,7 @@ export default function CustomerSelectScreen({
             >
               <ChevronLeft className="w-5 h-5 text-slate-600" />
             </button>
-            <span className="flex-1 text-center font-bold text-slate-900">{isNew ? "New Customer" : "Edit Customer"}</span>
+            <span className="flex-1 font-bold text-slate-900 ml-3">{isNew ? "New Customer" : "Edit Customer"}</span>
             <div className="w-9 h-9 flex items-center justify-center shrink-0">
               {saved && <CheckCircle2 className="w-4 h-4 text-green-500" />}
             </div>
@@ -320,8 +320,7 @@ export default function CustomerSelectScreen({
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <span className="flex-1 text-center font-bold text-slate-900">{standalone ? "Customers" : "Who’s this job for?"}</span>
-          <div className="w-9 h-9 shrink-0" />
+          <span className="flex-1 font-bold text-slate-900 ml-3">Customers</span>
         </div>
       </header>
 
