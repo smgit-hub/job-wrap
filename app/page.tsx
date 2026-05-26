@@ -17,7 +17,7 @@ import {
   upsertCustomerFromJob,
 } from "@/lib/storage";
 
-type Screen = "dashboard" | "customer-select" | "customers" | "new-report" | "editor" | "preview" | "settings";
+type Screen = "dashboard" | "customers" | "new-report" | "editor" | "preview" | "settings";
 
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("dashboard");
@@ -29,7 +29,7 @@ export default function Home() {
   function handleNewReport() {
     setActiveReport(null);
     setSelectedCustomer(null);
-    setScreen("customer-select");
+    setScreen("new-report");
   }
 
   function handleOpenReport(report: ServiceReport) {
@@ -135,8 +135,9 @@ export default function Home() {
         />
       )}
 
-      {screen === "customer-select" && (
+      {screen === "customers" && (
         <CustomerSelectScreen
+          standalone
           onBack={() => setScreen("dashboard")}
           onSelectCustomer={(customer) => {
             setSelectedCustomer(customer);
@@ -149,19 +150,10 @@ export default function Home() {
         />
       )}
 
-      {screen === "customers" && (
-        <CustomerSelectScreen
-          standalone
-          onBack={() => setScreen("dashboard")}
-          onSelectCustomer={() => {}}
-          onNewCustomer={() => {}}
-        />
-      )}
-
       {screen === "new-report" && (
         <NewReportForm
           initialCustomer={selectedCustomer}
-          onBack={() => setScreen("customer-select")}
+          onBack={() => setScreen("dashboard")}
           onGenerate={handleGenerate}
           onSaveForLater={() => setScreen("dashboard")}
         />

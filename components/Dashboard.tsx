@@ -109,7 +109,6 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
   const [reports, setReports] = useState<ServiceReport[]>([]);
   const [view, setView] = useState<View>("dashboard");
   const [profile, setProfile] = useState<BusinessProfile>(DEFAULT_BUSINESS);
-  const [customerCount, setCustomerCount] = useState(0);
   const { user, signOut } = useAuth();
   const firstName = profile.technicianName.split(" ")[0];
 
@@ -117,7 +116,6 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setProfile(getBusinessProfile());
     migrateCustomersFromReports();
-    setCustomerCount(getCustomers().length);
     const stored = getReports();
     const allDemo = stored.length > 0 && stored.every((r) => r.id.startsWith("sample_"));
     if (process.env.NODE_ENV !== "production" && (stored.length === 0 || allDemo)) {
@@ -269,21 +267,13 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
           Start New Job
         </button>
 
-        {/* Customers */}
+        {/* Existing customer */}
         <button
           onClick={onCustomers}
-          className="w-full rounded-2xl p-4 flex items-center gap-3 bg-white shadow-card hover:bg-blue-50 active:scale-[0.99] transition-all"
+          className="w-full bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white rounded-2xl h-14 flex items-center justify-center gap-2.5 font-bold text-base transition-colors shadow-sm"
         >
-          <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center shrink-0">
-            <Users className="w-5 h-5 text-blue-500" />
-          </div>
-          <div className="text-left flex-1">
-            <p className="text-sm font-bold text-slate-900">Customers</p>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {customerCount === 0 ? "No customers yet" : `${customerCount} saved`}
-            </p>
-          </div>
-          <ChevronRight className="w-4 h-4 text-slate-300 shrink-0" />
+          <Users className="w-5 h-5" />
+          Existing Customer
         </button>
 
         {/* Folder cards */}

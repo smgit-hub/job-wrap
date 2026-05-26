@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, Search, UserPlus, MapPin, Wrench, Pencil, Trash2, CheckCircle2, StickyNote, Phone, Mail } from "lucide-react";
+import { ChevronLeft, Search, UserPlus, MapPin, Pencil, Trash2, CheckCircle2, StickyNote, Phone, Mail, ArrowRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Customer } from "@/types/report";
@@ -107,6 +107,23 @@ export default function CustomerSelectScreen({
     deleteCustomer(editingCustomer.id);
     reload();
     setMode("list");
+  }
+
+  function handleStartJob() {
+    if (!editingCustomer || !editForm.name.trim()) return;
+    // Save any unsaved edits before handing off to the job flow
+    const updated: Customer = {
+      ...editingCustomer,
+      name: editForm.name.trim(),
+      address: editForm.address.trim(),
+      equipmentDetails: editForm.equipmentDetails.trim(),
+      siteNotes: editForm.siteNotes.trim(),
+      phone: editForm.phone.trim() || undefined,
+      email: editForm.email.trim() || undefined,
+      updatedAt: new Date().toISOString(),
+    };
+    saveCustomer(updated);
+    onSelectCustomer(updated);
   }
 
   const filtered = query.trim()
@@ -260,13 +277,28 @@ export default function CustomerSelectScreen({
           )}
         </main>
 
-        {/* Save button */}
+        {/* Footer actions */}
         <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
-          <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer">
+          <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer space-y-2">
+            {/* Standalone edit: Start job is the primary CTA */}
+            {!isNew && standalone && (
+              <button
+                onClick={handleStartJob}
+                disabled={!editForm.name.trim()}
+                className="w-full h-14 rounded-2xl text-base font-bold text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:bg-slate-300 transition-colors shadow-md shadow-orange-200/50 flex items-center justify-center gap-2"
+              >
+                Start job for {editForm.name.trim() || "customer"}
+                <ArrowRight className="w-5 h-5" />
+              </button>
+            )}
             <button
               onClick={handleSaveEdit}
               disabled={!editForm.name.trim()}
-              className="w-full h-14 rounded-2xl text-base font-bold text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:bg-slate-300 transition-colors shadow-md shadow-orange-200/50"
+              className={
+                !isNew && standalone
+                  ? "w-full h-11 rounded-2xl text-sm font-semibold text-slate-600 bg-white border border-slate-200 active:bg-slate-50 transition-colors"
+                  : "w-full h-14 rounded-2xl text-base font-bold text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:bg-slate-300 transition-colors shadow-md shadow-orange-200/50"
+              }
             >
               {isNew ? "Add Customer" : "Save Changes"}
             </button>
@@ -310,14 +342,30 @@ export default function CustomerSelectScreen({
           </div>
         )}
 
+        {/* New customer button — always at top when customers exist */}
+        {customers.length > 0 && (
+          <button
+            onClick={standalone ? openNew : onNewCustomer}
+            className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50 text-orange-500 active:bg-orange-100 transition-colors"
+          >
+            <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+              <UserPlus className="w-5 h-5" />
+            </div>
+            <div className="text-left">
+              <p className="font-semibold text-sm">New customer</p>
+              <p className="text-xs text-orange-400">Add a new customer record</p>
+            </div>
+          </button>
+        )}
+
         {/* Customer list */}
         {filtered.length > 0 && (
           <div className="bg-white rounded-2xl shadow-card overflow-hidden divide-y divide-slate-50">
             {filtered.map((customer) => (
               <div key={customer.id} className="flex items-center">
-                {/* Main tap target — select for job or open edit in standalone mode */}
+                {/* Main tap target — always starts a job for this customer */}
                 <button
-                  onClick={(e) => standalone ? openEdit(e, customer) : onSelectCustomer(customer)}
+                  onClick={() => onSelectCustomer(customer)}
                   className="flex-1 flex items-center gap-3 pl-4 pr-2 py-3.5 text-left active:bg-slate-50 transition-colors min-w-0"
                 >
                   <div className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center shrink-0 text-white text-sm font-bold">
@@ -333,37 +381,17 @@ export default function CustomerSelectScreen({
                         {customer.address}
                       </span>
                     )}
-                    {customer.equipmentDetails && (
-                      <span className="text-xs text-slate-400 truncate flex items-center gap-1 mt-0.5">
-                        <Wrench className="w-3 h-3 shrink-0" />
-                        {customer.equipmentDetails}
-                      </span>
-                    )}
-                    {customer.phone && (
-                      <span className="text-xs text-slate-400 truncate flex items-center gap-1 mt-0.5">
-                        <Phone className="w-3 h-3 shrink-0" />
-                        {customer.phone}
-                      </span>
-                    )}
-                    {customer.siteNotes && (
-                      <span className="text-xs text-slate-400 truncate flex items-center gap-1 mt-0.5">
-                        <StickyNote className="w-3 h-3 shrink-0" />
-                        {customer.siteNotes}
-                      </span>
-                    )}
                   </div>
                 </button>
 
-                {/* Edit button — separate tap target (hidden in standalone mode where row tap opens edit) */}
-                {!standalone && (
-                  <button
-                    onClick={(e) => openEdit(e, customer)}
-                    className="w-10 h-10 flex items-center justify-center shrink-0 mr-2 rounded-xl text-slate-300 active:text-slate-500 active:bg-slate-50 transition-colors"
-                    aria-label={`Edit ${customer.name}`}
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                )}
+                {/* Edit button */}
+                <button
+                  onClick={(e) => openEdit(e, customer)}
+                  className="w-10 h-10 flex items-center justify-center shrink-0 mr-2 rounded-xl text-slate-300 active:text-slate-500 active:bg-slate-50 transition-colors"
+                  aria-label={`Edit ${customer.name}`}
+                >
+                  <Pencil className="w-4 h-4" />
+                </button>
               </div>
             ))}
           </div>
@@ -390,27 +418,14 @@ export default function CustomerSelectScreen({
           </div>
         )}
 
-        {/* New customer button */}
-        {customers.length === 0 ? (
+        {/* New customer button — empty state only (when customers exist, button is at top) */}
+        {customers.length === 0 && (
           <button
             onClick={standalone ? openNew : onNewCustomer}
             className="w-full h-14 rounded-2xl text-base font-bold text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700 transition-colors shadow-md shadow-orange-200/50 flex items-center justify-center gap-2"
           >
             <UserPlus className="w-5 h-5" />
             New customer
-          </button>
-        ) : (
-          <button
-            onClick={standalone ? openNew : onNewCustomer}
-            className="w-full flex items-center gap-3 px-4 py-4 rounded-2xl border-2 border-dashed border-orange-200 bg-orange-50 text-orange-500 active:bg-orange-100 transition-colors"
-          >
-            <div className="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
-              <UserPlus className="w-5 h-5" />
-            </div>
-            <div className="text-left">
-              <p className="font-semibold text-sm">New customer</p>
-              <p className="text-xs text-orange-400">Start fresh — details saved after the job</p>
-            </div>
           </button>
         )}
 
