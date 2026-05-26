@@ -28,9 +28,15 @@ cp .env.local.example .env.local
 
 | Variable | Required | Description |
 |---|---|---|
-| `ANTHROPIC_API_KEY` | Yes (for AI) | Your Anthropic API key from [console.anthropic.com](https://console.anthropic.com/) |
-| `AI_MODEL` | No | Model to use. Default: `claude-haiku-4-5-20251001`. Options: `claude-haiku-4-5-20251001`, `claude-sonnet-4-6`, `claude-opus-4-7` |
-| `AI_PROVIDER` | No | Default: `anthropic`. Future: `openai` |
+| `ANTHROPIC_API_KEY` | No | Anthropic API key — [console.anthropic.com](https://console.anthropic.com/) |
+| `GOOGLE_GENERATIVE_AI_API_KEY` | No | Google Gemini key — [aistudio.google.com](https://aistudio.google.com/app/apikey) |
+| `OPENAI_API_KEY` | No | OpenAI key — [platform.openai.com](https://platform.openai.com/api-keys) |
+| `AI_PROVIDER` | No | Override provider: `anthropic`, `gemini`, `openai`, `mock`. Auto-detected from whichever key is set. |
+| `AI_MODEL` | No | Override model. Defaults: Anthropic `claude-haiku-4-5-20251001`, Gemini `gemini-2.5-flash`, OpenAI `gpt-4o-mini` |
+| `NEXT_PUBLIC_SUPABASE_URL` | No | Supabase project URL — enables auth and cloud sync |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | No | Supabase anon key |
+
+Without any AI key the app silently falls back to mock generation. Without Supabase keys the app runs in localStorage-only mode with no auth.
 
 ---
 
@@ -43,7 +49,7 @@ cp .env.local.example .env.local
 | Styling | Tailwind CSS v4 |
 | Components | shadcn/ui |
 | Icons | Lucide React |
-| Persistence | localStorage (draft only) |
+| Persistence | localStorage (reports, customers, photos, business profile) |
 | Voice | Web Speech API (browser-native) |
 | AI | Anthropic Claude API |
 
@@ -53,24 +59,32 @@ cp .env.local.example .env.local
 
 ```
 app/
-  page.tsx                       — Root screen router
-  api/generate-report/route.ts   — AI generation API route (server-side)
+  page.tsx                           — Root screen router
+  login/page.tsx                     — /login route
+  signup/page.tsx                    — /signup route
+  privacy/page.tsx                   — /privacy static page
+  r/[token]/page.tsx                 — Public shareable report view
+  api/generate-report/route.ts       — AI generation API route (server-side)
+  api/export-pdf/route.ts            — Server-side PDF generation via @react-pdf/renderer
+  api/share-report/route.ts          — Shared report link creation (requires Supabase)
+  api/extract-equipment/route.ts     — Vision OCR for equipment nameplates
 
 components/
   Dashboard.tsx          — Report list + new report CTA
-  NewReportForm.tsx      — Step 1: Job details / Step 2: Voice + notes
+  NewReportForm.tsx      — Step 1: Voice recording / Step 2: Confirm details
   ReportEditor.tsx       — Generated report editor
-  ReportPreview.tsx      — On-screen preview + PDF export trigger
-  PrintableReport.tsx    — Inline-styled A4 template (rasterized for PDF)
+  ReportPreview.tsx      — On-screen preview + PDF/share actions
   BrandingSettings.tsx   — Business name, colours, contact info
+  CustomerSelectScreen.tsx — Customer list, search, add/edit
   StepIndicator.tsx      — 4-step progress indicator
+  PhotoSection.tsx       — Before/after photo capture and management
 
 hooks/
   useSpeechRecognition.ts — Web Speech API hook
 
 lib/
   ai/generateReport.ts    — AI provider logic + prompt engineering
-  pdf/exportReportPdf.ts  — html2canvas + jsPDF export utility
+  pdf/reportPdfDocument.tsx — React PDF document (server-side, @react-pdf/renderer)
   mockReportGenerator.ts  — Fallback mock generator (dev / no API key)
   storage.ts              — localStorage read/write helpers
   sampleData.ts           — Sample reports for first-load seeding
@@ -84,12 +98,13 @@ types/
 
 ## User workflow
 
-1. **Dashboard** — view recent reports, tap **New Service Report**
-2. **Job Details** (Step 1) — customer, address, service type, date, equipment
-3. **Job Notes** (Step 2) — tap **Record Job Notes**, speak the job, tap **Stop Recording**; or type
-4. **Generate Report** — AI generates structured sections via `POST /api/generate-report`
-5. **Report Editor** (Step 3) — review and edit each section; save at any time
-6. **Report Preview** (Step 4) — branded customer-facing view; PDF/Share buttons stubbed
+1. **Dashboard** — view recent reports, tap **Start New Job**
+2. **Customer Select** — choose a returning customer or start fresh
+3. **Job Notes** (Step 1) — tap mic to speak the job, or type; AI structures the report
+4. **Confirm Details** (Step 2) — verify customer, address, service type, date
+5. **Generate Report** — AI generates structured sections via `POST /api/generate-report`
+6. **Report Editor** (Step 3) — review and edit each section; photos attached here
+7. **Report Preview** (Step 4) — branded customer-facing view; PDF / Share / Email actions
 
 Settings (gear icon on dashboard) allow business name, contact, and brand colour changes.
 
@@ -118,17 +133,17 @@ Settings (gear icon on dashboard) allow business name, contact, and brand colour
 
 ### Prompt engineering
 
-The prompt lives in `lib/ai/generateReport.ts` → `buildPrompt()`. Key constraints baked in:
+The prompt lives in `lib/ai/prompt.ts` → `buildPrompt()`. Key constraints baked in:
 - Never invent measurements, readings, or values not in the notes
 - Plain professional English — no marketing tone, no jargon
 - Short, readable bullet sections for field reports
 - Works across service verticals (not HVAC-hardcoded)
 
-To tune the output, edit `buildPrompt()`. The swap comments inside that file point to where few-shot examples, multi-language support, and template IDs should go.
+To tune the output, edit `buildPrompt()` in `lib/ai/prompt.ts`.
 
 ### Swapping AI providers
 
-Set `AI_PROVIDER=openai` and add an `OPENAI_API_KEY`. Then implement `callOpenAI()` in `lib/ai/generateReport.ts` — the `buildPrompt()` and `parseResponse()` helpers are shared. `NewReportForm.tsx` and `page.tsx` need zero changes.
+Set `AI_PROVIDER` to `anthropic`, `openai`, or `gemini`. All three providers are implemented in `lib/ai/providers/` and share the same `buildPrompt()` / `parseResponse()` from `lib/ai/prompt.ts`. `NewReportForm.tsx` and `page.tsx` need zero changes.
 
 ---
 
@@ -159,47 +174,29 @@ The `useSpeechRecognition` hook wraps the browser Web Speech API:
 
 ### How it works
 
-1. User taps **Save PDF** on the report preview screen
-2. `html2canvas` rasterizes the off-screen `PrintableReport` component at 2× pixel density
-3. `jsPDF` embeds the canvas as a JPEG and handles multi-page A4 layout
-4. Browser downloads the file as `customer-name_service-report_YYYY-MM-DD.pdf`
+1. User taps **Print / PDF** on the report preview screen
+2. `ReportPreview` posts `{ report, photos }` to `POST /api/export-pdf`
+3. The API route renders `lib/pdf/reportPdfDocument.tsx` server-side via `@react-pdf/renderer`
+4. The response is a binary PDF stream; the browser saves it via a hidden `<a download>`
 
-`jspdf` and `html2canvas` are dynamically imported — they only load when the user taps the button, keeping the initial page bundle small.
+### PDF layout
 
-### PrintableReport design
-
-`components/PrintableReport.tsx` uses **100% inline styles** (no Tailwind). This is intentional — `html2canvas` does not reliably capture Tailwind utility classes, which are purged and may be absent from the captured CSS context. Inline styles are always captured correctly.
-
-The PDF layout:
-- Branded header bar (business brand colour + business initials)
+`lib/pdf/reportPdfDocument.tsx` uses only React PDF primitives (`View`, `Text`, `Image`):
+- Branded header bar (business brand colour, optional logo)
 - Customer & job info grid
-- Work Completed, Observations, Recommendations (bullet lists)
-- Customer Notes, Follow-Up callout, Technician Summary
+- Customer summary, Work Performed, Diagnostics, Recommendations (bullet lists)
+- Before/after job photos (if attached)
 - Footer with thank-you message and business contact details
-- Report generation timestamp
-
-### Multi-page support
-
-Reports that exceed one A4 page are automatically split across pages using jsPDF's repeated-image-with-offset technique.
+- Fixed page-number bar on every page
 
 ### Export states
 
 | State | Button shows |
 |---|---|
-| `idle` | Save PDF |
-| `generating` | Spinner + "Generating PDF…" |
-| `done` | Checkmark + "PDF Saved" (resets after 3 s) |
+| `idle` | Print / PDF |
+| `generating` | Spinner + "Building…" |
+| `done` | Checkmark + "Opened!" (resets after 3 s) |
 | `error` | Error card below preview |
-
-### Future PDF improvements
-
-See `lib/pdf/exportReportPdf.ts` for TODO comments:
-- Server-side Puppeteer rendering for vector text output
-- Multiple branded templates (compact, formal, photo-first)
-- Photo attachment pages (before/after images)
-- Customer signature block
-- Email sending directly from the app
-- Shared customer link (read-only URL)
 
 ---
 
@@ -234,7 +231,7 @@ See `lib/pdf/exportReportPdf.ts` for TODO comments:
 |---|---|---|
 | Reports | localStorage only | DB (cloud) |
 | Business settings | localStorage | DB (cloud) |
-| Logo | Not available | Upload to Storage |
+| Logo | localStorage (canvas-compressed PNG) | Upload to Storage |
 | Auth | None | Email/password, with `/login` `/signup` |
 | Middleware | Passthrough | Redirects unauthenticated users to `/login` |
 
@@ -265,7 +262,7 @@ app/
   login/page.tsx            — /login route
   signup/page.tsx           — /signup route
 
-middleware.ts               — Conditional auth enforcement (passthrough if unconfigured)
+proxy.ts                    — Conditional auth enforcement (passthrough if unconfigured)
 
 types/
   database.ts               — TypeScript types mirroring the DB schema
@@ -280,8 +277,12 @@ types/
 | ✅ **1** | Frontend scaffold, mock generation, localStorage |
 | ✅ **2** | Browser speech-to-text (Web Speech API) |
 | ✅ **3** | Real AI generation via `POST /api/generate-report` (Claude / OpenAI) |
-| ✅ **4** | Branded PDF export (`html2canvas` + `jsPDF`, client-side) |
+| ✅ **4** | Branded PDF export (server-side `@react-pdf/renderer`) |
 | ✅ **5** | Supabase Auth + Postgres + Storage (logo upload, cloud sync) |
+| ✅ **6** | Customer management (persistent customer list, autofill on new jobs) |
+| ✅ **7** | Before/after photo attachments (camera + gallery picker, shown in PDF) |
+| ✅ **8** | Shareable report links (token-based public URL via Supabase) |
+| ✅ **9** | Business branding (logo upload, brand colour, live preview) |
 
 ---
 
@@ -289,8 +290,8 @@ types/
 
 On first load, three sample HVAC reports are seeded into localStorage:
 
-- **Sandra Kowalski** — Preventative Maintenance (complete)
-- **David Nguyen** — Repair Service (complete)
-- **Rita Patel** — System Inspection (draft)
+- **Tom Ashworth** — Annual Gas Heating Service, Preventative Maintenance (complete)
+- **Priya Sharma** — Emergency Call, Failed Start Capacitor (complete)
+- **James & Rachel Torres** — New Ductless Mini-Split Installation (complete)
 
-Business profile defaults to **Arctic Air HVAC Services** (customisable in Settings).
+Business profile defaults to **Apex Climate Services** (customisable in Settings).

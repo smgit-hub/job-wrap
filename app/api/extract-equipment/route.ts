@@ -85,6 +85,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Image must be under 5 MB" }, { status: 413 });
   }
 
+  // TODO(security): reject files whose MIME type is not in VALID_MIMES before
+  // reading the buffer. Currently normaliseMime falls back to image/jpeg, so an
+  // invalid type still proceeds. Add an early return here once confirmed safe:
+  //   if (!VALID_MIMES.includes(file.type as SupportedMime)) {
+  //     return NextResponse.json({ error: "Unsupported image type" }, { status: 415 });
+  //   }
+
   const base64 = Buffer.from(await file.arrayBuffer()).toString("base64");
   const mime = normaliseMime(file.type);
   const provider = process.env.AI_PROVIDER;

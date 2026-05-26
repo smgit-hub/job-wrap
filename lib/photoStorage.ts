@@ -1,3 +1,9 @@
+// TODO(performance): photos are stored as base64 JPEG in localStorage.
+// A 900px JPEG at 0.75 quality averages ~100–200 KB per photo; 6 photos per
+// report × many reports can exhaust the 5 MB localStorage quota quickly.
+// For production, migrate photo storage to IndexedDB (no practical quota) or
+// to Supabase Storage (see lib/supabase/queries/storage.ts — "report-images" bucket TODO).
+
 import type { JobPhoto } from "@/types/report";
 
 const PHOTOS_KEY = "jobwrap_photos";
@@ -18,8 +24,17 @@ function setAll(data: Record<string, JobPhoto[]>): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(PHOTOS_KEY, JSON.stringify(data));
-  } catch {
-    // localStorage full — photos won't save silently
+  } catch (err) {
+    // QuotaExceededError is very common here because base64 photos are large.
+    if (err instanceof DOMException && err.name === "QuotaExceededError") {
+      console.warn(
+        "[photoStorage] localStorage quota exceeded — photos could not be saved. " +
+        "This is expected once many photo-rich reports are stored. " +
+        "Migrate to IndexedDB or Supabase Storage to resolve."
+      );
+    } else {
+      console.warn("[photoStorage] localStorage.setItem failed:", err);
+    }
   }
 }
 

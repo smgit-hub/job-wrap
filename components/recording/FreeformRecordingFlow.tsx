@@ -6,7 +6,7 @@
 // ---------------------------------------------------------------------------
 
 import { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ArrowRight, Mic, Square, Loader2, MicOff, X } from "lucide-react";
+import { ChevronLeft, ArrowRight, Mic, Square, Loader2, MicOff } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import type { JobDetails, VoiceNotes } from "@/types/report";
@@ -45,8 +45,6 @@ const HINTS = [
       /\brecommend|\bsuggest|\bshould\b|\bbook\b|\bschedul|\breplac|\bnext service|\bfollow.?up|\bmonitor/i.test(t),
   },
 ] as const;
-
-
 
 interface FreeformRecordingFlowProps {
   job: JobDetails;
@@ -116,7 +114,10 @@ export default function FreeformRecordingFlow({
   const hasEnoughText = text.trim().length >= 5;
   const isStopping = speech.state === "stopping";
 
-  // While recording, show committed text + live transcript directly in the textarea
+  // While recording, show committed text + live transcript directly in the textarea.
+  // Reading textBeforeRecordingRef.current during render is intentional — the ref
+  // captures the pre-recording snapshot and doesn't need to trigger re-renders.
+  /* eslint-disable react-hooks/refs */
   const displayValue = speech.isListening
     ? (() => {
         const base = textBeforeRecordingRef.current.trim();
@@ -124,6 +125,7 @@ export default function FreeformRecordingFlow({
         return base && live ? `${base}\n${live}` : base || live;
       })()
     : text;
+  /* eslint-enable react-hooks/refs */
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">

@@ -1,3 +1,12 @@
+// TODO(error-handling): wrap AuthProvider (or the entire body) in an error
+// boundary component so unhandled React render errors show a graceful fallback
+// instead of a blank white screen. React 19 added improved error recovery but
+// an explicit boundary is still required for production.
+//
+// TODO(offline): there is currently no offline detection or SW-based caching.
+// Consider adding a basic service worker (Next.js PWA plugin or custom SW) that
+// caches the app shell so the app is usable when the device has no network.
+
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { AuthProvider } from "@/components/auth/AuthProvider";

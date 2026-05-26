@@ -27,8 +27,8 @@ function BulletSection({ text }: { text: string }) {
   return (
     <ul className="space-y-2">
       {lines.map((line, i) => (
-        <li key={i} className="flex gap-2.5 text-sm text-gray-700 leading-relaxed">
-          <span className="shrink-0 mt-1 text-[8px] text-orange-400">◆</span>
+        <li key={i} className="flex gap-2 text-sm text-gray-700 leading-relaxed">
+          <span className="shrink-0 text-slate-400 w-3 text-center">•</span>
           <span>{line.replace(/^[•\-]\s*/, "")}</span>
         </li>
       ))}
@@ -92,7 +92,7 @@ export default async function SharedReportPage({
   const report = data.report_data as unknown as ServiceReport;
   const photos = (data.photos ?? []) as JobPhoto[];
   const { business, job, report: rpt } = report;
-  const HEADER_COLOR = "#0f172a";
+  const headerColor = business.brandColor || "#0f172a";
 
   return (
     <div className="min-h-screen bg-slate-100 py-6 px-4">
@@ -102,18 +102,33 @@ export default async function SharedReportPage({
         <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-100">
 
           {/* Branded header */}
-          <div className="px-5 py-5" style={{ backgroundColor: HEADER_COLOR }}>
-            <p className="text-lg font-bold text-white leading-tight">
-              {business.businessName}
-            </p>
-            {business.technicianName && (
-              <p className="text-white/70 text-sm mt-0.5">
-                Technician: {business.technicianName}
-              </p>
-            )}
-            {business.tagline && (
-              <p className="text-white/50 text-xs mt-1.5">{business.tagline}</p>
-            )}
+          <div className="px-5 py-5" style={{ backgroundColor: headerColor }}>
+            <div className="flex items-center gap-3">
+              {business.logoUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={business.logoUrl}
+                  alt=""
+                  className="w-10 h-10 rounded-xl object-contain bg-white/10 shrink-0"
+                />
+              )}
+              <div>
+                <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">
+                  Service Report
+                </p>
+                <p className="text-lg font-bold text-white leading-tight">
+                  {business.businessName}
+                </p>
+                {business.technicianName && (
+                  <p className="text-white/70 text-sm mt-0.5">
+                    Technician: {business.technicianName}
+                  </p>
+                )}
+                {business.tagline && (
+                  <p className="text-white/50 text-xs mt-1.5">{business.tagline}</p>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Prepared for */}

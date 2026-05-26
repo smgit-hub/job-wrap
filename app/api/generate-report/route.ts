@@ -4,6 +4,12 @@
 //
 // TODO (future): add rate limiting (e.g. Upstash) before public deployment.
 // TODO (future): once Supabase Auth is wired to this route, validate session token.
+//
+// Prompt injection note: user strings (customerName, voiceNotes, etc.) are
+// interpolated into the prompt in lib/ai/prompt.ts. The prompt structure uses
+// labelled sections and a strict JSON output constraint which limits injection
+// risk considerably. For additional hardening, consider truncating field lengths
+// before passing to buildPrompt() — e.g. cap voiceNotes fields at 2000 chars.
 
 export const runtime = "nodejs";
 
@@ -54,17 +60,23 @@ export async function POST(request: Request) {
     );
   }
 
+  // Truncate string fields to prevent excessively large prompts and reduce
+  // prompt injection surface. Field lengths are generous for real-world use.
+  function truncate(s: string, max: number): string {
+    return s.length > max ? s.slice(0, max) : s;
+  }
+
   const input = {
     serviceType,
-    customServiceType: str(body.customServiceType) || undefined,
-    customerName: str(body.customerName),
-    technicianName: str(body.technicianName),
+    customServiceType: truncate(str(body.customServiceType), 80) || undefined,
+    customerName: truncate(str(body.customerName), 120),
+    technicianName: truncate(str(body.technicianName), 120),
     jobDate: str(body.jobDate, new Date().toISOString().split("T")[0]),
     voiceNotes: {
-      equipmentDetails: str(voiceNotes?.equipmentDetails).trim(),
-      workCompleted: workCompleted.trim(),
-      diagnostics: str(voiceNotes?.diagnostics).trim(),
-      recommendations: str(voiceNotes?.recommendations).trim(),
+      equipmentDetails: truncate(str(voiceNotes?.equipmentDetails).trim(), 500),
+      workCompleted: truncate(workCompleted.trim(), 2000),
+      diagnostics: truncate(str(voiceNotes?.diagnostics).trim(), 2000),
+      recommendations: truncate(str(voiceNotes?.recommendations).trim(), 1000),
     },
   };
 

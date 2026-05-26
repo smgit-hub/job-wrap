@@ -16,6 +16,11 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
   const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
 
+  // 20 MB raw limit — compressImage will downscale anyway, but we refuse
+  // clearly oversized files early to avoid hanging the UI on a 100 MB HEIC.
+  const MAX_RAW_BYTES = 20 * 1024 * 1024;
+  const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/gif", "image/webp", "image/heic", "image/heif"]);
+
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
     const slots = MAX_PHOTOS - photos.length;
@@ -24,6 +29,15 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
 
     const newPhotos: JobPhoto[] = [];
     for (const file of toProcess) {
+      // Validate file type and size before attempting compression
+      if (!ALLOWED_TYPES.has(file.type) && !file.name.match(/\.(jpg|jpeg|png|gif|webp|heic|heif)$/i)) {
+        console.warn(`[PhotoSection] Skipping unsupported file type: ${file.type}`);
+        continue;
+      }
+      if (file.size > MAX_RAW_BYTES) {
+        console.warn(`[PhotoSection] Skipping file over 20 MB: ${file.name} (${file.size} bytes)`);
+        continue;
+      }
       try {
         const dataUrl = await compressImage(file);
         // First photo added to an empty report defaults to "before",
@@ -80,6 +94,7 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
               {/* Before / After label toggle */}
               <button
                 onClick={() => toggleLabel(photo.id)}
+                aria-label={`Toggle photo label — currently ${photo.label === "before" ? "Before" : "After"}`}
                 className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-black/55 active:bg-black/75 transition-colors"
               >
                 {photo.label === "before" ? "Before" : "After"}
@@ -103,6 +118,7 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
         <div className="flex gap-2">
           <button
             onClick={() => cameraRef.current?.click()}
+            aria-label="Take a photo with camera"
             className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 border-dashed border-orange-200 bg-orange-50 text-orange-500 text-sm font-semibold active:bg-orange-100 transition-colors"
           >
             <Camera className="w-4 h-4" />
@@ -110,6 +126,7 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
           </button>
           <button
             onClick={() => galleryRef.current?.click()}
+            aria-label="Choose photo from gallery"
             className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 border-dashed border-orange-200 bg-orange-50 text-orange-500 text-sm font-semibold active:bg-orange-100 transition-colors"
           >
             <ImagePlus className="w-4 h-4" />

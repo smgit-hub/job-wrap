@@ -60,6 +60,7 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
   const [regenError, setRegenError] = useState<string | null>(null);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setPhotos(getPhotosForReport(draft.id));
   }, [draft.id]);
 

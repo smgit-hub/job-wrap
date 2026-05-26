@@ -114,6 +114,9 @@ export async function deleteReportFromDb(id: string): Promise<boolean> {
   const client = getSupabaseBrowserClient();
   if (!client) return false;
 
+  // TODO(security): RLS enforces user_id ownership for this DELETE, but the
+  // client still sends the raw row UUID. Confirm RLS policy "reports: delete own"
+  // in 002_rls_policies.sql is applied before exposing this to the internet.
   const { error } = await client.from("reports").delete().eq("id", id);
 
   if (error) {

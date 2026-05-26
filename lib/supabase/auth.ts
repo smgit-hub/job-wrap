@@ -9,6 +9,11 @@
 // TODO (future): add team / multi-user support via Supabase organization features
 // ---------------------------------------------------------------------------
 
+// Security note: Supabase stores the session JWT in localStorage by default.
+// No passwords or raw credentials are written to localStorage by this app.
+// TODO(security): if the app handles regulated data in future (HIPAA/GDPR),
+// consider switching to a secure httpOnly cookie strategy via @supabase/ssr.
+
 import { getSupabaseBrowserClient } from "./client";
 import type { User, Session, AuthError } from "@supabase/supabase-js";
 

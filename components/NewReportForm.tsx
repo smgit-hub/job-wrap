@@ -70,7 +70,9 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate }: N
     if (raw.voiceNotes) {
       raw.voiceNotes = { ...EMPTY_VOICE_NOTES, ...raw.voiceNotes };
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setJob(raw as JobDetails);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -93,6 +95,11 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate }: N
     window.scrollTo({ top: 0 });
   }
 
+  // TODO(performance): if generation takes >15 s, show a "Still working…" message
+  // to reassure the user. The AI providers all have 30 s timeouts server-side
+  // (see lib/ai/providers/*) but no progress feedback is shown client-side.
+  // Consider: add a useEffect that sets a "taking longer than expected" flag after
+  // 12 s of isGenerating === true and renders a secondary status line.
   async function handleGenerate() {
     setIsGenerating(true);
     setGenerateError(null);
@@ -141,7 +148,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate }: N
       <main className="flex-1 max-w-lg mx-auto w-full px-4 pt-6 pb-32 space-y-5">
         <div>
           <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">Confirm Details</h2>
-          <p className="text-sm text-slate-500 mt-0.5">We've filled in what we caught — correct anything that's wrong.</p>
+          <p className="text-sm text-slate-500 mt-0.5">We&apos;ve filled in what we caught — correct anything that&apos;s wrong.</p>
         </div>
 
         {/* Customer Name */}
@@ -239,8 +246,15 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate }: N
       </main>
 
       {/* Sticky Generate button */}
+      {/* TODO(mobile): when a text input is focused on iOS the virtual keyboard pushes this
+          bar up, which is correct, but the bar may obscure the focused input on short screens.
+          Consider using the VirtualKeyboard API (Chrome) or a scroll-into-view workaround. */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
         <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer">
+          <p className="text-center text-[11px] text-slate-400 mb-2">
+            Job notes are sent to an AI service to generate the report.{" "}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-500">Learn more</a>
+          </p>
           <button
             onClick={handleGenerate}
             disabled={isGenerating}

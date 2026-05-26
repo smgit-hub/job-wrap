@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Customer } from "@/types/report";
 import { getCustomers, saveCustomer, deleteCustomer, migrateCustomersFromReports } from "@/lib/storage";
-import { cn } from "@/lib/utils";
 
 interface CustomerSelectScreenProps {
   onBack: () => void;

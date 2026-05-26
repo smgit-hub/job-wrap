@@ -11,7 +11,7 @@ export const DEFAULT_BUSINESS: BusinessProfile = {
   phone: "+1 555 012 3456",
   email: "hello@apexclimate.com",
   licenseNumber: "REG-2024-0147",
-  brandColor: "#0ea5e9",
+  brandColor: "#0f172a",
   tagline: "",
   website: "",
 };
@@ -30,8 +30,20 @@ function safeSet(key: string, value: unknown): void {
   if (typeof window === "undefined") return;
   try {
     localStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // localStorage may be unavailable in private mode
+  } catch (err) {
+    // QuotaExceededError: storage full (common when base64 photos accumulate).
+    // Log a visible warning so the developer/user is aware data was not saved.
+    // TODO(performance): consider evicting the oldest reports when quota is
+    // exceeded, or moving photo storage to IndexedDB (larger quota, binary).
+    if (err instanceof DOMException && err.name === "QuotaExceededError") {
+      console.warn(
+        `[storage] localStorage quota exceeded — could not save key "${key}". ` +
+        "Consider clearing old reports or moving photos to IndexedDB."
+      );
+    } else {
+      // Other failures (e.g. private mode / security restrictions) — still log
+      console.warn(`[storage] localStorage.setItem("${key}") failed:`, err);
+    }
   }
 }
 

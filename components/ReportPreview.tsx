@@ -1,15 +1,12 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, CheckCircle2, Loader2, AlertCircle, Share2, Copy, Mail, Printer, Save, Link } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
-import PrintableReport from "@/components/PrintableReport";
-import { exportReportPdf, generateFilename } from "@/lib/pdf/exportReportPdf";
 import type { ServiceReport, JobPhoto } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
 import { getPhotosForReport } from "@/lib/photoStorage";
-
 
 interface ReportPreviewProps {
   report: ServiceReport;
@@ -68,7 +65,7 @@ function buildPlainText(report: ServiceReport): string {
   return lines.join("\n");
 }
 
-function BulletSection({ text, accentColor }: { text: string; accentColor?: string }) {
+function BulletSection({ text }: { text: string }) {
   const lines = text
     .split("\n")
     .map((l) => l.trim())
@@ -76,10 +73,8 @@ function BulletSection({ text, accentColor }: { text: string; accentColor?: stri
   return (
     <ul className="space-y-2">
       {lines.map((line, i) => (
-        <li key={i} className="flex gap-2.5 text-sm text-gray-700 leading-relaxed">
-          <span className="shrink-0 mt-1 text-[8px]" style={{ color: accentColor ?? "#f97316" }}>
-            ◆
-          </span>
+        <li key={i} className="flex gap-2 text-sm text-gray-700 leading-relaxed">
+          <span className="shrink-0 text-slate-400 w-3 text-center">•</span>
           <span>{line.replace(/^[•\-]\s*/, "")}</span>
         </li>
       ))}
@@ -89,10 +84,8 @@ function BulletSection({ text, accentColor }: { text: string; accentColor?: stri
 
 export default function ReportPreview({ report, isNewReport, onBack, onEdit, onDone }: ReportPreviewProps) {
   const { business, job, report: rpt } = report;
-  const HEADER_COLOR = "#0f172a"; // slate-900 — fixed
-  const ACCENT_COLOR = "#f97316"; // orange-500 — fixed
+  const HEADER_COLOR = business.brandColor || "#0f172a";
 
-  const printableRef = useRef<HTMLDivElement>(null);
   const [exportState, setExportState] = useState<ExportState>("idle");
   const [exportError, setExportError] = useState<string | null>(null);
   const [canShare, setCanShare] = useState(false);
@@ -101,6 +94,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
   const [photos, setPhotos] = useState<JobPhoto[]>([]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCanShare(typeof navigator !== "undefined" && typeof navigator.share === "function");
     setPhotos(getPhotosForReport(report.id));
   }, [report.id]);
@@ -152,12 +146,35 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
 
   async function handleExportPdf() {
     if (exportState === "generating") return;
-    if (!printableRef.current) return;
     setExportState("generating");
     setExportError(null);
     try {
-      const filename = generateFilename(job.customerName, job.jobDate);
-      await exportReportPdf(printableRef.current, { filename });
+      const res = await fetch("/api/export-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ report, photos }),
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error ?? "PDF generation failed");
+      }
+      // Extract filename from Content-Disposition header before consuming body
+      const disposition = res.headers.get("Content-Disposition") ?? "";
+      const match = disposition.match(/filename="([^"]+)"/);
+      const filename = match?.[1] ?? "Service Report.pdf";
+
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+
+      // Use a hidden <a download> so the browser saves with the correct filename.
+      // window.open(blobUrl) loses the Content-Disposition name and falls back to the UUID.
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 15_000);
       setExportState("done");
       setTimeout(() => setExportState("idle"), 3000);
     } catch (err) {
@@ -209,13 +226,25 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
 
           {/* Branded business header */}
           <div className="px-5 py-5" style={{ backgroundColor: HEADER_COLOR }}>
-            <p className="text-lg font-bold text-white leading-tight">{business.businessName}</p>
-            {business.technicianName && (
-              <p className="text-white/70 text-sm mt-0.5">Technician: {business.technicianName}</p>
-            )}
-            {business.tagline && (
-              <p className="text-white/50 text-xs mt-1.5">{business.tagline}</p>
-            )}
+            <div className="flex items-center gap-3">
+              {business.logoUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={business.logoUrl}
+                  alt=""
+                  className="w-10 h-10 rounded-xl object-contain bg-white/10 shrink-0"
+                />
+              )}
+              <div>
+                <p className="text-lg font-bold text-white leading-tight">{business.businessName}</p>
+                {business.technicianName && (
+                  <p className="text-white/70 text-sm mt-0.5">Technician: {business.technicianName}</p>
+                )}
+                {business.tagline && (
+                  <p className="text-white/50 text-xs mt-1.5">{business.tagline}</p>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Prepared for */}
@@ -252,7 +281,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
                 <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
                   Work Performed
                 </h3>
-                <BulletSection text={rpt.workCompleted} accentColor={ACCENT_COLOR} />
+                <BulletSection text={rpt.workCompleted} />
               </div>
             )}
 
@@ -263,7 +292,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
                   <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
                     Diagnostics & Findings
                   </h3>
-                  <BulletSection text={rpt.diagnostics} accentColor={ACCENT_COLOR} />
+                  <BulletSection text={rpt.diagnostics} />
                 </div>
               </>
             )}
@@ -275,7 +304,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
                   <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
                     Recommendations
                   </h3>
-                  <BulletSection text={rpt.recommendations} accentColor={ACCENT_COLOR} />
+                  <BulletSection text={rpt.recommendations} />
                 </div>
               </>
             )}
@@ -406,13 +435,6 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
         </div>
       </div>
 
-      {/* Hidden PrintableReport — rasterized into PDF */}
-      <div
-        style={{ position: "absolute", left: "-9999px", top: 0, backgroundColor: "#ffffff" }}
-        aria-hidden="true"
-      >
-        <PrintableReport ref={printableRef} report={report} photos={photos} />
-      </div>
     </div>
   );
 }

@@ -47,12 +47,14 @@ interface SpeechRecognition extends EventTarget {
   ): void;
 }
 
+// eslint-disable-next-line no-var
 declare var SpeechRecognition: {
   prototype: SpeechRecognition;
   new (): SpeechRecognition;
 };
 
 // webkit-prefixed variant used by Chrome, Edge, Samsung Internet
+// eslint-disable-next-line no-var
 declare var webkitSpeechRecognition: {
   prototype: SpeechRecognition;
   new (): SpeechRecognition;
@@ -109,6 +111,7 @@ interface SpeechGrammarList {
   [index: number]: SpeechGrammar;
 }
 
+// eslint-disable-next-line no-var
 declare var SpeechGrammarList: {
   prototype: SpeechGrammarList;
   new (): SpeechGrammarList;

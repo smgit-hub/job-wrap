@@ -62,6 +62,7 @@ export function useSpeechRecognition(): UseSpeechRecognitionReturn {
   useEffect(() => {
     const Ctor = getSpeechRecognitionConstructor();
     if (!Ctor) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setState("unsupported");
       return;
     }

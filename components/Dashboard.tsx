@@ -50,9 +50,12 @@ function JobCard({
   showStatus?: boolean;
 }) {
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={() => onOpen(report)}
-      className="w-full text-left bg-white rounded-2xl shadow-card hover:shadow-card-hover active:scale-[0.99] transition-all overflow-hidden"
+      onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") onOpen(report); }}
+      className="w-full text-left bg-white rounded-2xl shadow-card hover:shadow-card-hover active:scale-[0.99] transition-all overflow-hidden cursor-pointer"
     >
       <div className="flex items-center gap-3 p-4">
         <div className="w-11 h-11 rounded-2xl bg-orange-50 flex items-center justify-center shrink-0">
@@ -93,7 +96,7 @@ function JobCard({
           <ChevronRight className="w-4 h-4 text-slate-300" />
         </div>
       </div>
-    </button>
+    </div>
   );
 }
 
@@ -106,6 +109,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
   const firstName = profile.technicianName.split(" ")[0];
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setProfile(getBusinessProfile());
     migrateCustomersFromReports();
     setCustomerCount(getCustomers().length);

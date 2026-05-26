@@ -154,6 +154,13 @@
   }
 }
 
+/* TODO(a11y): text-slate-400 (#94a3b8) on white (#ffffff) has a contrast ratio
+   of approximately 2.85:1, which fails WCAG AA (requires 4.5:1 for normal text,
+   3:1 for large/bold text). It is used throughout for secondary/helper text.
+   Consider using text-slate-500 (#64748b, ~4.6:1) for any text-slate-400 that
+   conveys meaningful information, reserving text-slate-400 for purely decorative
+   or supplemental text (e.g. date stamps, icons, hints) where failure is acceptable. */
+
 @layer utilities {
   /* Gentle shadow-ring pulse for the active recording button */
   .animate-pulse-subtle {

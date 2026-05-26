@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { Wrench, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -129,6 +130,7 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
                 tabIndex={-1}
               >
@@ -171,6 +173,11 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
           <button onClick={onSignIn} className="text-orange-500 font-semibold hover:underline">
             Sign in
           </button>
+        </p>
+
+        <p className="text-center text-xs text-slate-400 mt-4">
+          By creating an account you agree to our{" "}
+          <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
         </p>
       </div>
     </div>

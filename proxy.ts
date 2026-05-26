@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-// Supabase middleware — only active when credentials are configured.
+// Auth proxy — only active when Supabase credentials are configured.
 // Without NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY the app
 // runs in localStorage-only mode and no redirect occurs.
 
