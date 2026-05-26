@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, FileText, Wrench, Settings, LogOut, Trash2, ChevronRight, CheckCircle2, Clock, ChevronLeft, Users } from "lucide-react";
+import { Plus, FileText, Wrench, Settings, LogOut, Trash2, ChevronRight, CheckCircle2, Clock, ChevronLeft, Users, FileCheck2, FileClock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { ServiceReport } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
@@ -58,8 +58,13 @@ function JobCard({
       className="w-full text-left bg-white rounded-2xl shadow-card hover:shadow-card-hover active:scale-[0.99] transition-all overflow-hidden cursor-pointer"
     >
       <div className="flex items-center gap-3 p-4">
-        <div className="w-11 h-11 rounded-2xl bg-orange-50 flex items-center justify-center shrink-0">
-          <Wrench className="w-5 h-5 text-orange-400" />
+        <div className={cn(
+          "w-11 h-11 rounded-2xl flex items-center justify-center shrink-0",
+          report.status === "complete" ? "bg-green-50" : "bg-amber-50"
+        )}>
+          {report.status === "complete"
+            ? <FileCheck2 className="w-5 h-5 text-green-500" />
+            : <FileClock className="w-5 h-5 text-amber-500" />}
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-bold text-slate-900 truncate leading-snug">

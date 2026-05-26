@@ -6,11 +6,11 @@ const BUSINESS_KEY = "jobwrap_business";
 const CUSTOMERS_KEY = "jobwrap_customers";
 
 export const DEFAULT_BUSINESS: BusinessProfile = {
-  businessName: "Apex Climate Services",
-  technicianName: "Alex Morgan",
-  phone: "+1 555 012 3456",
-  email: "hello@apexclimate.com",
-  licenseNumber: "REG-2024-0147",
+  businessName: "",
+  technicianName: "",
+  phone: "",
+  email: "",
+  licenseNumber: "",
   brandColor: "#0f172a",
   tagline: "",
   website: "",

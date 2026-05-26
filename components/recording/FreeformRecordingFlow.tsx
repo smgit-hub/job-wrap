@@ -154,6 +154,11 @@ export default function FreeformRecordingFlow({
       {/* ── Main ── */}
       <main className="flex-1 max-w-lg mx-auto w-full px-4 pt-6 pb-28 flex flex-col gap-6">
 
+        {/* ── Intro ── */}
+        <p className="text-center text-sm text-slate-500">
+          Speak naturally about the job — JobWrap will structure your report.
+        </p>
+
         {/* ── Circular mic button ── */}
         <div className="flex flex-col items-center gap-3">
           {speech.isSupported && speech.state !== "unsupported" ? (
@@ -196,6 +201,7 @@ export default function FreeformRecordingFlow({
 
         {/* Hint dots */}
         <div className="bg-white rounded-2xl px-4 py-4 shadow-card space-y-3">
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Cover these topics</p>
           {HINTS.map((hint) => {
             const covered = hint.match(text);
             return (
