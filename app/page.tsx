@@ -163,6 +163,7 @@ export default function Home() {
           initialCustomer={selectedCustomer}
           onBack={() => setScreen("customer-select")}
           onGenerate={handleGenerate}
+          onSaveForLater={() => setScreen("dashboard")}
         />
       )}
 

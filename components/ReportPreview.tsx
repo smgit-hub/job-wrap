@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, CheckCircle2, Loader2, AlertCircle, Share2, Copy, Mail, Printer, Save, Link } from "lucide-react";
+import { ChevronLeft, CheckCircle2, Loader2, AlertCircle, Share2, Copy, Mail, Download, Save, Link } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 import type { ServiceReport, JobPhoto } from "@/types/report";
@@ -416,10 +416,10 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
               ) : exportState === "done" ? (
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
               ) : (
-                <Printer className="w-5 h-5 text-slate-500" />
+                <Download className="w-5 h-5 text-slate-500" />
               )}
               <span className="text-xs font-semibold text-slate-600">
-                {exportState === "generating" ? "Building…" : exportState === "done" ? "Opened!" : "Print / PDF"}
+                {exportState === "generating" ? "Building…" : exportState === "done" ? "Downloaded!" : "Download PDF"}
               </span>
             </button>
           </div>

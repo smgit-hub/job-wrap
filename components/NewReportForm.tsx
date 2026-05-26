@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, Sparkles, Loader2, AlertCircle } from "lucide-react";
+import { ChevronLeft, Sparkles, Loader2, AlertCircle, BookmarkCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import FreeformRecordingFlow from "@/components/recording/FreeformRecordingFlow";
-import type { JobDetails, VoiceNotes, ServiceType, Customer } from "@/types/report";
+import type { JobDetails, VoiceNotes, ServiceType, Customer, ServiceReport } from "@/types/report";
 import { EMPTY_VOICE_NOTES } from "@/types/report";
-import { saveDraft, getDraft } from "@/lib/storage";
+import { saveDraft, getDraft, saveReport, clearDraft, generateId, getBusinessProfile } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 import { extractJobInfo } from "@/lib/extractJobInfo";
@@ -16,6 +16,7 @@ interface NewReportFormProps {
   initialCustomer?: Customer | null;
   onBack: () => void;
   onGenerate: (job: JobDetails) => Promise<void>;
+  onSaveForLater: () => void;
 }
 
 const SERVICE_CHIP_LABELS: Record<ServiceType, string> = {
@@ -41,7 +42,7 @@ const EMPTY_JOB: JobDetails = {
 
 type FormStep = "recording" | "job-details";
 
-export default function NewReportForm({ initialCustomer, onBack, onGenerate }: NewReportFormProps) {
+export default function NewReportForm({ initialCustomer, onBack, onGenerate, onSaveForLater }: NewReportFormProps) {
   const [formStep, setFormStep] = useState<FormStep>("recording");
   const [job, setJob] = useState<JobDetails>(() => ({
     ...EMPTY_JOB,
@@ -100,6 +101,21 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate }: N
   // (see lib/ai/providers/*) but no progress feedback is shown client-side.
   // Consider: add a useEffect that sets a "taking longer than expected" flag after
   // 12 s of isGenerating === true and renders a secondary status line.
+  function handleSaveForLater() {
+    const draft: ServiceReport = {
+      id: generateId(),
+      status: "draft",
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      business: getBusinessProfile(),
+      job,
+      report: { customerSummary: "", workCompleted: "", diagnostics: "", recommendations: "" },
+    };
+    saveReport(draft);
+    clearDraft();
+    onSaveForLater();
+  }
+
   async function handleGenerate() {
     setIsGenerating(true);
     setGenerateError(null);
@@ -113,7 +129,6 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate }: N
     }
   }
 
-  // ── Step 1: Recording ────────────────────────────────────────────────────────
   if (formStep === "recording") {
     return (
       <FreeformRecordingFlow
@@ -182,32 +197,43 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate }: N
           />
         </div>
 
-        {/* Service Type chips */}
-        <div className="space-y-2">
-          <Label className="text-slate-700 font-semibold text-sm">Service Type</Label>
-          <div className="grid grid-cols-2 gap-2">
+        {/* Equipment Details */}
+        <div className="space-y-1.5">
+          <Label htmlFor="equipmentDetails" className="text-slate-700 font-semibold text-sm">
+            Equipment <span className="text-slate-400 font-normal">(optional)</span>
+          </Label>
+          <Input
+            id="equipmentDetails"
+            placeholder="e.g. Daikin 3-ton split system, model MXZ-AP50VGD"
+            value={job.voiceNotes.equipmentDetails}
+            onChange={(e) => setJob((prev) => ({
+              ...prev,
+              voiceNotes: { ...prev.voiceNotes, equipmentDetails: e.target.value },
+            }))}
+            autoComplete="off"
+            inputMode="text"
+            enterKeyHint="next"
+            className="h-12 text-base bg-white border-slate-200"
+          />
+        </div>
+
+        {/* Service Type */}
+        <div className="space-y-1.5">
+          <Label htmlFor="serviceType" className="text-slate-700 font-semibold text-sm">Service Type</Label>
+          <select
+            id="serviceType"
+            value={job.serviceType}
+            onChange={(e) => setJob((prev) => ({
+              ...prev,
+              serviceType: e.target.value as ServiceType,
+              customServiceType: e.target.value !== "other" ? undefined : prev.customServiceType,
+            }))}
+            className="h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-300"
+          >
             {SERVICE_TYPES.map((type) => (
-              <button
-                key={type}
-                type="button"
-                onClick={() =>
-                  setJob((prev) => ({
-                    ...prev,
-                    serviceType: type,
-                    customServiceType: type !== "other" ? undefined : prev.customServiceType,
-                  }))
-                }
-                className={cn(
-                  "h-11 rounded-xl text-sm font-semibold transition-all border",
-                  job.serviceType === type
-                    ? "bg-slate-900 border-slate-900 text-white"
-                    : "bg-white border-slate-200 text-slate-600 active:bg-slate-50"
-                )}
-              >
-                {SERVICE_CHIP_LABELS[type]}
-              </button>
+              <option key={type} value={type}>{SERVICE_CHIP_LABELS[type]}</option>
             ))}
-          </div>
+          </select>
           {job.serviceType === "other" && (
             <Input
               placeholder="e.g. Boiler service, HRV maintenance, Gas fireplace"
@@ -235,11 +261,28 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate }: N
 
         {/* Generation error */}
         {generateError && (
-          <div className="flex items-start gap-3 bg-red-50 border border-red-100 rounded-2xl px-4 py-3">
-            <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-            <div>
-              <p className="text-sm font-semibold text-red-800">Couldn&apos;t generate report</p>
-              <p className="text-xs text-red-600 mt-0.5">{generateError}</p>
+          <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-3 space-y-3">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-red-800">Couldn&apos;t generate report</p>
+                <p className="text-xs text-red-600 mt-0.5">{generateError}</p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleGenerate}
+                disabled={isGenerating}
+                className="flex-1 h-10 rounded-xl bg-red-500 text-sm font-semibold text-white active:bg-red-600 transition-colors"
+              >
+                Try again
+              </button>
+              <button
+                onClick={handleSaveForLater}
+                className="flex-1 h-10 rounded-xl bg-white border border-red-200 text-sm font-semibold text-red-700 active:bg-red-50 transition-colors"
+              >
+                Save for later
+              </button>
             </div>
           </div>
         )}
@@ -276,6 +319,14 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate }: N
                 Generate Report
               </>
             )}
+          </button>
+          <button
+            onClick={handleSaveForLater}
+            disabled={isGenerating}
+            className="w-full h-10 flex items-center justify-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors"
+          >
+            <BookmarkCheck className="w-4 h-4" />
+            Save for later
           </button>
         </div>
       </div>

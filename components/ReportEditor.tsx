@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { ChevronLeft, Eye, CheckCircle2, AlertTriangle, RefreshCw, Loader2 } from "lucide-react";
+import { ChevronLeft, Eye, CheckCircle2, AlertTriangle, RefreshCw, Loader2, Sparkles } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
@@ -22,6 +24,17 @@ interface ReportEditorProps {
 }
 
 type SectionKey = keyof GeneratedReport;
+
+const SERVICE_TYPE_LABELS: Record<string, string> = {
+  "hvac-maintenance": "Maintenance",
+  "hvac-emergency": "Emergency",
+  "hvac-repair": "Repair",
+  "hvac-install": "Installation",
+  "hvac-seasonal": "Seasonal",
+  "hvac-inspection": "Inspection",
+  "hvac-warranty": "Warranty",
+  other: "Other",
+};
 
 const SECTIONS: { key: SectionKey; label: string; rows: number; hint?: string }[] = [
   {
@@ -58,6 +71,14 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
   const [confirmRegen, setConfirmRegen] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [regenError, setRegenError] = useState<string | null>(null);
+  const [showNotes, setShowNotes] = useState(false);
+
+  const originalNotes = draft.job.voiceNotes.workCompleted.trim();
+  const isUngenerated =
+    !draft.report.customerSummary &&
+    !draft.report.workCompleted &&
+    !draft.report.diagnostics &&
+    !draft.report.recommendations;
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -96,6 +117,25 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
       ...prev,
       report: { ...prev.report, [key]: value },
     }));
+  }
+
+  function updateJobField(field: keyof JobDetails, value: string) {
+    setAutoSaved(false);
+    setDraft((prev) => {
+      const updated = { ...prev, job: { ...prev.job, [field]: value } };
+      return updated;
+    });
+  }
+
+  function updateEquipment(value: string) {
+    setAutoSaved(false);
+    setDraft((prev) => {
+      const updated = {
+        ...prev,
+        job: { ...prev.job, voiceNotes: { ...prev.job.voiceNotes, equipmentDetails: value } },
+      };
+      return updated;
+    });
   }
 
   const handleBlur = useCallback((current: ServiceReport) => {
@@ -137,43 +177,139 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
           <span className="flex-1 text-center font-bold text-slate-900">Edit Report</span>
-          <div className="w-9 h-9 flex items-center justify-center shrink-0">
-            {autoSaved && (
-              <span className="text-xs text-green-600 flex items-center gap-1 whitespace-nowrap">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Saved
-              </span>
-            )}
-          </div>
+          <div className="w-9 h-9 shrink-0" />
         </div>
         {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={3} />}
       </header>
 
       <main className="flex-1 max-w-lg mx-auto w-full px-4 py-5 pb-32 space-y-4">
-        {/* Job summary chip */}
-        <div className="bg-white rounded-2xl border border-slate-100 px-4 py-3 shadow-card flex items-center justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-slate-900 truncate">
-              {draft.job.customerName || "Unknown customer"}
-            </p>
-            <p className="text-xs text-slate-500 mt-0.5">
-              {draft.job.serviceAddress
-                ? `${draft.job.serviceAddress} · `
-                : ""}
-              {draft.job.jobDate}
-            </p>
-          </div>
-          <Badge
-            className={cn(
-              "text-[11px] font-semibold border-0 shrink-0",
-              draft.status === "complete"
-                ? "bg-green-100 text-green-700"
-                : "bg-amber-100 text-amber-700"
+        {/* Job Details card — editable */}
+        <Card className="border border-slate-100 shadow-card">
+          <CardHeader className="pb-2 px-4 pt-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Job Details</CardTitle>
+              <Badge
+                className={cn(
+                  "text-[11px] font-semibold border-0 shrink-0",
+                  draft.status === "complete"
+                    ? "bg-green-100 text-green-700"
+                    : "bg-amber-100 text-amber-700"
+                )}
+              >
+                {draft.status === "complete" ? "Complete" : "Draft"}
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="px-4 pb-4 space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="ed-customer">Customer name</Label>
+              <Input
+                id="ed-customer"
+                value={draft.job.customerName}
+                onChange={(e) => updateJobField("customerName", e.target.value)}
+                onBlur={() => handleBlur(draft)}
+                placeholder="e.g. Sandra Kowalski"
+                className="h-11 text-base"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ed-address">Service address</Label>
+              <Input
+                id="ed-address"
+                value={draft.job.serviceAddress}
+                onChange={(e) => updateJobField("serviceAddress", e.target.value)}
+                onBlur={() => handleBlur(draft)}
+                placeholder="e.g. 142 Birchwood Drive"
+                className="h-11 text-base"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ed-equipment">
+                Equipment <span className="text-slate-400 font-normal">(optional)</span>
+              </Label>
+              <Input
+                id="ed-equipment"
+                value={draft.job.voiceNotes.equipmentDetails}
+                onChange={(e) => updateEquipment(e.target.value)}
+                onBlur={() => handleBlur(draft)}
+                placeholder="e.g. Daikin 3-ton split system, model MXZ-AP50VGD"
+                className="h-11 text-base"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1.5">
+                <Label htmlFor="ed-date">Date</Label>
+                <Input
+                  id="ed-date"
+                  type="date"
+                  value={draft.job.jobDate}
+                  onChange={(e) => updateJobField("jobDate", e.target.value)}
+                  onBlur={() => handleBlur(draft)}
+                  className="h-11 text-base"
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ed-service">Service type</Label>
+                <select
+                  id="ed-service"
+                  value={draft.job.serviceType}
+                  onChange={(e) => updateJobField("serviceType", e.target.value)}
+                  onBlur={() => handleBlur(draft)}
+                  className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-300"
+                >
+                  {Object.entries(SERVICE_TYPE_LABELS).map(([value, label]) => (
+                    <option key={value} value={value}>{label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Original notes */}
+        {(originalNotes || isUngenerated) && (
+          <Card className="border border-slate-100 shadow-card">
+            <CardHeader className="pb-2 px-4 pt-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Job Notes</CardTitle>
+                {!isUngenerated && (
+                  <button
+                    onClick={() => setShowNotes((v) => !v)}
+                    className="text-xs text-orange-500 font-semibold"
+                  >
+                    {showNotes ? "Hide" : "Show"}
+                  </button>
+                )}
+              </div>
+              {!showNotes && !isUngenerated && originalNotes && (
+                <p className="text-sm text-slate-500 mt-1 truncate normal-case tracking-normal font-normal">
+                  {originalNotes.slice(0, 80)}{originalNotes.length > 80 ? "…" : ""}
+                </p>
+              )}
+            </CardHeader>
+            {(showNotes || isUngenerated) && (
+              <CardContent className="px-4 pb-4">
+                <Textarea
+                  value={draft.job.voiceNotes.workCompleted}
+                  onChange={(e) => {
+                    setDraft((prev) => ({
+                      ...prev,
+                      job: {
+                        ...prev.job,
+                        voiceNotes: { ...prev.job.voiceNotes, workCompleted: e.target.value },
+                      },
+                    }));
+                  }}
+                  onBlur={() => handleBlur(draft)}
+                  rows={5}
+                  placeholder="Add or edit your job notes here…"
+                  enterKeyHint="done"
+                  className="text-base leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
+                />
+              </CardContent>
             )}
-          >
-            {draft.status === "complete" ? "Complete" : "Draft"}
-          </Badge>
-        </div>
+          </Card>
+        )}
 
         {/* Regenerate */}
         {onRegenerate && !isRegenerating && !confirmRegen && (
@@ -231,8 +367,27 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
           </div>
         )}
 
+        {/* Ungenerated banner */}
+        {isUngenerated && onRegenerate && !isRegenerating && (
+          <div className="bg-white rounded-2xl border border-dashed border-slate-200 shadow-card px-5 py-8 flex flex-col items-center gap-3 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-orange-400" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-900">No report generated yet</p>
+              <p className="text-xs text-slate-400 mt-1">Tap below to generate the report from your saved notes.</p>
+            </div>
+            <button
+              onClick={handleRegenerate}
+              className="h-11 px-6 rounded-xl bg-orange-500 text-sm font-bold text-white active:bg-orange-600 transition-colors shadow-sm shadow-orange-200"
+            >
+              Generate Report
+            </button>
+          </div>
+        )}
+
         {/* Editable sections */}
-        {SECTIONS.map(({ key, label, rows, hint }) => (
+        {(!isUngenerated) && SECTIONS.map(({ key, label, rows, hint }) => (
           <Card
             key={key}
             className="border border-slate-100 shadow-card"
@@ -276,6 +431,17 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
         </Card>
       </main>
 
+      {/* Save toast */}
+      <div
+        className={cn(
+          "fixed bottom-24 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-slate-900 text-white text-sm font-semibold px-4 py-2.5 rounded-full shadow-lg transition-all duration-300",
+          autoSaved ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
+        )}
+      >
+        <CheckCircle2 className="w-4 h-4 text-green-400" />
+        Changes saved
+      </div>
+
       {/* Sticky Preview CTA */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
         <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer">
@@ -284,7 +450,7 @@ export default function ReportEditor({ report, isNewReport, wasMock = false, onB
             className="w-full h-14 rounded-2xl text-base font-bold bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white flex items-center justify-center gap-2 transition-colors shadow-md shadow-orange-200/50"
           >
             <Eye className="w-5 h-5" />
-            Preview Customer Report
+            Save & Preview
           </button>
         </div>
       </div>

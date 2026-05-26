@@ -58,6 +58,7 @@ export default function FreeformRecordingFlow({
   onComplete,
 }: FreeformRecordingFlowProps) {
   const [text, setText] = useState(job.voiceNotes.workCompleted);
+  const [confirmBack, setConfirmBack] = useState(false);
   const speech = useSpeechRecognition();
 
   const textBeforeRecordingRef = useRef("");
@@ -136,7 +137,11 @@ export default function FreeformRecordingFlow({
           <button
             onClick={() => {
               if (speech.isListening) speech.stopListening();
-              onBack();
+              if (text.trim()) {
+                setConfirmBack(true);
+              } else {
+                onBack();
+              }
             }}
             className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
             aria-label="Back"
@@ -203,7 +208,7 @@ export default function FreeformRecordingFlow({
         <div className="bg-white rounded-2xl px-4 py-4 shadow-card space-y-3">
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Cover these topics</p>
           {HINTS.map((hint) => {
-            const covered = hint.match(text);
+            const covered = hint.match(displayValue);
             return (
               <div key={hint.key} className="flex items-center gap-3">
                 <div
@@ -271,6 +276,30 @@ export default function FreeformRecordingFlow({
           />
         </div>
       </main>
+
+      {/* ── Discard confirmation ── */}
+      {confirmBack && (
+        <div className="fixed inset-0 z-30 bg-black/40 flex items-end justify-center">
+          <div className="w-full max-w-lg bg-white rounded-t-2xl px-5 pt-5 pb-8 space-y-4">
+            <p className="text-base font-bold text-slate-900">Discard these notes?</p>
+            <p className="text-sm text-slate-500">Your notes will be lost if you go back now.</p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmBack(false)}
+                className="flex-1 h-12 rounded-xl bg-slate-100 text-sm font-semibold text-slate-700 active:bg-slate-200 transition-colors"
+              >
+                Keep notes
+              </button>
+              <button
+                onClick={onBack}
+                className="flex-1 h-12 rounded-xl bg-red-500 text-sm font-semibold text-white active:bg-red-600 transition-colors"
+              >
+                Discard
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Sticky footer ── */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">

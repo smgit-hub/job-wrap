@@ -24,10 +24,22 @@ export async function callGemini(prompt: string): Promise<GeneratedReport> {
     setTimeout(() => reject(new Error("Gemini request timed out after 30 s")), TIMEOUT_MS)
   );
 
-  const result = await Promise.race([
-    model.generateContent(prompt),
-    timeoutPromise,
-  ]);
+  let result: Awaited<ReturnType<typeof model.generateContent>>;
+  try {
+    result = await Promise.race([
+      model.generateContent(prompt),
+      timeoutPromise,
+    ]);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("503") || msg.toLowerCase().includes("service unavailable") || msg.toLowerCase().includes("high demand")) {
+      throw new Error("The AI service is temporarily busy — please try again in a moment.");
+    }
+    if (msg.includes("429") || msg.toLowerCase().includes("quota") || msg.toLowerCase().includes("rate limit")) {
+      throw new Error("AI request limit reached — please try again shortly.");
+    }
+    throw err;
+  }
 
   const text = result.response.text();
   if (!text) throw new Error("Empty response from Gemini");

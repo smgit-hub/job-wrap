@@ -41,21 +41,22 @@ export function buildPrompt(input: GenerateReportInput): string {
 
 RULES:
 - NEVER invent specific values: pressures, temperatures, voltages, amperages, part numbers, model numbers, or serial numbers not present in the notes.
-- DO transform casual shorthand and spoken language into professional trade terminology. "It was bad" → "confirmed failed". "I cleaned it up" → "Cleaned and cleared [component]".
+- NEVER add tasks, checks, or findings that were not mentioned or directly implied by the notes. If the tech said "replaced the filter and cleaned the coil", do not add "verified condensate drain", "tested thermostat", or "checked electrical connections" — those were not done as far as the record shows.
+- DO elevate the language of what was actually said — transform casual shorthand into professional trade terminology. "cleaned the coil" → "Cleaned outdoor condenser coil of accumulated debris and environmental contaminants". Improve how things are described, not how many things are listed.
 - DO infer reasonable outcomes from context. A completed repair implies the system was restored to operation. A maintenance visit implies the system was left in serviceable condition.
-- DO apply standard industry knowledge for the service type — what a competent technician would note for this kind of job.
 - DO distribute a single narrative across all three sections rather than repeating content.
 - Write clearly: professional enough for a trade record, readable by a non-technical customer.
+- Use plain trade language — "filter" not "filtration media", "condenser coil" not "heat exchange assembly", "system" not "HVAC apparatus". Write how a competent technician would actually write, not how a spec sheet reads. Keep each bullet under 90 characters where possible.
 
 SECTION GUIDANCE:
 
-customerSummary — A plain-English summary written FOR the customer, not the technician. 2–4 sentences. No jargon, no technical values, no bullet points — flowing prose only. Warm, reassuring tone. Structure: what was done → what was found → what's coming next. Write as if you're explaining to the homeowner at the front door before you leave. This is the first thing they read.
+customerSummary — A plain-English summary written FOR the customer, not the technician. 2–3 sentences maximum. No jargon, no technical values, no bullet points — flowing prose only. Warm, reassuring tone. Structure: what was done → outcome → what's next. Do NOT open with a greeting (e.g. "Good morning", "Good afternoon", "Dear [name]") — start directly with what was done.
 
-workCompleted — Everything done on site, past tense, bullet points (•). Expand brief mentions into full professional descriptions. For maintenance jobs, treat implied standard tasks (filter check, coil inspection, electrical check, etc.) as complete if the notes suggest the job went normally.
+workCompleted — Tasks carried out on site, past tense, bullet points (•). Maximum 5 bullets. Only include tasks explicitly mentioned or directly implied in the notes — do not pad with standard maintenance tasks not referenced. Elevate the language of each task without inventing new ones. Use strong, confident verbs — "Replaced", "Cleaned", "Confirmed", "Verified" — not weak ones like "Evaluated" or "Checked".
 
-diagnostics — What was found, observed, tested, or confirmed. Bullet points (•). Include system condition, any faults found, and the status after work was completed. Close with a clear system status line: e.g. "System operating within normal parameters" or "Fault resolved — no further issues identified at time of service."
+diagnostics — What was found, observed, or confirmed. Bullet points (•). Maximum 2 bullets. If no specific readings or faults were mentioned, write a single concise system status line — do not list individual components as "within spec" or "functioning as designed" when no specific checks were noted. One clear outcome line is better than three that all say the same thing. e.g. "System operating within normal parameters following service — no faults or deficiencies identified."
 
-recommendations — What should happen next. Bullet points (•). Always include a next service interval appropriate to the service type. Flag anything that needs monitoring, a follow-up visit, or a customer decision. If the system is in good condition with no concerns, confirm that clearly rather than padding with generic advice.
+recommendations — What should happen next. Bullet points (•). Maximum 3 bullets, one line each. If the tech specified a timeframe (e.g. "before summer", "in 3 months"), use that — do not substitute a generic interval. Always include a next service recommendation. Only flag additional items if mentioned in the notes. Use strong, specific verbs — "Schedule", "Monitor", "Replace" — not vague language.
 
 JOB INFORMATION:
 Service Type: ${serviceLabel}
@@ -109,10 +110,18 @@ export function parseResponse(text: string): GeneratedReport {
     return { ...FALLBACK_REPORT };
   }
 
+  function cleanBullets(value: unknown): string {
+    if (typeof value !== "string") return "";
+    return value
+      .split("\n")
+      .filter((line) => line.trim() && line.trim() !== "•")
+      .join("\n");
+  }
+
   return {
-    customerSummary: typeof parsed.customerSummary === "string" ? parsed.customerSummary : "",
-    workCompleted: typeof parsed.workCompleted === "string" ? parsed.workCompleted : "",
-    diagnostics: typeof parsed.diagnostics === "string" ? parsed.diagnostics : "",
-    recommendations: typeof parsed.recommendations === "string" ? parsed.recommendations : "",
+    customerSummary: typeof parsed.customerSummary === "string" ? parsed.customerSummary.trim() : "",
+    workCompleted: cleanBullets(parsed.workCompleted),
+    diagnostics: cleanBullets(parsed.diagnostics),
+    recommendations: cleanBullets(parsed.recommendations),
   };
 }

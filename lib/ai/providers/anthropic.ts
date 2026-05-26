@@ -33,6 +33,15 @@ export async function callAnthropic(prompt: string): Promise<GeneratedReport> {
     const block = message.content[0];
     if (block.type !== "text") throw new Error("Unexpected response type from Anthropic");
     return parseResponse(block.text);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("529") || msg.includes("503") || msg.toLowerCase().includes("overloaded")) {
+      throw new Error("The AI service is temporarily busy — please try again in a moment.");
+    }
+    if (msg.includes("429") || msg.toLowerCase().includes("rate limit")) {
+      throw new Error("AI request limit reached — please try again shortly.");
+    }
+    throw err;
   } finally {
     clearTimeout(timeoutId);
   }
