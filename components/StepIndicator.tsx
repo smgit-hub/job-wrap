@@ -13,8 +13,8 @@ interface StepIndicatorProps {
 }
 
 export const REPORT_STEPS: Step[] = [
-  { id: 1, label: "Record" },
-  { id: 2, label: "Confirm" },
+  { id: 1, label: "Details" },
+  { id: 2, label: "Record" },
   { id: 3, label: "Edit" },
   { id: 4, label: "Preview" },
 ];

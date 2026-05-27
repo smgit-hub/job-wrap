@@ -36,6 +36,7 @@ function buildPlainText(report: ServiceReport): string {
   lines.push(`Date: ${formatDate(job.jobDate)}`);
   if (job.customerName) lines.push(`Customer: ${job.customerName}`);
   if (job.serviceAddress) lines.push(`Address: ${job.serviceAddress}`);
+  if (job.equipmentDetails) lines.push(`Equipment: ${job.equipmentDetails}`);
   lines.push("");
 
   if (rpt.customerSummary) {
@@ -261,6 +262,9 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-3">
               {SERVICE_TYPE_LABELS[job.serviceType]}  ·  {formatDate(job.jobDate)}
             </p>
+            {job.equipmentDetails && (
+              <p className="text-xs text-slate-500 mt-1">{job.equipmentDetails}</p>
+            )}
           </div>
 
           {/* Customer summary — plain-English intro */}

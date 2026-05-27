@@ -151,7 +151,6 @@ export function upsertCustomerFromJob(job: JobDetails): void {
       id: `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       name: job.customerName.trim(),
       address: job.serviceAddress,
-      equipmentDetails: "",
       siteNotes: "",
       createdAt: now,
       updatedAt: now,

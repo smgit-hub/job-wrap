@@ -4,13 +4,13 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import type { GeneratedReport } from "@/types/report";
-import { parseResponse } from "../prompt";
+import { parseResponse, type PromptParts } from "../prompt";
 
 // 30-second timeout — generous for Claude Haiku; prevents infinite hangs on
 // the Edge when the AI provider is slow or unresponsive.
 const TIMEOUT_MS = 30_000;
 
-export async function callAnthropic(prompt: string): Promise<GeneratedReport> {
+export async function callAnthropic(parts: PromptParts): Promise<GeneratedReport> {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("ANTHROPIC_API_KEY is not set");
 
@@ -25,7 +25,8 @@ export async function callAnthropic(prompt: string): Promise<GeneratedReport> {
       {
         model,
         max_tokens: 1024,
-        messages: [{ role: "user", content: prompt }],
+        system: parts.system,
+        messages: [{ role: "user", content: parts.user }],
       },
       { signal: controller.signal }
     );

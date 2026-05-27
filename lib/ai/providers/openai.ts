@@ -4,13 +4,13 @@
 
 import OpenAI from "openai";
 import type { GeneratedReport } from "@/types/report";
-import { parseResponse } from "../prompt";
+import { parseResponse, type PromptParts } from "../prompt";
 
 // 55-second timeout — prevents infinite hangs on slow or unresponsive requests.
 // Keep under 60s so the fallback chain still has time to try Anthropic.
 const TIMEOUT_MS = 55_000;
 
-export async function callOpenAI(prompt: string): Promise<GeneratedReport> {
+export async function callOpenAI(parts: PromptParts): Promise<GeneratedReport> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) throw new Error("OPENAI_API_KEY is not set");
 
@@ -25,7 +25,10 @@ export async function callOpenAI(prompt: string): Promise<GeneratedReport> {
       {
         model,
         max_tokens: 1024,
-        messages: [{ role: "user", content: prompt }],
+        messages: [
+          { role: "system", content: parts.system },
+          { role: "user", content: parts.user },
+        ],
       },
       { signal: controller.signal }
     );

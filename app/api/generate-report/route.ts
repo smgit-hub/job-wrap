@@ -65,6 +65,7 @@ export async function POST(request: Request) {
     customerName: truncate(str(body.customerName), 120),
     technicianName: truncate(str(body.technicianName), 120),
     jobDate: str(body.jobDate, new Date().toISOString().split("T")[0]),
+    equipmentDetails: truncate(str(body.equipmentDetails), 200) || undefined,
     voiceNotes: {
       jobNotes: truncate(jobNotes.trim(), 3000),
       recommendations: truncate(str(voiceNotes?.recommendations).trim(), 1000),

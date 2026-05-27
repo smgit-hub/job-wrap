@@ -1,16 +1,19 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, Sparkles, Loader2, AlertCircle, BookmarkCheck } from "lucide-react";
+import {
+  ChevronLeft, ChevronDown, ChevronUp,
+  Sparkles, Loader2, AlertCircle, BookmarkCheck, ArrowRight,
+  MapPin, Phone, Mail, StickyNote, Wrench,
+} from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import FreeformRecordingFlow from "@/components/recording/FreeformRecordingFlow";
 import type { JobDetails, VoiceNotes, ServiceType, Customer, ServiceReport } from "@/types/report";
 import { EMPTY_VOICE_NOTES } from "@/types/report";
-import { saveDraft, getDraft, saveReport, clearDraft, generateId, getBusinessProfile } from "@/lib/storage";
+import { saveDraft, getDraft, saveReport, clearDraft, generateId, getBusinessProfile, saveCustomer } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
-import { extractJobInfo } from "@/lib/extractJobInfo";
 
 interface NewReportFormProps {
   initialCustomer?: Customer | null;
@@ -40,19 +43,30 @@ const EMPTY_JOB: JobDetails = {
   voiceNotes: EMPTY_VOICE_NOTES,
 };
 
-type FormStep = "recording" | "job-details";
+type FormStep = "customer-setup" | "recording" | "generating";
 
 export default function NewReportForm({ initialCustomer, onBack, onGenerate, onSaveForLater }: NewReportFormProps) {
-  const [formStep, setFormStep] = useState<FormStep>("recording");
+  const isExisting = !!initialCustomer;
+
+  const [formStep, setFormStep] = useState<FormStep>("customer-setup");
   const [job, setJob] = useState<JobDetails>(() => ({
     ...EMPTY_JOB,
     customerName: initialCustomer?.name ?? "",
     serviceAddress: initialCustomer?.address ?? "",
   }));
+  const [customerForm, setCustomerForm] = useState({
+    name: initialCustomer?.name ?? "",
+    address: initialCustomer?.address ?? "",
+    phone: initialCustomer?.phone ?? "",
+    email: initialCustomer?.email ?? "",
+    siteNotes: initialCustomer?.siteNotes ?? "",
+  });
+  // Existing customers start collapsed; new customers start with the form open
+  const [detailsExpanded, setDetailsExpanded] = useState(!isExisting);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
 
-  // Restore draft on mount — skip if a customer was pre-selected
+  // Restore draft on mount — only for new customers (no initialCustomer)
   useEffect(() => {
     if (initialCustomer) return;
     const draft = getDraft();
@@ -67,24 +81,38 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setJob(raw as JobDetails);
+    // Restore name + address into customerForm
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setCustomerForm((p) => ({
+      ...p,
+      name: raw.customerName || p.name,
+      address: raw.serviceAddress || p.address,
+    }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Keep draft in sync
   useEffect(() => {
     saveDraft({ job });
   }, [job]);
 
+  async function doGenerate(jobToUse: JobDetails) {
+    setIsGenerating(true);
+    setGenerateError(null);
+    try {
+      await onGenerate(jobToUse);
+    } catch (err) {
+      setGenerateError(err instanceof Error ? err.message : "Generation failed. Please try again.");
+      setIsGenerating(false);
+    }
+  }
+
   function handleRecordingComplete(finalNotes: VoiceNotes) {
-    const extracted = extractJobInfo(finalNotes.jobNotes);
-    setJob((prev) => ({
-      ...prev,
-      customerName: extracted.customerName || prev.customerName,
-      serviceAddress: extracted.serviceAddress || prev.serviceAddress,
-      serviceType: extracted.serviceType || prev.serviceType,
-      voiceNotes: finalNotes,
-    }));
-    setFormStep("job-details");
+    const updatedJob = { ...job, voiceNotes: finalNotes };
+    setJob(updatedJob);
+    setFormStep("generating");
     window.scrollTo({ top: 0 });
+    void doGenerate(updatedJob);
   }
 
   function handleSaveForLater() {
@@ -102,186 +130,322 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
     onSaveForLater();
   }
 
-  async function handleGenerate() {
-    setIsGenerating(true);
-    setGenerateError(null);
-    try {
-      await onGenerate(job);
-    } catch (err) {
-      setGenerateError(
-        err instanceof Error ? err.message : "Generation failed. Please try again."
-      );
-      setIsGenerating(false);
+  function handleSetupContinue() {
+    const name = customerForm.name.trim();
+    if (!name) return;
+
+    const now = new Date().toISOString();
+    const shared = {
+      name,
+      address: customerForm.address.trim(),
+      phone: customerForm.phone.trim() || undefined,
+      email: customerForm.email.trim() || undefined,
+      siteNotes: customerForm.siteNotes.trim(),
+      updatedAt: now,
+    };
+
+    if (initialCustomer) {
+      saveCustomer({ ...initialCustomer, ...shared });
+    } else {
+      saveCustomer({
+        id: `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+        createdAt: now,
+        ...shared,
+      });
     }
+
+    setJob((prev) => ({
+      ...prev,
+      customerName: name,
+      serviceAddress: customerForm.address.trim(),
+    }));
+
+    setFormStep("recording");
+    window.scrollTo({ top: 0 });
   }
 
+  // ── Step: Recording ──────────────────────────────────────────────────────────
   if (formStep === "recording") {
     return (
       <FreeformRecordingFlow
         job={job}
-        onBack={onBack}
+        onBack={() => { setFormStep("customer-setup"); window.scrollTo({ top: 0 }); }}
         onComplete={handleRecordingComplete}
       />
     );
   }
 
-  // ── Step 2: Job Details ──────────────────────────────────────────────────────
+  // ── Step: Generating ─────────────────────────────────────────────────────────
+  if (formStep === "generating") {
+    return (
+      <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
+        <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
+          <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
+            <span className="flex-1 font-bold text-slate-900">Generating Report</span>
+          </div>
+          <StepIndicator steps={REPORT_STEPS} currentStep={3} />
+        </header>
+
+        <main className="flex-1 flex flex-col items-center justify-center px-4 py-12">
+          {generateError ? (
+            <div className="w-full max-w-sm space-y-4">
+              <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-3 space-y-3">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-semibold text-red-800">Couldn&apos;t generate report</p>
+                    <p className="text-xs text-red-600 mt-0.5">{generateError}</p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => void doGenerate(job)}
+                    className="flex-1 h-10 rounded-xl bg-red-500 text-sm font-semibold text-white active:bg-red-600 transition-colors"
+                  >
+                    Try again
+                  </button>
+                  <button
+                    onClick={handleSaveForLater}
+                    className="flex-1 h-10 rounded-xl bg-white border border-red-200 text-sm font-semibold text-red-700 active:bg-red-50 transition-colors"
+                  >
+                    Save for later
+                  </button>
+                </div>
+              </div>
+              <button
+                onClick={() => { setFormStep("recording"); window.scrollTo({ top: 0 }); }}
+                className="w-full h-10 text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors"
+              >
+                ← Back to recording
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center gap-5 text-center">
+              <div className="w-20 h-20 rounded-3xl bg-orange-50 flex items-center justify-center">
+                <Sparkles className="w-10 h-10 text-orange-400 animate-pulse" />
+              </div>
+              <div className="space-y-1">
+                <p className="font-bold text-slate-900 text-lg">Writing your report…</p>
+                <p className="text-sm text-slate-500">This usually takes 10–20 seconds.</p>
+              </div>
+              <Loader2 className="w-5 h-5 text-slate-300 animate-spin mt-2" />
+            </div>
+          )}
+        </main>
+      </div>
+    );
+  }
+
+  // ── Step: Customer Setup ─────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-      {/* Header */}
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
           <button
-            onClick={() => { setFormStep("recording"); window.scrollTo({ top: 0 }); }}
-            disabled={isGenerating}
-            className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors disabled:opacity-40"
-            aria-label="Back to recording"
+            onClick={onBack}
+            className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
+            aria-label="Back"
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <span className="flex-1 font-bold text-slate-900 ml-3">Confirm Details</span>
+          <span className="flex-1 font-bold text-slate-900 ml-3">New Job</span>
         </div>
-
-        <StepIndicator steps={REPORT_STEPS} currentStep={2} />
+        <StepIndicator steps={REPORT_STEPS} currentStep={1} />
       </header>
 
-      <main className="flex-1 max-w-lg mx-auto w-full px-4 pt-6 pb-32 space-y-5">
-        <p className="text-sm text-slate-500">We&apos;ve filled in what we caught — correct anything that&apos;s wrong.</p>
+      <main className="flex-1 max-w-lg mx-auto w-full px-4 pt-5 pb-32 space-y-5">
 
-        {/* Customer Name */}
-        <div className="space-y-1.5">
-          <Label htmlFor="customerName" className="text-slate-700 font-semibold text-sm">Customer Name</Label>
-          <Input
-            id="customerName"
-            placeholder="e.g. Sandra Kowalski"
-            value={job.customerName}
-            onChange={(e) => setJob((prev) => ({ ...prev, customerName: e.target.value }))}
-            autoFocus
-            autoComplete="off"
-            inputMode="text"
-            enterKeyHint="next"
-            className="h-12 text-base bg-white border-slate-200"
-          />
-        </div>
+        {/* ── Customer section ────────────────────────────────────────────── */}
+        <div className="space-y-2">
+          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Customer</h2>
 
-        {/* Service Address */}
-        <div className="space-y-1.5">
-          <Label htmlFor="serviceAddress" className="text-slate-700 font-semibold text-sm">Service Address</Label>
-          <Input
-            id="serviceAddress"
-            placeholder="e.g. 142 Birchwood Drive, Riverside"
-            value={job.serviceAddress}
-            onChange={(e) => setJob((prev) => ({ ...prev, serviceAddress: e.target.value }))}
-            autoComplete="off"
-            inputMode="text"
-            enterKeyHint="next"
-            className="h-12 text-base bg-white border-slate-200"
-          />
-        </div>
+          {isExisting && !detailsExpanded ? (
+            /* Compact summary — existing customer, not editing */
+            <div className="bg-white rounded-2xl shadow-card px-4 py-3.5 flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="font-semibold text-slate-900 truncate">{customerForm.name}</p>
+                {customerForm.address && (
+                  <p className="text-xs text-slate-400 truncate mt-0.5">{customerForm.address}</p>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setDetailsExpanded(true)}
+                className="flex items-center gap-1 text-xs font-semibold text-orange-500 active:text-orange-700 transition-colors shrink-0"
+              >
+                Edit <ChevronDown className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          ) : (
+            /* Full editable form */
+            <div className="bg-white rounded-2xl shadow-card px-4 py-4 space-y-4">
+              {isExisting && (
+                <div className="flex items-center justify-between">
+                  <p className="text-sm font-semibold text-slate-700">Edit details</p>
+                  <button
+                    type="button"
+                    onClick={() => setDetailsExpanded(false)}
+                    className="flex items-center gap-1 text-xs font-semibold text-slate-400 active:text-slate-600"
+                  >
+                    Collapse <ChevronUp className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
 
-        {/* Service Type */}
-        <div className="space-y-1.5">
-          <Label htmlFor="serviceType" className="text-slate-700 font-semibold text-sm">Service Type</Label>
-          <select
-            id="serviceType"
-            value={job.serviceType}
-            onChange={(e) => setJob((prev) => ({
-              ...prev,
-              serviceType: e.target.value as ServiceType,
-              customServiceType: e.target.value !== "other" ? undefined : prev.customServiceType,
-            }))}
-            className="h-12 w-full rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-300"
-          >
-            {SERVICE_TYPES.map((type) => (
-              <option key={type} value={type}>{SERVICE_CHIP_LABELS[type]}</option>
-            ))}
-          </select>
-          {job.serviceType === "other" && (
-            <Input
-              placeholder="e.g. Boiler service, HRV maintenance, Gas fireplace"
-              value={job.customServiceType ?? ""}
-              onChange={(e) => setJob((prev) => ({ ...prev, customServiceType: e.target.value }))}
-              autoComplete="off"
-              inputMode="text"
-              enterKeyHint="next"
-              className="h-12 text-base bg-white border-slate-200 mt-1"
-            />
+              <div className="space-y-1.5">
+                <Label htmlFor="cf-name" className="flex items-center gap-1.5 text-slate-500">
+                  Name
+                </Label>
+                <Input
+                  id="cf-name"
+                  value={customerForm.name}
+                  onChange={(e) => setCustomerForm((p) => ({ ...p, name: e.target.value }))}
+                  placeholder="Customer name"
+                  autoFocus={!isExisting}
+                  className="h-11 text-base bg-slate-50 border-slate-200"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="cf-address" className="flex items-center gap-1.5 text-slate-500">
+                  <MapPin className="w-3.5 h-3.5" />Address
+                </Label>
+                <Input
+                  id="cf-address"
+                  value={customerForm.address}
+                  onChange={(e) => setCustomerForm((p) => ({ ...p, address: e.target.value }))}
+                  placeholder="Service address"
+                  className="h-11 text-base bg-slate-50 border-slate-200"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="cf-phone" className="flex items-center gap-1.5 text-slate-500">
+                    <Phone className="w-3.5 h-3.5" />Phone
+                  </Label>
+                  <Input
+                    id="cf-phone"
+                    type="tel"
+                    inputMode="tel"
+                    value={customerForm.phone}
+                    onChange={(e) => setCustomerForm((p) => ({ ...p, phone: e.target.value }))}
+                    placeholder="Phone number"
+                    className="h-11 text-base bg-slate-50 border-slate-200"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="cf-email" className="flex items-center gap-1.5 text-slate-500">
+                    <Mail className="w-3.5 h-3.5" />Email
+                  </Label>
+                  <Input
+                    id="cf-email"
+                    type="email"
+                    inputMode="email"
+                    value={customerForm.email}
+                    onChange={(e) => setCustomerForm((p) => ({ ...p, email: e.target.value }))}
+                    placeholder="Email address"
+                    className="h-11 text-base bg-slate-50 border-slate-200"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="cf-siteNotes" className="flex items-center gap-1.5 text-slate-500">
+                  <StickyNote className="w-3.5 h-3.5" />Site Notes
+                </Label>
+                <Input
+                  id="cf-siteNotes"
+                  value={customerForm.siteNotes}
+                  onChange={(e) => setCustomerForm((p) => ({ ...p, siteNotes: e.target.value }))}
+                  placeholder="Gate code, parking, dogs, access instructions…"
+                  className="h-11 text-base bg-slate-50 border-slate-200"
+                />
+              </div>
+            </div>
           )}
         </div>
 
-        {/* Date */}
-        <div className="space-y-1.5">
-          <Label htmlFor="jobDate" className="text-slate-700 font-semibold text-sm">Date</Label>
-          <Input
-            id="jobDate"
-            type="date"
-            value={job.jobDate}
-            onChange={(e) => setJob((prev) => ({ ...prev, jobDate: e.target.value }))}
-            className="h-12 text-base bg-white border-slate-200"
-          />
-        </div>
+        {/* ── This Job section ────────────────────────────────────────────── */}
+        <div className="space-y-2">
+          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">This Job</h2>
 
-        {/* Generation error */}
-        {generateError && (
-          <div className="bg-red-50 border border-red-100 rounded-2xl px-4 py-3 space-y-3">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold text-red-800">Couldn&apos;t generate report</p>
-                <p className="text-xs text-red-600 mt-0.5">{generateError}</p>
-              </div>
+          <div className="bg-white rounded-2xl shadow-card px-4 py-4 space-y-4">
+            {/* Service type */}
+            <div className="space-y-1.5">
+              <Label htmlFor="serviceType" className="text-slate-500">Service Type</Label>
+              <select
+                id="serviceType"
+                value={job.serviceType}
+                onChange={(e) => setJob((prev) => ({
+                  ...prev,
+                  serviceType: e.target.value as ServiceType,
+                  customServiceType: e.target.value !== "other" ? undefined : prev.customServiceType,
+                }))}
+                className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-300"
+              >
+                {SERVICE_TYPES.map((type) => (
+                  <option key={type} value={type}>{SERVICE_CHIP_LABELS[type]}</option>
+                ))}
+              </select>
+              {job.serviceType === "other" && (
+                <Input
+                  placeholder="e.g. Boiler service, HRV maintenance, Gas fireplace"
+                  value={job.customServiceType ?? ""}
+                  onChange={(e) => setJob((prev) => ({ ...prev, customServiceType: e.target.value }))}
+                  autoComplete="off"
+                  className="h-11 text-base bg-slate-50 border-slate-200"
+                />
+              )}
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleGenerate}
-                disabled={isGenerating}
-                className="flex-1 h-10 rounded-xl bg-red-500 text-sm font-semibold text-white active:bg-red-600 transition-colors"
-              >
-                Try again
-              </button>
-              <button
-                onClick={handleSaveForLater}
-                className="flex-1 h-10 rounded-xl bg-white border border-red-200 text-sm font-semibold text-red-700 active:bg-red-50 transition-colors"
-              >
-                Save for later
-              </button>
+
+            {/* Equipment */}
+            <div className="space-y-1.5">
+              <Label htmlFor="jobEquipment" className="flex items-center gap-1.5 text-slate-500">
+                <Wrench className="w-3.5 h-3.5" />Equipment / System
+              </Label>
+              <Input
+                id="jobEquipment"
+                value={job.equipmentDetails ?? ""}
+                onChange={(e) => setJob((prev) => ({ ...prev, equipmentDetails: e.target.value }))}
+                placeholder="e.g. Carrier 2-ton split system"
+                className="h-11 text-base bg-slate-50 border-slate-200"
+              />
+            </div>
+
+            {/* Date */}
+            <div className="space-y-1.5">
+              <Label htmlFor="jobDate" className="text-slate-500">Date</Label>
+              <Input
+                id="jobDate"
+                type="date"
+                value={job.jobDate}
+                onChange={(e) => setJob((prev) => ({ ...prev, jobDate: e.target.value }))}
+                className="h-11 text-base bg-slate-50 border-slate-200"
+              />
             </div>
           </div>
-        )}
+        </div>
       </main>
 
-      {/* Sticky Generate button */}
+      {/* Sticky footer */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
         <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer">
-          <p className="text-center text-[11px] text-slate-400 mb-2">
-            Job notes are sent to an AI service to generate the report.{" "}
-            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-500">Learn more</a>
-          </p>
           <button
-            onClick={handleGenerate}
-            disabled={isGenerating}
+            onClick={handleSetupContinue}
+            disabled={!customerForm.name.trim()}
             className={cn(
               "w-full h-14 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 transition-all",
-              isGenerating
-                ? "bg-slate-300"
-                : "bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-md shadow-orange-200"
+              customerForm.name.trim()
+                ? "bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-md shadow-orange-200"
+                : "bg-slate-300"
             )}
           >
-            {isGenerating ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Generating Report…
-              </>
-            ) : (
-              <>
-                <Sparkles className="w-5 h-5" />
-                Generate Report
-              </>
-            )}
+            Start Recording
+            <ArrowRight className="w-5 h-5" />
           </button>
           <button
             onClick={handleSaveForLater}
-            disabled={isGenerating}
             className="w-full h-10 flex items-center justify-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors"
           >
             <BookmarkCheck className="w-4 h-4" />

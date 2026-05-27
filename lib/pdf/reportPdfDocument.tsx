@@ -41,8 +41,8 @@ const s = StyleSheet.create({
   // ── Header ─────────────────────────────────────────────────────────────────
   header: {
     paddingHorizontal: 40,
-    paddingTop: 24,
-    paddingBottom: 20,
+    paddingTop: 18,
+    paddingBottom: 16,
     flexDirection: "row",
     alignItems: "center",
     gap: 14,
@@ -82,14 +82,14 @@ const s = StyleSheet.create({
   // ── Body ───────────────────────────────────────────────────────────────────
   body: {
     paddingHorizontal: 40,
-    paddingTop: 20,
+    paddingTop: 14,
   },
 
   // ── Info grid ──────────────────────────────────────────────────────────────
   infoGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 10,
+    gap: 8,
   },
   infoHalf: {
     width: "47%",
@@ -116,8 +116,8 @@ const s = StyleSheet.create({
   divider: {
     borderTopWidth: 1,
     borderTopColor: "#e5e7eb",
-    marginTop: 14,
-    marginBottom: 14,
+    marginTop: 10,
+    marginBottom: 10,
   },
 
   // ── Section label ──────────────────────────────────────────────────────────
@@ -135,7 +135,7 @@ const s = StyleSheet.create({
     backgroundColor: "#f8fafc",
     borderRadius: 5,
     padding: 11,
-    marginTop: 14,
+    marginTop: 10,
   },
   summaryText: {
     fontSize: 10.5,
@@ -290,8 +290,6 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
     business.website || null,
   ].filter((x): x is string => Boolean(x));
 
-  const hasEquipment = false;
-
   return (
     <Document>
       <Page size="A4" style={s.page}>
@@ -340,17 +338,24 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
               <Text style={s.infoValue}>{formatDate(job.jobDate)}</Text>
             </View>
 
-            {Boolean(job.serviceAddress) && (
-              <View style={s.infoFull}>
+            {Boolean(job.serviceAddress) ? (
+              <View style={s.infoHalf}>
                 <Text style={s.infoLabel}>Service Address</Text>
                 <Text style={s.infoValue}>{job.serviceAddress}</Text>
               </View>
-            )}
+            ) : null}
 
-            <View style={s.infoFull}>
+            <View style={job.serviceAddress ? s.infoHalf : s.infoFull}>
               <Text style={s.infoLabel}>Service Type</Text>
               <Text style={s.infoValue}>{SERVICE_TYPE_LABELS[job.serviceType]}</Text>
             </View>
+
+            {Boolean(job.equipmentDetails) && (
+              <View style={s.infoFull}>
+                <Text style={s.infoLabel}>Equipment / System</Text>
+                <Text style={s.infoValue}>{job.equipmentDetails}</Text>
+              </View>
+            )}
           </View>
 
           {/* Customer summary */}

@@ -19,11 +19,26 @@ import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 
 type RecordingStep = "job-notes" | "recommendations";
 
-const STEP_CONFIG = {
+type StepConfig = {
+  title: string;
+  prompt: string;
+  cues: string[];
+  nextStepHint?: string;
+  placeholder: string;
+  nextLabel: string;
+  skippable: boolean;
+};
+
+const STEP_CONFIG: Record<RecordingStep, StepConfig> = {
   "job-notes": {
     title: "Job Notes",
     prompt: "What happened today?",
-    hint: "Describe what you found and what you did — speak naturally.",
+    cues: [
+      "Findings — what you observed or diagnosed",
+      "Work performed — every task you completed",
+      "Any results, readings, or test outcomes",
+    ],
+    nextStepHint: "Next step: recommendations for the customer",
     placeholder: "Tap the mic to start, or type here…",
     nextLabel: "Next",
     skippable: false,
@@ -31,12 +46,16 @@ const STEP_CONFIG = {
   "recommendations": {
     title: "Recommendations",
     prompt: "Anything they need next?",
-    hint: "Any follow-up actions or advice for the customer — or skip if nothing.",
+    cues: [
+      "Follow-up work or parts that need attention",
+      "Next service timing or interval",
+      "Any advice or actions for the customer",
+    ],
     placeholder: "Tap the mic to start, or type here…",
     nextLabel: "Done",
     skippable: true,
   },
-} as const;
+};
 
 interface FreeformRecordingFlowProps {
   job: JobDetails;
@@ -154,7 +173,7 @@ export default function FreeformRecordingFlow({
   }
 
   const isStopping = speech.state === "stopping";
-  const hasEnoughText = currentText.trim().length >= 5;
+  const hasEnoughText = currentText.trim().length >= 20;
 
   const displayValue = speech.isListening
     ? (() => {
@@ -179,16 +198,33 @@ export default function FreeformRecordingFlow({
           </button>
           <span className="flex-1 font-bold text-slate-900 ml-3">{config.title}</span>
         </div>
-        <StepIndicator steps={REPORT_STEPS} currentStep={1} />
+        <StepIndicator steps={REPORT_STEPS} currentStep={2} />
       </header>
 
       {/* ── Main ── */}
       <main className="flex-1 max-w-lg mx-auto w-full px-4 pt-6 pb-28 flex flex-col gap-6">
 
         {/* ── Prompt ── */}
-        <div className="text-center space-y-1">
+        <div className="text-center">
           <p className="text-xl font-bold text-slate-900">{config.prompt}</p>
-          <p className="text-sm text-slate-500">{config.hint}</p>
+        </div>
+
+        {/* ── Cue card ── */}
+        <div className="bg-white rounded-2xl px-4 py-3.5 shadow-card space-y-2">
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Speak naturally — cover</p>
+          <ul className="space-y-2">
+            {config.cues.map((cue) => (
+              <li key={cue} className="flex items-center gap-2.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
+                <span className="text-sm text-slate-600">{cue}</span>
+              </li>
+            ))}
+          </ul>
+          {config.nextStepHint && (
+            <p className="text-xs text-slate-400 pt-1 border-t border-slate-100">
+              {config.nextStepHint}
+            </p>
+          )}
         </div>
 
         {/* ── Circular mic button ── */}

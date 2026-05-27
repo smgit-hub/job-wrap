@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, FileText, Wrench, Settings, LogOut, Trash2, ChevronRight, CheckCircle2, Clock, ChevronLeft, Users, FileCheck2, FileClock } from "lucide-react";
+import { Plus, FileText, Wrench, Settings, LogOut, Trash2, ChevronRight, CheckCircle2, Clock, ChevronLeft, FileCheck2, FileClock, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { ServiceReport } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
-import { getReports, saveReport, deleteReport, getBusinessProfile, getCustomers, clearCustomers, migrateCustomersFromReports, DEFAULT_BUSINESS } from "@/lib/storage";
+import { getReports, saveReport, deleteReport, getBusinessProfile, saveBusinessProfile, getCustomers, clearCustomers, migrateCustomersFromReports, DEFAULT_BUSINESS } from "@/lib/storage";
 import type { BusinessProfile } from "@/types/report";
-import { SAMPLE_REPORTS } from "@/lib/sampleData";
+import { SAMPLE_REPORTS, SAMPLE_BUSINESS } from "@/lib/sampleData";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 
@@ -124,6 +124,9 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
       stored.forEach((r) => deleteReport(r.id));
       clearCustomers();
       SAMPLE_REPORTS.forEach((r) => saveReport(r));
+      // Seed business profile only if it hasn't been configured yet
+      const existingProfile = getBusinessProfile();
+      if (!existingProfile.businessName) saveBusinessProfile(SAMPLE_BUSINESS);
       setReports(SAMPLE_REPORTS);
     } else if (allDemo) {
       // Production: user somehow has leftover sample data — clear it
@@ -224,6 +227,13 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
           </div>
           <div className="flex items-center gap-1">
             <button
+              onClick={onCustomers}
+              className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center active:bg-white/20 transition-colors"
+              aria-label="Customers"
+            >
+              <Users className="w-4 h-4 text-white/70" />
+            </button>
+            <button
               onClick={onSettings}
               className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center active:bg-white/20 transition-colors"
               aria-label="Settings"
@@ -259,15 +269,6 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
         >
           <Plus className="w-5 h-5" />
           Start New Job
-        </button>
-
-        {/* Existing customer */}
-        <button
-          onClick={onCustomers}
-          className="w-full bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-white rounded-2xl h-14 flex items-center justify-center gap-2.5 font-bold text-base transition-colors shadow-sm"
-        >
-          <Users className="w-5 h-5" />
-          Existing Customer
         </button>
 
         {/* Folder cards */}

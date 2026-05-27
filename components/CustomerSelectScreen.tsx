@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, Search, UserPlus, MapPin, Pencil, Trash2, CheckCircle2, StickyNote, Phone, Mail, ArrowRight } from "lucide-react";
+import { ChevronLeft, Search, UserPlus, MapPin, Pencil, Trash2, CheckCircle2, StickyNote, Phone, Mail, ArrowRight, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Customer } from "@/types/report";
@@ -17,14 +17,6 @@ interface CustomerSelectScreenProps {
 
 type Mode = "list" | "edit" | "new";
 
-function initials(name: string): string {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-}
 
 export default function CustomerSelectScreen({
   onBack,
@@ -36,7 +28,7 @@ export default function CustomerSelectScreen({
   const [query, setQuery] = useState("");
   const [mode, setMode] = useState<Mode>("list");
   const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
-  const [editForm, setEditForm] = useState({ name: "", address: "", equipmentDetails: "", siteNotes: "", phone: "", email: "" });
+  const [editForm, setEditForm] = useState({ name: "", address: "", siteNotes: "", phone: "", email: "" });
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -55,7 +47,6 @@ export default function CustomerSelectScreen({
     setEditForm({
       name: customer.name,
       address: customer.address,
-      equipmentDetails: customer.equipmentDetails,
       siteNotes: customer.siteNotes,
       phone: customer.phone ?? "",
       email: customer.email ?? "",
@@ -71,12 +62,11 @@ export default function CustomerSelectScreen({
       id: `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       name: "",
       address: "",
-      equipmentDetails: "",
       siteNotes: "",
       createdAt: now,
       updatedAt: now,
     });
-    setEditForm({ name: "", address: "", equipmentDetails: "", siteNotes: "", phone: "", email: "" });
+    setEditForm({ name: "", address: "", siteNotes: "", phone: "", email: "" });
     setConfirmDelete(false);
     setSaved(false);
     setMode("new");
@@ -88,7 +78,6 @@ export default function CustomerSelectScreen({
       ...editingCustomer,
       name: editForm.name.trim(),
       address: editForm.address.trim(),
-      equipmentDetails: editForm.equipmentDetails.trim(),
       siteNotes: editForm.siteNotes.trim(),
       phone: editForm.phone.trim() || undefined,
       email: editForm.email.trim() || undefined,
@@ -116,7 +105,6 @@ export default function CustomerSelectScreen({
       ...editingCustomer,
       name: editForm.name.trim(),
       address: editForm.address.trim(),
-      equipmentDetails: editForm.equipmentDetails.trim(),
       siteNotes: editForm.siteNotes.trim(),
       phone: editForm.phone.trim() || undefined,
       email: editForm.email.trim() || undefined,
@@ -156,13 +144,6 @@ export default function CustomerSelectScreen({
         </header>
 
         <main className="flex-1 max-w-lg mx-auto w-full px-4 py-6 pb-32 space-y-4">
-          {/* Avatar */}
-          <div className="flex justify-center pt-2 pb-1">
-            <div className="w-16 h-16 rounded-full bg-slate-900 flex items-center justify-center text-white text-xl font-bold">
-              {initials(editForm.name || editingCustomer.name)}
-            </div>
-          </div>
-
           <div className="space-y-1.5">
             <Label htmlFor="edit-name">Name</Label>
             <Input
@@ -217,17 +198,6 @@ export default function CustomerSelectScreen({
                 inputMode="email"
               />
             </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="edit-equipment">Equipment / System</Label>
-            <Input
-              id="edit-equipment"
-              value={editForm.equipmentDetails}
-              onChange={(e) => setEditForm((p) => ({ ...p, equipmentDetails: e.target.value }))}
-              placeholder="e.g. Carrier 2-ton split system"
-              className="h-12 text-base bg-white"
-            />
           </div>
 
           <div className="space-y-1.5">
@@ -361,37 +331,24 @@ export default function CustomerSelectScreen({
         {filtered.length > 0 && (
           <div className="bg-white rounded-2xl shadow-card overflow-hidden divide-y divide-slate-50">
             {filtered.map((customer) => (
-              <div key={customer.id} className="flex items-center">
-                {/* Main tap target — always starts a job for this customer */}
-                <button
-                  onClick={() => onSelectCustomer(customer)}
-                  className="flex-1 flex items-center gap-3 pl-4 pr-2 py-3.5 text-left active:bg-slate-50 transition-colors min-w-0"
-                >
-                  <div className="w-10 h-10 rounded-full bg-slate-900 flex items-center justify-center shrink-0 text-white text-sm font-bold">
-                    {initials(customer.name)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-semibold text-slate-900 leading-snug truncate">
-                      {customer.name}
-                    </p>
-                    {customer.address && (
-                      <span className="text-xs text-slate-400 truncate flex items-center gap-1 mt-0.5">
-                        <MapPin className="w-3 h-3 shrink-0" />
-                        {customer.address}
-                      </span>
-                    )}
-                  </div>
-                </button>
-
-                {/* Edit button */}
-                <button
-                  onClick={(e) => openEdit(e, customer)}
-                  className="w-10 h-10 flex items-center justify-center shrink-0 mr-2 rounded-xl text-slate-300 active:text-slate-500 active:bg-slate-50 transition-colors"
-                  aria-label={`Edit ${customer.name}`}
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
-              </div>
+              <button
+                key={customer.id}
+                onClick={() => onSelectCustomer(customer)}
+                className="w-full flex items-center gap-3 px-4 py-3.5 text-left active:bg-slate-50 transition-colors"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-slate-900 leading-snug truncate">
+                    {customer.name}
+                  </p>
+                  {customer.address && (
+                    <span className="text-xs text-slate-400 truncate flex items-center gap-1 mt-0.5">
+                      <MapPin className="w-3 h-3 shrink-0" />
+                      {customer.address}
+                    </span>
+                  )}
+                </div>
+                <ChevronRight className="w-4 h-4 text-slate-300 shrink-0" />
+              </button>
             ))}
           </div>
         )}

@@ -25,10 +25,9 @@ export interface Customer {
   id: string;
   name: string;
   address: string;
-  equipmentDetails: string; // single text field — multi-unit list is a future enhancement
-  siteNotes: string;        // gate codes, access instructions, dogs, etc.
-  phone?: string;           // added manually via customer screen, not captured from job notes
-  email?: string;           // added manually via customer screen, not captured from job notes
+  siteNotes: string;  // gate codes, access instructions, dogs, etc.
+  phone?: string;     // added manually via customer screen, not captured from job notes
+  email?: string;     // added manually via customer screen, not captured from job notes
   createdAt: string;
   updatedAt: string;
 }
@@ -66,6 +65,8 @@ export interface JobDetails {
   /** Free-text label used when serviceType === "other" */
   customServiceType?: string;
   jobDate: string;
+  /** Equipment / system serviced on this visit — captured per job, not per customer */
+  equipmentDetails?: string;
   voiceNotes: VoiceNotes;
 }
 

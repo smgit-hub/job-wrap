@@ -39,25 +39,25 @@ const SECTIONS: { key: SectionKey; label: string; rows: number; hint?: string }[
     key: "customerSummary",
     label: "Customer Summary",
     rows: 3,
-    hint: "Plain-English intro for the customer — no jargon, warm tone",
+    hint: "Plain English, warm tone — written for the customer, not the trade",
   },
   {
     key: "findings",
     label: "Findings",
     rows: 4,
-    hint: "What was found, observed, or diagnosed on site",
+    hint: "Faults, observations, and anything worth noting",
   },
   {
     key: "workPerformed",
     label: "Work Performed",
     rows: 5,
-    hint: "Use bullet points (•) for each completed task",
+    hint: "List each task — include the outcome",
   },
   {
     key: "recommendations",
     label: "Recommendations",
     rows: 3,
-    hint: "Suggested actions and next steps for the customer",
+    hint: "Next steps and anything the customer should keep in mind",
   },
 ];
 
@@ -223,6 +223,17 @@ const handleBlur = useCallback((current: ServiceReport) => {
                   ))}
                 </select>
               </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ed-equipment">Equipment / System</Label>
+              <Input
+                id="ed-equipment"
+                value={draft.job.equipmentDetails ?? ""}
+                onChange={(e) => updateJobField("equipmentDetails", e.target.value)}
+                onBlur={() => handleBlur(draft)}
+                placeholder="e.g. Carrier 2-ton split system"
+                className="h-11 text-base"
+              />
             </div>
           </CardContent>
         </Card>

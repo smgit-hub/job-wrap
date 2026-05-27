@@ -7,6 +7,7 @@ import ReportEditor from "@/components/ReportEditor";
 import ReportPreview from "@/components/ReportPreview";
 import BrandingSettings from "@/components/BrandingSettings";
 import CustomerSelectScreen from "@/components/CustomerSelectScreen";
+import CustomerProfile from "@/components/CustomerProfile";
 import type { ServiceReport, JobDetails, BusinessProfile, GeneratedReport, Customer } from "@/types/report";
 import {
   getBusinessProfile,
@@ -17,18 +18,19 @@ import {
   upsertCustomerFromJob,
 } from "@/lib/storage";
 
-type Screen = "dashboard" | "customers" | "new-report" | "editor" | "preview" | "settings";
+type Screen = "dashboard" | "customers" | "customer-select" | "customer-profile" | "new-report" | "editor" | "preview" | "settings";
 
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("dashboard");
   const [activeReport, setActiveReport] = useState<ServiceReport | null>(null);
   const [isNewReport, setIsNewReport] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [activeCustomer, setActiveCustomer] = useState<Customer | null>(null);
 
   function handleNewReport() {
     setActiveReport(null);
     setSelectedCustomer(null);
-    setScreen("new-report");
+    setScreen("customer-select");
   }
 
   function handleOpenReport(report: ServiceReport) {
@@ -55,6 +57,7 @@ export default function Home() {
         customerName: job.customerName,
         technicianName: business.technicianName,
         jobDate: job.jobDate,
+        equipmentDetails: job.equipmentDetails,
         voiceNotes: job.voiceNotes,
       }),
     });
@@ -97,6 +100,7 @@ export default function Home() {
         customerName: job.customerName,
         technicianName: business.technicianName,
         jobDate: job.jobDate,
+        equipmentDetails: job.equipmentDetails,
         voiceNotes: job.voiceNotes,
       }),
     });
@@ -133,9 +137,9 @@ export default function Home() {
         />
       )}
 
-      {screen === "customers" && (
+      {/* Customer picker for starting a new job — tapping a customer goes straight to the form */}
+      {screen === "customer-select" && (
         <CustomerSelectScreen
-          standalone
           onBack={() => setScreen("dashboard")}
           onSelectCustomer={(customer) => {
             setSelectedCustomer(customer);
@@ -148,10 +152,39 @@ export default function Home() {
         />
       )}
 
+      {/* Standalone customer management — accessed from the dashboard Customers button or header icon */}
+      {screen === "customers" && (
+        <CustomerSelectScreen
+          standalone
+          onBack={() => setScreen("dashboard")}
+          onSelectCustomer={(customer) => {
+            setActiveCustomer(customer);
+            setScreen("customer-profile");
+          }}
+          onNewCustomer={() => {
+            setSelectedCustomer(null);
+            setScreen("new-report");
+          }}
+        />
+      )}
+
+      {screen === "customer-profile" && activeCustomer && (
+        <CustomerProfile
+          customer={activeCustomer}
+          onBack={() => setScreen("customers")}
+          onStartJob={(customer) => {
+            setSelectedCustomer(customer);
+            setScreen("new-report");
+          }}
+          onOpenReport={handleOpenReport}
+          onCustomerUpdated={(updated) => setActiveCustomer(updated)}
+        />
+      )}
+
       {screen === "new-report" && (
         <NewReportForm
           initialCustomer={selectedCustomer}
-          onBack={() => setScreen("dashboard")}
+          onBack={() => { clearDraft(); setScreen("dashboard"); }}
           onGenerate={handleGenerate}
           onSaveForLater={() => setScreen("dashboard")}
         />
