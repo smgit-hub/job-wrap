@@ -11,6 +11,10 @@ export interface GenerateReportInput {
   customerName: string;
   technicianName: string;
   jobDate: string;
+  equipmentBrand?: string;
+  equipmentModel?: string;
+  equipmentCapacity?: string;
+  equipmentInstallYear?: string;
   equipmentDetails?: string;
   voiceNotes: VoiceNotes;
 }
@@ -43,7 +47,8 @@ RULES:
 - NEVER invent values not in the notes: pressures, temperatures, voltages, part numbers, model numbers, serial numbers.
 - NEVER add tasks, checks, findings, or recommendations not explicitly stated by the tech.
 - NEVER use Service Type or Equipment to infer work not described in the notes — both are context only, not content sources.
-- If the notes are too brief or incoherent to describe recognisable field work, return empty strings for all fields.
+- Apply identical rules to all HVAC system types — residential splits, ducted systems, commercial rooftop units, VRF/VRV systems, air handling units, chillers, and evaporative coolers.
+- If the notes are too brief or vague to describe recognisable field work (e.g. "serviced the unit", "all good", fewer than 10 words), return empty strings for ALL fields. A partial report that invents tasks is worse than a blank one.
 - DO elevate casual language to professional trade terminology.
 - DO infer reasonable outcomes directly implied by the tech's words: a completed repair implies the system was restored.
 - Use strong past-tense verbs: "Replaced", "Cleaned", "Inspected", "Verified", "Tested", "Diagnosed".
@@ -55,28 +60,30 @@ SECTIONS:
 customerSummary
   Plain English prose, warm tone, no jargon, no bullets.
   Address the customer as "you/your", use "we" for the technician.
-  Sentence 1 — what was done: mention key tasks carried out, including any faults diagnosed and repaired. Do not limit to routine items.
+  Sentence 1 — what was done: name the specific equipment (e.g. "your Daikin 6kW split system", "your Brivis ducted gas heating") and mention key tasks carried out, including any faults diagnosed and repaired. Do not limit to routine items.
   Sentence 2 — honest outcome: how the system is now. Use positive language where warranted ("operating correctly", "back to full operation"). Acknowledge unresolved findings — do not claim fault-free when findings show otherwise.
-  Sentence 3 — only if TECHNICIAN'S RECOMMENDATIONS are provided: briefly note there are items below (e.g. "We've noted a couple of items below to keep an eye on."). Omit entirely if no recommendations block is present.
+  Sentence 3 — REQUIRED if TECHNICIAN'S RECOMMENDATIONS are provided: briefly note there are items below (e.g. "We've noted a couple of items below to keep an eye on."). This sentence is mandatory whenever a recommendations block exists — do not omit it. Omit entirely only if no recommendations block is present.
   Do not open with a greeting.
 
 findings
   Faults, defects, worn components, and notable observations extracted from the notes.
-  Up to 5 bullets (•). State the observation only — not what was done about it (actions go in workPerformed).
+  Up to 5 bullets (•). List in order from most to least significant. State the observation only — not what was done about it (actions go in workPerformed).
   Include minor observations even if resolved during the service. A finding that was fixed is still a finding.
-  DO NOT include passing check results — these belong in workPerformed as task outcomes. The following must NOT appear in findings: "gas pressure within specification", "no cracks detected", "flue draw confirmed good", "system operating normally".
+  The test for whether something belongs here: would a customer read it and think "there was a problem"? If yes — include it. If not — it belongs in workPerformed as a task outcome.
+  DO NOT include passing check results, even if the tech explicitly stated them. It does not matter that the tech mentioned it — if it passed, it is a workPerformed outcome, not a finding. Examples that must NOT appear in findings: "heat exchanger appeared satisfactory", "all zones were operational", "remaining zones operating normally", "gas pressure within specification", "no cracks detected", "flue draw confirmed good", "system operating normally", "refrigerant charge appeared fine", "zones all working", "all other units operating normally".
+  When a finding warrants an outcome after the dash, it must add specific detail — severity, impact, or condition (e.g. "Zone 3 fan motor — seized solid, unit not heating"). Never use vague restatements like "confirmed fault", "confirmed failed", "confirmed defective", or "confirmed faulty" — these add no information and are banned.
   If no faults or abnormal observations exist, output an empty string "".
 
 workPerformed
-  Every distinct task carried out on site — do not merge or drop any stated task, including final checks and verification steps.
-  When a diagnostic check is named (e.g. "checked the capacitor"), include it as a task even if the result also appears in findings.
+  Every distinct task carried out on site, listed in the sequence they were performed — do not merge or drop any stated task, including final checks and verification steps.
+  When a diagnostic check is named (e.g. "checked the drain tray", "checked the capacitor"), it must appear as a workPerformed bullet even if the result already appears in findings — include both the check and any subsequent remediation, in sequence.
   Do not omit incidental tasks (e.g. "checked the contactor while I had the panel open").
   Append the outcome after a dash with the specific detail the tech gave. For replacements, always note the condition of the replaced item if stated.
 
 recommendations
   Only generate if TECHNICIAN'S RECOMMENDATIONS are provided.
-  One bullet per recommendation. Preserve all timeframes, rationale, and context exactly as stated.
-  Address the customer directly — every bullet begins with "your" or "you".
+  One bullet per recommendation. Preserve all timeframes, rationale, and context exactly as stated. This includes system age, part lifespans, usage history, and any specific figures the tech mentioned — e.g. "system is 7 years old" must appear in any age-related recommendation, not be silently dropped.
+  Address the customer directly — every bullet MUST begin with the word "your" or "you". This applies without exception, including action bullets like "Budget for…" or "Consider…" — rewrite these to start with "your" or "you" (e.g. "Your drive belt should be upgraded…", "You should budget for…").
   If no recommendations are provided, output an empty string "".
 
 ────────────────────────────────────────────────────────────────
@@ -158,7 +165,59 @@ Remind customer to register the warranty with Mitsubishi within 30 days. First f
 CORRECT OUTPUT:
 {"customerSummary":"We installed your new Mitsubishi 7.1kW reverse-cycle split system in the main living area today, completing all refrigerant pipework, electrical connections, and commissioning. The system is running correctly and ready to use. We've noted a few items below to keep in mind.","findings":"","workPerformed":"• Mounted indoor unit to wall in main living area\n• Mounted outdoor unit on wall brackets at external location\n• Ran refrigerant lineset through wall cavity — indoor to outdoor unit\n• Pressure tested refrigerant circuit — held at 600 psi with no pressure drop\n• Vacuumed refrigerant circuit — held vacuum confirmed\n• Wired indoor and outdoor units — connected to consumer mains\n• Commissioned system — confirmed cooling correctly on startup\n• Demonstrated system operation to customer","recommendations":"• Register your warranty with Mitsubishi within 30 days of installation\n• Your first filter clean is due in approximately 3 months\n• Schedule annual servicing from next year to maintain performance and warranty compliance"}
 
+────────────────────────────────────────────────────────────────
+
+EXAMPLE 5
+
+JOB INFORMATION:
+Service Type: HVAC Preventative Maintenance
+Customer: Northgate Medical Centre
+Technician: Sean Miller
+Date: 2026-05-24
+Equipment: Carrier 10-ton rooftop package unit — installed 2019
+
+TECHNICIAN'S JOB NOTES:
+Annual service on the Carrier 10-ton rooftop package unit serving the main consulting wing. Accessed via roof hatch. Replaced both filter banks — front bank heavily loaded, rear bank moderate. Pulled the drive belt — significant cracking and glazing, replaced it. Lubricated the supply fan shaft bearings. Checked the economiser dampers — both actuating correctly, full travel confirmed. Cleaned the condenser coil, reasonably fouled with debris and cottonwood, used coil cleaner and flushed through. Checked the evaporator coil and drain pan — both clean and clear. Inspected all electrical connections at the main disconnect and contactor — all tight. Refrigerant pressures looked normal, no signs of leakage. Cycled the unit through a full cooling sequence — supply temps good, unit operating correctly.
+
+TECHNICIAN'S RECOMMENDATIONS:
+Drive belt is on a yearly replacement cycle — consider upgrading to a cogged belt next service for better efficiency and longer intervals. Condenser coil fouling was heavier than usual, likely from cottonwood season — worth noting for the next service.
+
+CORRECT OUTPUT:
+{"customerSummary":"We completed the annual service on your Carrier rooftop package unit today, replacing both filter banks and the supply fan drive belt, and cleaning the condenser coil which had accumulated significant debris fouling. The unit is operating correctly across all functions. We've noted a couple of items below worth keeping in mind.","findings":"• Front filter bank heavily loaded — replaced during service\n• Rear filter bank moderately loaded — replaced during service\n• Supply fan drive belt showing significant cracking and glazing — replaced during service\n• Condenser coil fouled with debris and cottonwood — cleaned during service","workPerformed":"• Replaced both filter banks — front bank heavily loaded, rear bank moderate\n• Replaced supply fan drive belt — belt showing cracking and glazing\n• Lubricated supply fan shaft bearings\n• Cleaned condenser coil — debris and cottonwood fouling removed with coil cleaner and flush\n• Inspected evaporator coil — clean, no fouling detected\n• Checked condensate drain pan — clear\n• Verified economiser damper actuators — both operating through full travel correctly\n• Inspected electrical connections at main disconnect and contactor — all tight\n• Verified refrigerant pressures — within normal range, no signs of leakage\n• Cycled unit through full cooling sequence — supply temperatures confirmed good, unit operating correctly","recommendations":"• Your drive belt is on a yearly replacement cycle — consider upgrading to a cogged belt at the next service for improved efficiency and longer intervals\n• Your condenser coil fouling was heavier than usual, likely from cottonwood season — worth noting for the next service visit"}
+
+────────────────────────────────────────────────────────────────
+
+EXAMPLE 6
+
+JOB INFORMATION:
+Service Type: HVAC Preventative Maintenance
+Customer: Gary Potts
+Technician: Sean Miller
+Date: 2026-05-25
+Equipment: Panasonic 5kW reverse-cycle split system
+
+TECHNICIAN'S JOB NOTES:
+Serviced the unit, all good.
+
+CORRECT OUTPUT:
+{"customerSummary":"","findings":"","workPerformed":"","recommendations":""}
+
 ────────────────────────────────────────────────────────────────`;
+
+// ── Equipment line builder ────────────────────────────────────────────────────
+
+function buildEquipmentLine(input: GenerateReportInput): string {
+  const main = [input.equipmentBrand, input.equipmentModel, input.equipmentCapacity]
+    .filter(Boolean)
+    .join(" ");
+  const year = input.equipmentInstallYear?.trim()
+    ? `installed ${input.equipmentInstallYear.trim()}`
+    : "";
+  const notes = input.equipmentDetails?.trim() ?? "";
+  const extras = [year, notes].filter(Boolean).join(", ");
+  const full = main && extras ? `${main} — ${extras}` : main || extras;
+  return full.trim();
+}
 
 // ── User message builder (variable parts) ────────────────────────────────────
 
@@ -169,6 +228,7 @@ export function buildPrompt(input: GenerateReportInput): PromptParts {
       : (SERVICE_TYPE_LABELS[input.serviceType] ?? "Field Service");
   const technician = input.technicianName || "Technician";
   const { jobNotes } = input.voiceNotes;
+  const equipmentLine = buildEquipmentLine(input);
 
   const hasRecommendations = input.voiceNotes.recommendations.trim().length > 0;
   const recommendationsBlock = hasRecommendations
@@ -179,7 +239,7 @@ export function buildPrompt(input: GenerateReportInput): PromptParts {
 Service Type: ${serviceLabel}
 Customer: ${input.customerName || "Customer"}
 Technician: ${technician}
-Date: ${input.jobDate}${input.equipmentDetails ? `\nEquipment: ${input.equipmentDetails}` : ""}
+Date: ${input.jobDate}${equipmentLine ? `\nEquipment: ${equipmentLine}` : ""}
 
 TECHNICIAN'S JOB NOTES:
 ${jobNotes}
@@ -229,17 +289,36 @@ export function parseResponse(text: string): GeneratedReport {
     return { ...FALLBACK_REPORT };
   }
 
+  // Strip vague "— confirmed X" tails — e.g. "— confirmed fault", "— confirmed flowing correctly".
+  // Only strips tails with no digits — a tail containing a measurement (e.g. "confirmed at 600 psi")
+  // is specific and is kept. Applied to both findings and workPerformed.
+  function stripVagueTails(line: string): string {
+    return line
+      .replace(/\s*—\s*confirmed\s+[a-z][a-z\s]{0,50}$/i, (m) => (/\d/.test(m) ? m : ""))
+      .trimEnd();
+  }
+
   function cleanBullets(value: unknown): string {
     if (typeof value !== "string") return "";
     return value
       .split("\n")
       .filter((line) => line.trim() && line.trim() !== "•")
+      .map(stripVagueTails)
+      .join("\n");
+  }
+
+  function cleanFindingsBullets(value: unknown): string {
+    if (typeof value !== "string") return "";
+    return value
+      .split("\n")
+      .filter((line) => line.trim() && line.trim() !== "•")
+      .map(stripVagueTails)
       .join("\n");
   }
 
   return {
     customerSummary: typeof parsed.customerSummary === "string" ? parsed.customerSummary.trim() : "",
-    findings: cleanBullets(parsed.findings),
+    findings: cleanFindingsBullets(parsed.findings),
     workPerformed: cleanBullets(parsed.workPerformed),
     recommendations: cleanBullets(parsed.recommendations),
   };

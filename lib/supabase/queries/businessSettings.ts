@@ -28,7 +28,12 @@ export function toBusinessSettingsInsert(
     technician_name: profile.technicianName,
     phone: profile.phone,
     email: profile.email,
-    license_number: profile.licenseNumber,
+    // TODO(schema): add licence1_label, licence1_number, licence2_label, licence2_number columns.
+    // For now, serialise both into the existing license_number column.
+    license_number: [
+      profile.licence1Label && profile.licence1Number ? `${profile.licence1Label}: ${profile.licence1Number}` : "",
+      profile.licence2Label && profile.licence2Number ? `${profile.licence2Label}: ${profile.licence2Number}` : "",
+    ].filter(Boolean).join(" · ") || "",
     brand_color: profile.brandColor,
     logo_url: profile.logoUrl ?? null,
   };
@@ -40,7 +45,11 @@ export function toBusinessProfile(row: BusinessSettingsRow): BusinessProfile {
     technicianName: row.technician_name,
     phone: row.phone,
     email: row.email,
-    licenseNumber: row.license_number,
+    // TODO(schema): read from dedicated columns once DB migration is applied.
+    licence1Label: row.license_number ? "Licence" : "",
+    licence1Number: row.license_number ?? "",
+    licence2Label: "",
+    licence2Number: "",
     brandColor: row.brand_color,
     logoUrl: row.logo_url ?? undefined,
   };

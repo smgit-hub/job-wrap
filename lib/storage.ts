@@ -10,7 +10,10 @@ export const DEFAULT_BUSINESS: BusinessProfile = {
   technicianName: "",
   phone: "",
   email: "",
-  licenseNumber: "",
+  licence1Label: "",
+  licence1Number: "",
+  licence2Label: "",
+  licence2Number: "",
   brandColor: "#0f172a",
   tagline: "",
   website: "",
@@ -83,7 +86,13 @@ export function deleteReport(id: string): void {
 
 // Business profile
 export function getBusinessProfile(): BusinessProfile {
-  return safeGet<BusinessProfile>(BUSINESS_KEY, DEFAULT_BUSINESS);
+  const raw = safeGet<BusinessProfile & { licenseNumber?: string }>(BUSINESS_KEY, DEFAULT_BUSINESS);
+  // Migrate legacy single licenseNumber field → licence1
+  if (raw.licenseNumber && !raw.licence1Number) {
+    raw.licence1Label = raw.licence1Label || "Licence";
+    raw.licence1Number = raw.licenseNumber;
+  }
+  return { ...DEFAULT_BUSINESS, ...raw };
 }
 
 export function saveBusinessProfile(profile: BusinessProfile): void {

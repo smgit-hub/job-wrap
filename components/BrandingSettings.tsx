@@ -152,9 +152,16 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
               <Label htmlFor="technicianName">Technician Name</Label>
               <Input id="technicianName" value={form.technicianName} onChange={(e) => update("technicianName", e.target.value)} placeholder="e.g. Alex Morgan" className="h-12 text-base" />
             </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="licenseNumber">Registration / Licence</Label>
-              <Input id="licenseNumber" value={form.licenseNumber} onChange={(e) => update("licenseNumber", e.target.value)} placeholder="e.g. REG-2024-0147" className="h-12 text-base" />
+            <div className="space-y-2">
+              <Label>Licences / Registrations</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <Input value={form.licence1Label} onChange={(e) => update("licence1Label", e.target.value)} placeholder="Label (e.g. ARCtick)" className="h-11 text-base" />
+                <Input value={form.licence1Number} onChange={(e) => update("licence1Number", e.target.value)} placeholder="Number" className="h-11 text-base" />
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Input value={form.licence2Label} onChange={(e) => update("licence2Label", e.target.value)} placeholder="Label (e.g. Gas Licence)" className="h-11 text-base" />
+                <Input value={form.licence2Number} onChange={(e) => update("licence2Number", e.target.value)} placeholder="Number" className="h-11 text-base" />
+              </div>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="tagline">Tagline <span className="text-slate-400 font-normal">(optional)</span></Label>

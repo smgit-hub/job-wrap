@@ -27,6 +27,15 @@ function formatDate(dateStr: string): string {
   });
 }
 
+function buildEquipmentString(job: ServiceReport["job"]): string {
+  const main = [job.equipmentBrand, job.equipmentModel, job.equipmentCapacity]
+    .filter(Boolean).join(" ");
+  const year = job.equipmentInstallYear?.trim() ? `installed ${job.equipmentInstallYear.trim()}` : "";
+  const notes = job.equipmentDetails?.trim() ?? "";
+  const extras = [year, notes].filter(Boolean).join(", ");
+  return main && extras ? `${main} — ${extras}` : main || extras;
+}
+
 function buildPlainText(report: ServiceReport): string {
   const { business, job, report: rpt } = report;
   const lines: string[] = [];
@@ -36,7 +45,9 @@ function buildPlainText(report: ServiceReport): string {
   lines.push(`Date: ${formatDate(job.jobDate)}`);
   if (job.customerName) lines.push(`Customer: ${job.customerName}`);
   if (job.serviceAddress) lines.push(`Address: ${job.serviceAddress}`);
-  if (job.equipmentDetails) lines.push(`Equipment: ${job.equipmentDetails}`);
+  const equipStr = buildEquipmentString(job);
+  if (equipStr) lines.push(`Equipment: ${equipStr}`);
+  if (job.nextServiceDate) lines.push(`Next Service Due: ${formatDate(job.nextServiceDate)}`);
   lines.push("");
 
   if (rpt.customerSummary) {
@@ -59,7 +70,8 @@ function buildPlainText(report: ServiceReport): string {
   lines.push("---");
   lines.push(business.businessName);
   if (business.technicianName) lines.push(`Technician: ${business.technicianName}`);
-  if (business.licenseNumber) lines.push(`Licence: ${business.licenseNumber}`);
+  if (business.licence1Label && business.licence1Number) lines.push(`${business.licence1Label}: ${business.licence1Number}`);
+  if (business.licence2Label && business.licence2Number) lines.push(`${business.licence2Label}: ${business.licence2Number}`);
   if (business.phone) lines.push(business.phone);
   if (business.email) lines.push(business.email);
 
@@ -262,8 +274,11 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-3">
               {SERVICE_TYPE_LABELS[job.serviceType]}  ·  {formatDate(job.jobDate)}
             </p>
-            {job.equipmentDetails && (
-              <p className="text-xs text-slate-500 mt-1">{job.equipmentDetails}</p>
+            {(() => { const eq = buildEquipmentString(job); return eq ? <p className="text-xs text-slate-500 mt-1">{eq}</p> : null; })()}
+            {job.nextServiceDate && (
+              <p className="text-xs font-semibold text-slate-500 mt-1">
+                Next service due: {formatDate(job.nextServiceDate)}
+              </p>
             )}
           </div>
 
@@ -338,7 +353,8 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             <div className="text-xs text-gray-400 space-y-0.5">
               <p className="font-semibold text-gray-600">{business.businessName}</p>
               {business.technicianName && <p>Technician: {business.technicianName}</p>}
-              {business.licenseNumber && <p>Licence: {business.licenseNumber}</p>}
+              {business.licence1Label && business.licence1Number && <p>{business.licence1Label}: {business.licence1Number}</p>}
+              {business.licence2Label && business.licence2Number && <p>{business.licence2Label}: {business.licence2Number}</p>}
               {business.phone && <p>{business.phone}</p>}
               {business.email && <p>{business.email}</p>}
               {business.website && <p>{business.website}</p>}

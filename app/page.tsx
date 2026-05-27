@@ -57,6 +57,10 @@ export default function Home() {
         customerName: job.customerName,
         technicianName: business.technicianName,
         jobDate: job.jobDate,
+        equipmentBrand: job.equipmentBrand,
+        equipmentModel: job.equipmentModel,
+        equipmentCapacity: job.equipmentCapacity,
+        equipmentInstallYear: job.equipmentInstallYear,
         equipmentDetails: job.equipmentDetails,
         voiceNotes: job.voiceNotes,
       }),
@@ -68,6 +72,14 @@ export default function Home() {
     }
 
     const data = (await response.json()) as { report: GeneratedReport };
+
+    // If the AI returned all-empty fields the notes were too brief to work with.
+    // Throw so NewReportForm shows the error and the tech can add more detail.
+    if (!data.report.customerSummary && !data.report.workPerformed) {
+      throw new Error(
+        "Your notes don't have enough detail to generate a report. Try describing the specific tasks you completed on site."
+      );
+    }
 
     const report: ServiceReport = {
       id: generateId(),
@@ -100,6 +112,10 @@ export default function Home() {
         customerName: job.customerName,
         technicianName: business.technicianName,
         jobDate: job.jobDate,
+        equipmentBrand: job.equipmentBrand,
+        equipmentModel: job.equipmentModel,
+        equipmentCapacity: job.equipmentCapacity,
+        equipmentInstallYear: job.equipmentInstallYear,
         equipmentDetails: job.equipmentDetails,
         voiceNotes: job.voiceNotes,
       }),
@@ -109,6 +125,11 @@ export default function Home() {
       throw new Error(data.error ?? "Regeneration failed. Please try again.");
     }
     const data = (await response.json()) as { report: GeneratedReport };
+    if (!data.report.customerSummary && !data.report.workPerformed) {
+      throw new Error(
+        "Your notes don't have enough detail to generate a report. Try describing the specific tasks you completed on site."
+      );
+    }
     return data.report;
   }
 

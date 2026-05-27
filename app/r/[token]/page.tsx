@@ -228,7 +228,8 @@ export default async function SharedReportPage({
               {business.technicianName && (
                 <p>Technician: {business.technicianName}</p>
               )}
-              {business.licenseNumber && <p>Licence: {business.licenseNumber}</p>}
+              {business.licence1Label && business.licence1Number && <p>{business.licence1Label}: {business.licence1Number}</p>}
+              {business.licence2Label && business.licence2Number && <p>{business.licence2Label}: {business.licence2Number}</p>}
               {business.phone && <p>{business.phone}</p>}
               {business.email && <p>{business.email}</p>}
               {business.website && <p>{business.website}</p>}

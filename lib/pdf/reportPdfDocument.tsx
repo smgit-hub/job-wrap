@@ -277,14 +277,29 @@ function Divider() {
 
 // ── Main document ────────────────────────────────────────────────────────────
 
+function buildEquipmentString(job: ServiceReport["job"]): string {
+  const main = [job.equipmentBrand, job.equipmentModel, job.equipmentCapacity]
+    .filter(Boolean)
+    .join(" ");
+  const year = job.equipmentInstallYear?.trim()
+    ? `Installed ${job.equipmentInstallYear.trim()}`
+    : "";
+  const notes = job.equipmentDetails?.trim() ?? "";
+  const secondary = [year, notes].filter(Boolean).join(" · ");
+  if (!main && !secondary) return "";
+  return [main, secondary].filter(Boolean).join("\n");
+}
+
 export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocumentProps) {
   const { business, job, report: rpt } = report;
   const brandColor = business.brandColor || "#0f172a";
+  const equipmentStr = buildEquipmentString(job);
 
   const footerItems = [
     business.businessName,
     business.technicianName ? `Technician: ${business.technicianName}` : null,
-    business.licenseNumber ? `Licence: ${business.licenseNumber}` : null,
+    business.licence1Label && business.licence1Number ? `${business.licence1Label}: ${business.licence1Number}` : null,
+    business.licence2Label && business.licence2Number ? `${business.licence2Label}: ${business.licence2Number}` : null,
     business.phone || null,
     business.email || null,
     business.website || null,
@@ -350,10 +365,17 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
               <Text style={s.infoValue}>{SERVICE_TYPE_LABELS[job.serviceType]}</Text>
             </View>
 
-            {Boolean(job.equipmentDetails) && (
+            {Boolean(equipmentStr) && (
               <View style={s.infoFull}>
                 <Text style={s.infoLabel}>Equipment / System</Text>
-                <Text style={s.infoValue}>{job.equipmentDetails}</Text>
+                <Text style={s.infoValue}>{equipmentStr}</Text>
+              </View>
+            )}
+
+            {Boolean(job.nextServiceDate) && (
+              <View style={s.infoHalf}>
+                <Text style={s.infoLabel}>Next Service Due</Text>
+                <Text style={s.infoValue}>{formatDate(job.nextServiceDate!)}</Text>
               </View>
             )}
           </View>

@@ -51,7 +51,10 @@ export interface BusinessProfile {
   technicianName: string;
   phone: string;
   email: string;
-  licenseNumber: string;
+  licence1Label: string;   // e.g. "ARCtick", "Gas Safe", "EPA 608"
+  licence1Number: string;  // e.g. "AU12345"
+  licence2Label: string;
+  licence2Number: string;
   brandColor: string;
   logoUrl?: string;
   tagline?: string;
@@ -65,8 +68,15 @@ export interface JobDetails {
   /** Free-text label used when serviceType === "other" */
   customServiceType?: string;
   jobDate: string;
-  /** Equipment / system serviced on this visit — captured per job, not per customer */
+  // ── Structured equipment fields — captured per job, not per customer ────────
+  equipmentBrand?: string;       // e.g. "Daikin"
+  equipmentModel?: string;       // e.g. "FTXM50W"
+  equipmentCapacity?: string;    // e.g. "6kW"
+  equipmentInstallYear?: string; // e.g. "2018"
+  /** Additional notes — serial number, system type, secondary units, etc. */
   equipmentDetails?: string;
+  /** Next recommended service date — shown in the PDF info grid if set */
+  nextServiceDate?: string;
   voiceNotes: VoiceNotes;
 }
 

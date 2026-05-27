@@ -48,12 +48,19 @@ function run(name: string, fn: ProviderFn, parts: PromptParts): Promise<Generate
 // If not, we apply the fallback here — the AI never decides.
 
 function applyFallbacks(report: GeneratedReport, input: GenerateReportInput): GeneratedReport {
-  return {
-    ...report,
-    recommendations: input.voiceNotes.recommendations.trim()
-      ? report.recommendations || RECOMMENDATIONS_FALLBACK
-      : RECOMMENDATIONS_FALLBACK,
-  };
+  const recommendations = input.voiceNotes.recommendations.trim()
+    ? report.recommendations || RECOMMENDATIONS_FALLBACK
+    : RECOMMENDATIONS_FALLBACK;
+
+  // If recommendations exist but the AI omitted the closing sentence from the summary,
+  // append it deterministically — the AI drops this despite prompt rules requiring it.
+  const summaryHasCloser = /\bbelow\b|\bnoted\b|\bkeep an eye\b/i.test(report.customerSummary);
+  const customerSummary =
+    recommendations && report.customerSummary && !summaryHasCloser
+      ? `${report.customerSummary.trimEnd()} We've noted some items below to keep an eye on.`
+      : report.customerSummary;
+
+  return { ...report, recommendations, customerSummary };
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
