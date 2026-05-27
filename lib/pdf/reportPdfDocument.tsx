@@ -82,7 +82,7 @@ const s = StyleSheet.create({
   // ── Body ───────────────────────────────────────────────────────────────────
   body: {
     paddingHorizontal: 40,
-    paddingTop: 14,
+    paddingTop: 12,
   },
 
   // ── Info grid ──────────────────────────────────────────────────────────────
@@ -116,8 +116,8 @@ const s = StyleSheet.create({
   divider: {
     borderTopWidth: 1,
     borderTopColor: "#e5e7eb",
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: 8,
+    marginBottom: 8,
   },
 
   // ── Section label ──────────────────────────────────────────────────────────
@@ -146,7 +146,7 @@ const s = StyleSheet.create({
   // ── Bullet list ────────────────────────────────────────────────────────────
   bulletRow: {
     flexDirection: "row",
-    marginBottom: 4,
+    marginBottom: 3,
   },
   bulletDot: {
     fontSize: 10,
@@ -202,7 +202,7 @@ const s = StyleSheet.create({
     color: "#6b7280",
     textAlign: "center",
     lineHeight: 1.55,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   thankYouBiz: {
     fontFamily: "Helvetica-Bold",
@@ -215,7 +215,7 @@ const s = StyleSheet.create({
     gap: 4,
     borderTopWidth: 1,
     borderTopColor: "#e5e7eb",
-    paddingTop: 10,
+    paddingTop: 8,
   },
   footerItem: {
     fontSize: 8.5,

@@ -52,7 +52,7 @@ RULES:
 - DO elevate casual language to professional trade terminology.
 - DO infer reasonable outcomes directly implied by the tech's words: a completed repair implies the system was restored.
 - Use strong past-tense verbs: "Replaced", "Cleaned", "Inspected", "Verified", "Tested", "Diagnosed".
-- Append outcomes after a dash with specific detail: "Inspected heat exchanger — no cracks detected". Never use vague outcomes like "confirmed condition".
+- Use a dash to append an outcome only when it adds specific information — a measurement, test result, or non-obvious condition (e.g. "Pressure tested circuit — held at 600 psi for 30 minutes", "Inspected heat exchanger — no cracks detected"). Omit the dash for straightforward completed tasks where no meaningful outcome was stated (e.g. "Replaced return air filter", "Lubricated fan shaft bearings"). Never use vague outcomes like "confirmed condition".
 - Do not end bullets with a full stop. Keep each bullet under 120 characters where possible.
 
 SECTIONS:
@@ -67,7 +67,13 @@ customerSummary
 
 findings
   Faults, defects, worn components, and notable observations extracted from the notes.
-  Up to 5 bullets (•). List in order from most to least significant. State the observation only — not what was done about it (actions go in workPerformed).
+  Up to 5 bullets (•). List in order from most to least significant — the order in the technician's notes is irrelevant. Use this severity hierarchy to rank:
+  1. Safety or structural defects (cracked heat exchanger, refrigerant leak, flue fault)
+  2. Functional faults causing or likely to cause system failure (failed component, failed zone)
+  3. Degraded components approaching failure (sluggish actuator, worn belt, pitted contactor)
+  4. Maintenance observations (dirty filter, coil fouling, dust buildup)
+  A cracked heat exchanger always ranks above a clogged filter, regardless of which appeared first in the notes. The hierarchy is for ordering only — all findings must still be listed, including minor maintenance observations.
+  State the observation only — not what was done about it (actions go in workPerformed). Do not append "— cleaned during service", "— replaced during service", "— resolved during service" or similar — those are actions, not observations.
   Include minor observations even if resolved during the service. A finding that was fixed is still a finding.
   The test for whether something belongs here: would a customer read it and think "there was a problem"? If yes — include it. If not — it belongs in workPerformed as a task outcome.
   DO NOT include passing check results, even if the tech explicitly stated them. It does not matter that the tech mentioned it — if it passed, it is a workPerformed outcome, not a finding. Examples that must NOT appear in findings: "heat exchanger appeared satisfactory", "all zones were operational", "remaining zones operating normally", "gas pressure within specification", "no cracks detected", "flue draw confirmed good", "system operating normally", "refrigerant charge appeared fine", "zones all working", "all other units operating normally".
@@ -78,11 +84,11 @@ workPerformed
   Every distinct task carried out on site, listed in the sequence they were performed — do not merge or drop any stated task, including final checks and verification steps.
   When a diagnostic check is named (e.g. "checked the drain tray", "checked the capacitor"), it must appear as a workPerformed bullet even if the result already appears in findings — include both the check and any subsequent remediation, in sequence.
   Do not omit incidental tasks (e.g. "checked the contactor while I had the panel open").
-  Append the outcome after a dash with the specific detail the tech gave. For replacements, always note the condition of the replaced item if stated.
+  Append an outcome after a dash only when it adds specific information the tech gave — a measurement, finding, or condition (e.g. "Replaced dual run capacitor — original tested at near-zero capacitance"). For routine tasks with no notable outcome, write the task alone without a dash (e.g. "Lubricated fan shaft bearings", "Replaced return air filter"). For replacements, note the condition of the replaced item if the tech stated it.
 
 recommendations
   Only generate if TECHNICIAN'S RECOMMENDATIONS are provided.
-  One bullet per recommendation. Preserve all timeframes, rationale, and context exactly as stated. This includes system age, part lifespans, usage history, and any specific figures the tech mentioned — e.g. "system is 7 years old" must appear in any age-related recommendation, not be silently dropped.
+  One bullet per recommendation. Preserve all timeframes, rationale, and context exactly as stated — do not simplify, summarise, or drop any detail the tech provided. This includes system age, part lifespans, usage history, replacement planning, and any specific figures. If the tech says "system is 8 years old, worth looking at replacement", those words must appear — "approaching end of life" or "consider a system review" are not acceptable substitutes. Do not paraphrase specific details into vague generalities. If the tech gives a reason, include it. If the tech gives a timeframe, include it. Omitting context is not neutral — it makes the recommendation less useful.
   Address the customer directly — every bullet MUST begin with the word "your" or "you". This applies without exception, including action bullets like "Budget for…" or "Consider…" — rewrite these to start with "your" or "you" (e.g. "Your drive belt should be upgraded…", "You should budget for…").
   If no recommendations are provided, output an empty string "".
 
@@ -312,7 +318,12 @@ export function parseResponse(text: string): GeneratedReport {
     return value
       .split("\n")
       .filter((line) => line.trim() && line.trim() !== "•")
-      .map(stripVagueTails)
+      .map((line) =>
+        stripVagueTails(line)
+          // Strip "— [verb]ed during service" action tails from findings (e.g. "— cleaned during service")
+          .replace(/\s*—\s*\w+ed during service\s*$/i, "")
+          .trimEnd()
+      )
       .join("\n");
   }
 
