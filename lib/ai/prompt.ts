@@ -33,7 +33,7 @@ const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {
 
 // Recommendations fallback — used when tech recorded nothing for that field.
 // Applied in code before the prompt is built so the AI never decides.
-export const RECOMMENDATIONS_FALLBACK = "• Schedule next routine service when due";
+export const RECOMMENDATIONS_FALLBACK = "• Maintain regular annual servicing to keep your system running efficiently";
 
 // ── System prompt (static — sent as the system message each request) ─────────
 
@@ -120,6 +120,43 @@ Filter was extremely blocked — customer mentioned they hadn't changed it in tw
 
 CORRECT OUTPUT:
 {"customerSummary":"We serviced your Brivis ducted gas heating system today, replacing the heavily clogged return air filter and resolving a Zone 3 wiring fault that was preventing the zone from calling for heat. The system is now operating correctly with all zones functional. We've noted a couple of items below to keep an eye on.","findings":"• Return air filter heavily clogged\n• Minor oxidation observed on burner assembly ports\n• Zone 3 not calling for heat due to loose wiring terminal","workPerformed":"• Replaced return air filter — original filter heavily clogged\n• Cleaned burner assembly — minor oxidation removed from burner ports\n• Inspected heat exchanger — no cracks detected\n• Verified flue draw — confirmed good\n• Tested all four zones — zones 1, 2, and 4 functioning correctly\n• Traced Zone 3 fault to loose wiring terminal — tightened and retested, Zone 3 back online\n• Cycled the whole system — confirmed all operational\n• Verified gas pressure at manifold — within specification","recommendations":"• Your return air filter should be changed every 6 months — it had not been replaced in approximately two years\n• Your next annual service is due May 2027"}
+
+────────────────────────────────────────────────────────────────
+
+EXAMPLE 3
+
+JOB INFORMATION:
+Service Type: Pre-Season Service
+Customer: Tom Hargreaves
+Technician: Sean Miller
+Date: 2026-05-21
+Equipment: Mitsubishi 4-zone ducted reverse-cycle, 14kW
+
+TECHNICIAN'S JOB NOTES:
+Pre-season heating startup on Mitsubishi 4-zone ducted, 14kW. Filter was clean, left it in. Checked the heat exchanger — no cracking or corrosion. Flue draw good. Tested all four zones — all dampers opening and closing correctly, thermostat calling properly on all zones. Refrigerant charge appeared fine, no signs of leakage. Cycled the system through a full heating cycle, output temps good across all zones.
+
+CORRECT OUTPUT:
+{"customerSummary":"We carried out the pre-season startup on your Mitsubishi 4-zone ducted heating system today, inspecting and testing all major components. The system is in good condition and operating correctly — ready for the heating season.","findings":"","workPerformed":"• Inspected return air filter — clean, left in place\n• Inspected heat exchanger — no cracks or corrosion detected\n• Verified flue draw — confirmed good\n• Tested all four zones — all dampers responding correctly to thermostat calls\n• Verified refrigerant charge — no signs of leakage detected\n• Cycled full heating system — supply temperatures confirmed good across all zones","recommendations":""}
+
+────────────────────────────────────────────────────────────────
+
+EXAMPLE 4
+
+JOB INFORMATION:
+Service Type: HVAC System Installation
+Customer: Jake Morrison
+Technician: Sean Miller
+Date: 2026-05-22
+Equipment: Mitsubishi 7.1kW reverse-cycle split system
+
+TECHNICIAN'S JOB NOTES:
+Installed new Mitsubishi 7.1kW wall-mount split in the main living area. Mounted the indoor unit on the wall, ran the lineset through the wall cavity to the outdoor location. Mounted outdoor unit on brackets on the side of the house. Pressure tested to 600 psi — held for 30 minutes, no drop. Vacuumed the system down, held vacuum. Wired up the indoor and outdoor units, connected to the consumer mains. Commissioned and started up — system cooling correctly. Showed the customer how to use the remote.
+
+TECHNICIAN'S RECOMMENDATIONS:
+Remind customer to register the warranty with Mitsubishi within 30 days. First filter clean due in about 3 months. Annual service from next year.
+
+CORRECT OUTPUT:
+{"customerSummary":"We installed your new Mitsubishi 7.1kW reverse-cycle split system in the main living area today, completing all refrigerant pipework, electrical connections, and commissioning. The system is running correctly and ready to use. We've noted a few items below to keep in mind.","findings":"","workPerformed":"• Mounted indoor unit to wall in main living area\n• Mounted outdoor unit on wall brackets at external location\n• Ran refrigerant lineset through wall cavity — indoor to outdoor unit\n• Pressure tested refrigerant circuit — held at 600 psi with no pressure drop\n• Vacuumed refrigerant circuit — held vacuum confirmed\n• Wired indoor and outdoor units — connected to consumer mains\n• Commissioned system — confirmed cooling correctly on startup\n• Demonstrated system operation to customer","recommendations":"• Register your warranty with Mitsubishi within 30 days of installation\n• Your first filter clean is due in approximately 3 months\n• Schedule annual servicing from next year to maintain performance and warranty compliance"}
 
 ────────────────────────────────────────────────────────────────`;
 
