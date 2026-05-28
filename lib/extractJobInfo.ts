@@ -53,8 +53,8 @@ export function extractJobInfo(transcript: string): ExtractedJobInfo {
     result.serviceType = "hvac-install";
   } else if (/start[\s-]?up|seasonal|spring start|fall start|cooling season|heating season|end of season/i.test(lower)) {
     result.serviceType = "hvac-seasonal";
-  } else if (/warranty/i.test(lower)) {
-    result.serviceType = "hvac-warranty";
+  } else if (/duct clean|duct-clean|ducting clean/i.test(lower)) {
+    result.serviceType = "hvac-duct-cleaning";
   } else if (/emergency|urgent|flooded|no power/i.test(lower)) {
     result.serviceType = "hvac-emergency";
   } else if (/inspection|annual inspect/i.test(lower)) {

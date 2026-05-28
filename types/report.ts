@@ -5,7 +5,7 @@ export type ServiceType =
   | "hvac-install"
   | "hvac-seasonal"
   | "hvac-inspection"
-  | "hvac-warranty"
+  | "hvac-duct-cleaning"
   | "other";
 
 export type ReportStatus = "draft" | "complete";
@@ -109,6 +109,6 @@ export const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {
   "hvac-install": "System Installation",
   "hvac-seasonal": "Pre-Season Service",
   "hvac-inspection": "System Inspection",
-  "hvac-warranty": "Warranty Service",
-  other: "Other / Custom",
+  "hvac-duct-cleaning": "Duct Cleaning",
+  other: "Other",
 };

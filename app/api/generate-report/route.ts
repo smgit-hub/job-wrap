@@ -18,7 +18,7 @@ const VALID_SERVICE_TYPES = new Set<ServiceType>([
   "hvac-install",
   "hvac-seasonal",
   "hvac-inspection",
-  "hvac-warranty",
+  "hvac-duct-cleaning",
   "other",
 ]);
 

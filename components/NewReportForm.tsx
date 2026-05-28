@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import FreeformRecordingFlow from "@/components/recording/FreeformRecordingFlow";
 import type { JobDetails, VoiceNotes, ServiceType, Customer, ServiceReport } from "@/types/report";
-import { EMPTY_VOICE_NOTES } from "@/types/report";
+import { EMPTY_VOICE_NOTES, SERVICE_TYPE_LABELS } from "@/types/report";
 import { saveDraft, getDraft, saveReport, clearDraft, generateId, getBusinessProfile, saveCustomer } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
@@ -22,18 +22,7 @@ interface NewReportFormProps {
   onSaveForLater: () => void;
 }
 
-const SERVICE_CHIP_LABELS: Record<ServiceType, string> = {
-  "hvac-maintenance": "Maintenance",
-  "hvac-emergency": "Emergency",
-  "hvac-repair": "Repair",
-  "hvac-install": "Installation",
-  "hvac-seasonal": "Seasonal",
-  "hvac-inspection": "Inspection",
-  "hvac-warranty": "Warranty",
-  other: "Other",
-};
-
-const SERVICE_TYPES = Object.keys(SERVICE_CHIP_LABELS) as ServiceType[];
+const SERVICE_TYPES = Object.keys(SERVICE_TYPE_LABELS) as ServiceType[];
 
 const EMPTY_JOB: JobDetails = {
   customerName: "",
@@ -434,7 +423,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                 className="h-11 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-300"
               >
                 {SERVICE_TYPES.map((type) => (
-                  <option key={type} value={type}>{SERVICE_CHIP_LABELS[type]}</option>
+                  <option key={type} value={type}>{SERVICE_TYPE_LABELS[type]}</option>
                 ))}
               </select>
               {job.serviceType === "other" && (

@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 import type { ServiceReport, GeneratedReport, JobPhoto, JobDetails, SectionVerified } from "@/types/report";
+import { SERVICE_TYPE_LABELS } from "@/types/report";
 import { saveReport } from "@/lib/storage";
 import { getPhotosForReport, savePhotosForReport } from "@/lib/photoStorage";
 import PhotoSection from "@/components/PhotoSection";
@@ -22,16 +23,6 @@ interface ReportEditorProps {
   onRegenerate?: (job: JobDetails) => Promise<GeneratedReport>;
 }
 
-const SERVICE_TYPE_LABELS: Record<string, string> = {
-  "hvac-maintenance": "Maintenance",
-  "hvac-emergency": "Emergency",
-  "hvac-repair": "Repair",
-  "hvac-install": "Installation",
-  "hvac-seasonal": "Seasonal",
-  "hvac-inspection": "Inspection",
-  "hvac-warranty": "Warranty",
-  other: "Other",
-};
 
 const SECTION_KEYS: (keyof GeneratedReport)[] = [
   "customerSummary",
@@ -417,32 +408,30 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
           </CardContent>
         </Card>
 
-        {/* Job Notes — always visible */}
+        {/* Job Notes */}
         <Card className="border border-slate-100 shadow-card">
           <CardHeader className="pb-2 px-4 pt-4">
             <div className="flex items-center justify-between">
               <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Job Notes</CardTitle>
-              {!isUngenerated && (
-                <button
-                  onClick={() => setShowNotes((v) => !v)}
-                  className="text-xs text-orange-500 font-semibold"
-                >
-                  {showNotes ? "Hide" : "Show"}
-                </button>
-              )}
+              <button
+                onClick={() => setShowNotes((v) => !v)}
+                className="text-xs text-orange-500 font-semibold"
+              >
+                {showNotes ? "Hide" : "Show"}
+              </button>
             </div>
-            {!showNotes && !isUngenerated && originalNotes && (
+            {!showNotes && originalNotes && (
               <p className="text-sm text-slate-500 mt-1 truncate normal-case tracking-normal font-normal">
                 {originalNotes.slice(0, 80)}{originalNotes.length > 80 ? "…" : ""}
               </p>
             )}
-            {!showNotes && !isUngenerated && !originalNotes && (
+            {!showNotes && !originalNotes && (
               <p className="text-sm text-slate-400 mt-1 normal-case tracking-normal font-normal italic">
                 No notes recorded
               </p>
             )}
           </CardHeader>
-          {(showNotes || isUngenerated) && (
+          {showNotes && (
             <CardContent className="px-4 pb-4">
               <Textarea
                 value={draft.job.voiceNotes.jobNotes}
@@ -466,11 +455,11 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
           )}
         </Card>
 
-        {/* Regenerate */}
-        {onRegenerate && !isRegenerating && !confirmRegen && (
+        {/* Regenerate — only shown once a report exists */}
+        {onRegenerate && !isUngenerated && !isRegenerating && !confirmRegen && (
           <button
             onClick={() => setConfirmRegen(true)}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm hover:border-orange-200 hover:text-orange-400 transition-colors"
+            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-300 text-slate-500 text-sm hover:border-orange-300 hover:text-orange-500 transition-colors"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             Regenerate with AI

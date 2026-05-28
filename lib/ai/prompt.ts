@@ -4,6 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import type { GeneratedReport, ServiceType, VoiceNotes } from "@/types/report";
+import { SERVICE_TYPE_LABELS } from "@/types/report";
 
 export interface GenerateReportInput {
   serviceType: ServiceType;
@@ -19,17 +20,6 @@ export interface PromptParts {
   system: string;
   user: string;
 }
-
-const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {
-  "hvac-maintenance": "HVAC Preventative Maintenance",
-  "hvac-emergency": "HVAC Emergency Service",
-  "hvac-repair": "HVAC Repair & Diagnostics",
-  "hvac-install": "HVAC System Installation",
-  "hvac-seasonal": "Pre-Season Service",
-  "hvac-inspection": "HVAC System Inspection",
-  "hvac-warranty": "HVAC Warranty Service",
-  other: "Field Service",
-};
 
 // Recommendations fallback — used when tech recorded nothing for that field.
 // Applied in code before the prompt is built so the AI never decides.
