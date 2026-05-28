@@ -153,6 +153,8 @@ export function upsertCustomerFromJob(job: JobDetails): void {
     saveCustomer({
       ...existing,
       address: job.serviceAddress || existing.address,
+      // Update equipment only when a non-empty value was recorded for this job
+      equipment: job.equipment?.trim() || existing.equipment,
       updatedAt: now,
     });
   } else {
@@ -161,6 +163,7 @@ export function upsertCustomerFromJob(job: JobDetails): void {
       name: job.customerName.trim(),
       address: job.serviceAddress,
       siteNotes: "",
+      equipment: job.equipment?.trim() || undefined,
       createdAt: now,
       updatedAt: now,
     });

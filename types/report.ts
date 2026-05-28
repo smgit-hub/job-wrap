@@ -28,6 +28,7 @@ export interface Customer {
   siteNotes: string;  // gate codes, access instructions, dogs, etc.
   phone?: string;     // added manually via customer screen, not captured from job notes
   email?: string;     // added manually via customer screen, not captured from job notes
+  equipment?: string; // last-known equipment — pre-fills the per-job equipment field
   createdAt: string;
   updatedAt: string;
 }

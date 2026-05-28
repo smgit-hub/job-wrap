@@ -53,6 +53,8 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
     ...EMPTY_JOB,
     customerName: initialCustomer?.name ?? "",
     serviceAddress: initialCustomer?.address ?? "",
+    // Pre-fill equipment from the customer's last known system — tech can edit if it changed
+    equipment: initialCustomer?.equipment ?? "",
   }));
   const [customerForm, setCustomerForm] = useState({
     name: initialCustomer?.name ?? "",
