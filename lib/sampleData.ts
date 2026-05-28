@@ -4,6 +4,7 @@
 // Demo flow: pick a report → Generate Report → review and export.
 
 import type { ServiceReport, Customer } from "@/types/report";
+import { EMPTY_REPORT } from "@/types/report";
 
 export const SAMPLE_BUSINESS = {
   businessName: "Arctic Air HVAC",
@@ -41,10 +42,7 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       },
     },
     report: {
-      customerSummary: "",
-      findings: "",
-      workPerformed: "",
-      recommendations: "",
+      ...EMPTY_REPORT,
     },
   },
 
@@ -67,10 +65,7 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       },
     },
     report: {
-      customerSummary: "",
-      findings: "",
-      workPerformed: "",
-      recommendations: "",
+      ...EMPTY_REPORT,
     },
   },
 
@@ -93,10 +88,7 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       },
     },
     report: {
-      customerSummary: "",
-      findings: "",
-      workPerformed: "",
-      recommendations: "",
+      ...EMPTY_REPORT,
     },
   },
 
@@ -119,10 +111,7 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       },
     },
     report: {
-      customerSummary: "",
-      findings: "",
-      workPerformed: "",
-      recommendations: "",
+      ...EMPTY_REPORT,
     },
   },
 
@@ -145,10 +134,7 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       },
     },
     report: {
-      customerSummary: "",
-      findings: "",
-      workPerformed: "",
-      recommendations: "",
+      ...EMPTY_REPORT,
     },
   },
 

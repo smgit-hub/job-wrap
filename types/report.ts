@@ -102,6 +102,13 @@ export interface ServiceReport {
   verified?: SectionVerified;
 }
 
+export const EMPTY_REPORT: GeneratedReport = {
+  customerSummary: "",
+  findings: "",
+  workPerformed: "",
+  recommendations: "",
+};
+
 export const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {
   "hvac-maintenance": "Preventative Maintenance",
   "hvac-emergency": "Emergency Service",

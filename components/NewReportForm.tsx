@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import FreeformRecordingFlow from "@/components/recording/FreeformRecordingFlow";
 import type { JobDetails, VoiceNotes, ServiceType, Customer, ServiceReport } from "@/types/report";
-import { EMPTY_VOICE_NOTES, SERVICE_TYPE_LABELS } from "@/types/report";
+import { EMPTY_VOICE_NOTES, EMPTY_REPORT, SERVICE_TYPE_LABELS } from "@/types/report";
 import { saveDraft, getDraft, saveReport, clearDraft, generateId, getBusinessProfile, saveCustomer } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
@@ -148,7 +148,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
       updatedAt: new Date().toISOString(),
       business: getBusinessProfile(),
       job,
-      report: { customerSummary: "", findings: "", workPerformed: "", recommendations: "" },
+      report: { ...EMPTY_REPORT },
     };
     saveReport(draft);
     clearDraft();

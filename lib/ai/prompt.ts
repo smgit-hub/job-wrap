@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 import type { GeneratedReport, ServiceType, VoiceNotes } from "@/types/report";
-import { SERVICE_TYPE_LABELS } from "@/types/report";
+import { SERVICE_TYPE_LABELS, EMPTY_REPORT } from "@/types/report";
 
 export interface GenerateReportInput {
   serviceType: ServiceType;
@@ -108,12 +108,7 @@ Return ONLY a valid JSON object — no markdown fences, no explanation:
 
 // ── Response parser ───────────────────────────────────────────────────────────
 
-const FALLBACK_REPORT: GeneratedReport = {
-  customerSummary: "",
-  findings: "",
-  workPerformed: "",
-  recommendations: "",
-};
+const FALLBACK_REPORT: GeneratedReport = { ...EMPTY_REPORT };
 
 export function parseResponse(text: string): GeneratedReport {
   let cleaned = text.trim();
