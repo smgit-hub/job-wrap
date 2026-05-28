@@ -1,170 +1,289 @@
 "use client";
 
-// BulletEditor — inline per-bullet edit/delete/add for report sections.
-// Receives and emits the same \n-delimited bullet string format used
-// throughout the app. Syncs with the parent when value changes externally
-// (e.g. after AI regeneration).
+// BulletEditor — inline per-bullet edit/delete/move/reorder for report sections.
+// Receives and emits the same \n-delimited bullet string format used throughout the app.
+// Drag-to-reorder uses @dnd-kit/sortable with pointer events (touch + mouse).
 
 import { useState, useEffect, useRef } from "react";
-import { Pencil, Trash2, Plus, Check } from "lucide-react";
+import { Trash2, Plus, Check, ArrowRightLeft, GripVertical } from "lucide-react";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  useSortable,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+
+// ── Types ────────────────────────────────────────────────────────────────────
+
+interface BulletItem {
+  id: string;
+  text: string;
+}
 
 interface BulletEditorProps {
   value: string;
   onChange: (value: string) => void;
+  onMove?: (text: string) => void;
   placeholder?: string;
   emptyState?: string;
 }
 
-function parseItems(value: string): string[] {
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+let _idSeq = 0;
+function genId() { return `bi_${++_idSeq}`; }
+
+function parseItems(value: string): BulletItem[] {
   return value
     .split("\n")
     .map((l) => l.replace(/^[•\-]\s*/, "").trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .map((text) => ({ id: genId(), text }));
 }
 
-function serializeItems(items: string[]): string {
-  return items
-    .filter(Boolean)
-    .map((i) => `• ${i}`)
-    .join("\n");
+function serializeItems(items: BulletItem[]): string {
+  return items.filter((i) => i.text).map((i) => `• ${i.text}`).join("\n");
 }
+
+// ── Sortable bullet row ──────────────────────────────────────────────────────
+
+interface SortableBulletProps {
+  item: BulletItem;
+  isEditing: boolean;
+  editValue: string;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  placeholder: string;
+  onStartEdit: () => void;
+  onEditChange: (v: string) => void;
+  onCommit: () => void;
+  onCancel: () => void;
+  onRemove: () => void;
+  onMove?: (text: string) => void;
+}
+
+function SortableBullet({
+  item,
+  isEditing,
+  editValue,
+  inputRef,
+  placeholder,
+  onStartEdit,
+  onEditChange,
+  onCommit,
+  onCancel,
+  onRemove,
+  onMove,
+}: SortableBulletProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
+    useSortable({ id: item.id });
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.4 : 1,
+        position: isDragging ? "relative" : undefined,
+        zIndex: isDragging ? 10 : undefined,
+      }}
+      className="flex items-start gap-1.5"
+    >
+      {/* Drag handle — listeners only here so page scrolling still works everywhere else */}
+      <button
+        {...attributes}
+        {...listeners}
+        className="shrink-0 mt-2 text-slate-300 hover:text-slate-400 cursor-grab active:cursor-grabbing touch-none"
+        tabIndex={-1}
+        aria-label="Drag to reorder"
+      >
+        <GripVertical className="w-4 h-4" />
+      </button>
+
+      {/* Bullet dot */}
+      <span className="text-slate-400 shrink-0 mt-2.5 text-sm leading-none select-none">•</span>
+
+      {isEditing ? (
+        /* ── Edit mode ── */
+        <div className="flex-1 flex items-center gap-1.5 py-1">
+          <input
+            ref={inputRef}
+            value={editValue}
+            onChange={(e) => onEditChange(e.target.value)}
+            onBlur={onCommit}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") { e.preventDefault(); onCommit(); }
+              if (e.key === "Escape") { e.preventDefault(); onCancel(); }
+            }}
+            placeholder={placeholder}
+            className="flex-1 text-sm text-slate-900 border border-orange-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-orange-100 bg-white"
+          />
+          <button
+            onMouseDown={(e) => { e.preventDefault(); onCommit(); }}
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-orange-500 active:bg-orange-600 shrink-0"
+            aria-label="Save"
+          >
+            <Check className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      ) : (
+        /* ── Display mode ── */
+        <>
+          <button
+            onClick={onStartEdit}
+            className="flex-1 text-left text-sm text-slate-800 leading-relaxed py-2 active:text-slate-900"
+          >
+            {item.text}
+          </button>
+          <div className="flex items-center shrink-0 pt-1">
+            {onMove && (
+              <button
+                onClick={() => onMove(item.text)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 active:text-blue-400 active:bg-blue-50 transition-colors"
+                aria-label="Move to another section"
+              >
+                <ArrowRightLeft className="w-3.5 h-3.5" />
+              </button>
+            )}
+            <button
+              onClick={onRemove}
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 active:text-red-400 active:bg-red-50 transition-colors"
+              aria-label="Delete"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+// ── Main component ───────────────────────────────────────────────────────────
 
 export default function BulletEditor({
   value,
   onChange,
+  onMove,
   placeholder = "Add item…",
   emptyState,
 }: BulletEditorProps) {
-  const [items, setItems] = useState<string[]>(() => parseItems(value));
-  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [items, setItems] = useState<BulletItem[]>(() => parseItems(value));
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } })
+  );
 
   // Sync when parent value changes (e.g. after AI regeneration)
   useEffect(() => {
     setItems(parseItems(value));
-    setEditingIndex(null);
+    setEditingId(null);
   }, [value]);
 
   // Auto-focus input when edit mode starts
   useEffect(() => {
-    if (editingIndex !== null) {
-      inputRef.current?.focus();
-    }
-  }, [editingIndex]);
+    if (editingId !== null) inputRef.current?.focus();
+  }, [editingId]);
 
-  function startEdit(index: number) {
-    setEditingIndex(index);
-    setEditValue(items[index] ?? "");
+  function startEdit(id: string) {
+    const item = items.find((i) => i.id === id);
+    if (!item) return;
+    setEditingId(id);
+    setEditValue(item.text);
   }
 
   function commit() {
-    if (editingIndex === null) return;
+    if (!editingId) return;
     const trimmed = editValue.trim();
     const next = trimmed
-      ? items.map((item, i) => (i === editingIndex ? trimmed : item))
-      : items.filter((_, i) => i !== editingIndex); // empty → remove
+      ? items.map((item) => item.id === editingId ? { ...item, text: trimmed } : item)
+      : items.filter((item) => item.id !== editingId);
     setItems(next);
-    setEditingIndex(null);
+    setEditingId(null);
     onChange(serializeItems(next));
   }
 
   function cancel() {
-    if (editingIndex === null) return;
-    // Newly added empty slot — remove it on cancel
-    if (items[editingIndex] === "") {
-      const next = items.filter((_, i) => i !== editingIndex);
+    if (!editingId) return;
+    const item = items.find((i) => i.id === editingId);
+    if (item?.text === "") {
+      const next = items.filter((i) => i.id !== editingId);
       setItems(next);
       onChange(serializeItems(next));
     }
-    setEditingIndex(null);
+    setEditingId(null);
   }
 
-  function remove(index: number) {
-    const next = items.filter((_, i) => i !== index);
+  function remove(id: string) {
+    const next = items.filter((i) => i.id !== id);
     setItems(next);
     onChange(serializeItems(next));
   }
 
   function addItem() {
-    const next = [...items, ""];
+    const newItem: BulletItem = { id: genId(), text: "" };
+    const next = [...items, newItem];
     setItems(next);
-    setEditingIndex(next.length - 1);
+    setEditingId(newItem.id);
     setEditValue("");
   }
 
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = items.findIndex((i) => i.id === active.id);
+    const newIndex = items.findIndex((i) => i.id === over.id);
+    const next = arrayMove(items, oldIndex, newIndex);
+    setItems(next);
+    onChange(serializeItems(next));
+  }
+
   return (
-    <div className="space-y-0.5">
-      {items.length === 0 && emptyState && (
-        <p className="text-sm text-slate-400 italic pb-1">{emptyState}</p>
-      )}
-
-      {items.map((item, i) => (
-        <div key={i} className="flex items-start gap-2">
-          {/* Bullet dot */}
-          <span className="text-slate-400 shrink-0 mt-2.5 text-sm leading-none select-none">•</span>
-
-          {editingIndex === i ? (
-            /* ── Edit mode ── */
-            <div className="flex-1 flex items-center gap-1.5 py-1">
-              <input
-                ref={inputRef}
-                value={editValue}
-                onChange={(e) => setEditValue(e.target.value)}
-                onBlur={commit}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") { e.preventDefault(); commit(); }
-                  if (e.key === "Escape") { e.preventDefault(); cancel(); }
-                }}
-                placeholder={placeholder}
-                className="flex-1 text-sm text-slate-900 border border-orange-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-orange-100 bg-white"
-              />
-              <button
-                onMouseDown={(e) => { e.preventDefault(); commit(); }}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-white bg-orange-500 active:bg-orange-600 shrink-0"
-                aria-label="Save"
-              >
-                <Check className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ) : (
-            /* ── Display mode ── */
-            <>
-              <button
-                onClick={() => startEdit(i)}
-                className="flex-1 text-left text-sm text-slate-800 leading-relaxed py-2 active:text-slate-900"
-              >
-                {item}
-              </button>
-              <div className="flex items-center shrink-0 pt-1">
-                <button
-                  onClick={() => startEdit(i)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 active:text-orange-400 active:bg-orange-50 transition-colors"
-                  aria-label="Edit"
-                >
-                  <Pencil className="w-3.5 h-3.5" />
-                </button>
-                <button
-                  onClick={() => remove(i)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 active:text-red-400 active:bg-red-50 transition-colors"
-                  aria-label="Delete"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </>
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
+        <div className="space-y-0.5">
+          {items.length === 0 && emptyState && (
+            <p className="text-sm text-slate-400 italic pb-1">{emptyState}</p>
           )}
-        </div>
-      ))}
 
-      {/* Add item */}
-      <button
-        onClick={addItem}
-        className="flex items-center gap-1.5 text-sm text-slate-400 active:text-orange-500 transition-colors pt-1 pb-0.5"
-      >
-        <Plus className="w-3.5 h-3.5" />
-        Add item
-      </button>
-    </div>
+          {items.map((item) => (
+            <SortableBullet
+              key={item.id}
+              item={item}
+              isEditing={editingId === item.id}
+              editValue={editValue}
+              inputRef={inputRef}
+              placeholder={placeholder}
+              onStartEdit={() => startEdit(item.id)}
+              onEditChange={setEditValue}
+              onCommit={commit}
+              onCancel={cancel}
+              onRemove={() => remove(item.id)}
+              onMove={onMove}
+            />
+          ))}
+
+          <button
+            onClick={addItem}
+            className="flex items-center gap-1.5 text-sm text-slate-400 active:text-orange-500 transition-colors pt-1 pb-0.5"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            Add item
+          </button>
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 }

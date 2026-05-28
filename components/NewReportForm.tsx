@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   ChevronLeft, ChevronDown, ChevronUp,
   Sparkles, Loader2, AlertCircle, BookmarkCheck, ArrowRight,
@@ -67,6 +67,40 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
   const [detailsExpanded, setDetailsExpanded] = useState(!isExisting);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+
+  // Capture initial job values so we can detect changes
+  const initialJob = useRef({
+    serviceType: isExisting ? "hvac-maintenance" : "hvac-maintenance",
+    equipment: initialCustomer?.equipment ?? "",
+    jobDate: new Date().toISOString().split("T")[0],
+    nextServiceDate: "",
+  });
+
+  // Dirty if any customer field OR job field has changed from its starting value
+  const customerFormDirty = isExisting
+    ? (
+        customerForm.name !== (initialCustomer?.name ?? "") ||
+        customerForm.address !== (initialCustomer?.address ?? "") ||
+        customerForm.phone !== (initialCustomer?.phone ?? "") ||
+        customerForm.email !== (initialCustomer?.email ?? "") ||
+        customerForm.siteNotes !== (initialCustomer?.siteNotes ?? "")
+      )
+    : (
+        customerForm.name.trim() !== "" ||
+        customerForm.address.trim() !== "" ||
+        customerForm.phone.trim() !== "" ||
+        customerForm.email.trim() !== "" ||
+        customerForm.siteNotes.trim() !== ""
+      );
+
+  const jobDirty =
+    job.serviceType !== initialJob.current.serviceType ||
+    (job.equipment ?? "") !== initialJob.current.equipment ||
+    job.jobDate !== initialJob.current.jobDate ||
+    (job.nextServiceDate ?? "") !== initialJob.current.nextServiceDate;
+
+  const isDirty = customerFormDirty || jobDirty;
 
   // Restore draft on mount — only for new customers (no initialCustomer)
   useEffect(() => {
@@ -130,6 +164,19 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
     saveReport(draft);
     clearDraft();
     onSaveForLater();
+  }
+
+  function handleBack() {
+    if (isDirty) {
+      setShowDiscardConfirm(true);
+    } else {
+      onBack();
+    }
+  }
+
+  function handleDiscard() {
+    setShowDiscardConfirm(false);
+    onBack();
   }
 
   function handleSetupContinue() {
@@ -244,7 +291,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
           <button
-            onClick={onBack}
+            onClick={handleBack}
             className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
             aria-label="Back"
           >
@@ -441,6 +488,37 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
           </div>
         </div>
       </main>
+
+      {/* Discard changes bottom sheet */}
+      {showDiscardConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50"
+          onClick={() => setShowDiscardConfirm(false)}
+        >
+          <div
+            className="bg-white rounded-t-3xl px-4 pt-3 pb-10 w-full max-w-lg mx-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
+            <p className="text-base font-bold text-slate-900 text-center">Discard changes?</p>
+            <p className="text-sm text-slate-500 text-center mt-1 mb-6">Your customer details won't be saved.</p>
+            <div className="space-y-3">
+              <button
+                onClick={handleDiscard}
+                className="w-full h-14 rounded-2xl bg-red-500 text-base font-bold text-white active:bg-red-600 transition-colors"
+              >
+                Discard
+              </button>
+              <button
+                onClick={() => setShowDiscardConfirm(false)}
+                className="w-full h-14 rounded-2xl bg-slate-100 text-base font-semibold text-slate-700 active:bg-slate-200 transition-colors"
+              >
+                Keep editing
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sticky footer */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">

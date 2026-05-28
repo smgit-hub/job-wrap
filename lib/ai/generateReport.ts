@@ -44,20 +44,20 @@ function run(name: string, fn: ProviderFn, parts: PromptParts): Promise<Generate
 }
 
 // ── Post-process: apply code-level fallbacks ──────────────────────────────────
-// Recommendations are only passed to the AI if the tech recorded them.
-// If not, we apply the fallback here — the AI never decides.
+// All recommendations now come from jobNotes (single recording flow).
+// Trust the AI to extract them — apply fallback only when AI returns nothing.
 
-function applyFallbacks(report: GeneratedReport, input: GenerateReportInput): GeneratedReport {
-  const recommendations = input.voiceNotes.recommendations.trim()
-    ? report.recommendations || RECOMMENDATIONS_FALLBACK
-    : RECOMMENDATIONS_FALLBACK;
+function applyFallbacks(report: GeneratedReport): GeneratedReport {
+  const recommendations = report.recommendations || RECOMMENDATIONS_FALLBACK;
 
   // If recommendations exist but the AI omitted the closing sentence from the summary,
-  // append it deterministically — the AI drops this despite prompt rules requiring it.
-  const summaryHasCloser = /\bbelow\b|\bnoted\b|\bkeep an eye\b/i.test(report.customerSummary);
+  // append it deterministically.
+  // Only match when "below" appears — specific enough to catch the closer without
+  // false-matching unrelated sentences like "We noted the refrigerant pressure was low."
+  const summaryHasCloser = /\bbelow\b/i.test(report.customerSummary);
   const customerSummary =
     recommendations && report.customerSummary && !summaryHasCloser
-      ? `${report.customerSummary.trimEnd()} We've noted some items below to keep an eye on.`
+      ? `${report.customerSummary.trimEnd()} We've noted some items below to keep in mind.`
       : report.customerSummary;
 
   return { ...report, recommendations, customerSummary };
@@ -88,5 +88,5 @@ export async function generateReport(input: GenerateReportInput): Promise<Genera
   else if (process.env.ANTHROPIC_API_KEY) report = await run("Anthropic", runAnthropic, parts);
   else throw new Error("AI unavailable — please try again later.");
 
-  return applyFallbacks(report, input);
+  return applyFallbacks(report);
 }

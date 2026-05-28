@@ -42,8 +42,9 @@ const SECTION_KEYS: (keyof GeneratedReport)[] = [
 
 export default function ReportEditor({ report, isNewReport, onBack, onPreview, onRegenerate }: ReportEditorProps) {
   const [draft, setDraft] = useState<ServiceReport>(report);
-  const [autoSaved, setAutoSaved] = useState(false);
-  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [isDirty, setIsDirty] = useState(false);
+  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+  const [movingBullet, setMovingBullet] = useState<{ text: string; from: keyof GeneratedReport } | null>(null);
   const [photos, setPhotos] = useState<JobPhoto[]>([]);
   const [confirmRegen, setConfirmRegen] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -72,18 +73,16 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
 
   // Called when tech manually taps the tick icon (toggles)
   function toggleVerify(key: keyof GeneratedReport) {
+    setIsDirty(true);
     setDraft((prev) => {
       const wasVerified = prev.verified?.[key as keyof SectionVerified] ?? false;
       const newVerified: SectionVerified = { ...prev.verified, [key]: !wasVerified };
       const nowAllDone = SECTION_KEYS.every((k) => newVerified[k as keyof SectionVerified]);
-      const updated: ServiceReport = {
+      return {
         ...prev,
         verified: newVerified,
         status: nowAllDone ? "complete" : prev.status,
-        updatedAt: new Date().toISOString(),
       };
-      saveReport(updated);
-      return updated;
     });
   }
 
@@ -110,8 +109,9 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         verified: {}, // clear all — new content needs re-reading
         updatedAt: new Date().toISOString(),
       };
-      setDraft(updated);
       saveReport(updated);
+      setDraft(updated);
+      setIsDirty(false); // just saved
     } catch (err) {
       setRegenError(err instanceof Error ? err.message : "Regeneration failed. Please try again.");
     } finally {
@@ -121,7 +121,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
 
   // For customerSummary textarea — editing counts as verified
   function updateField(key: keyof GeneratedReport, value: string) {
-    setAutoSaved(false);
+    setIsDirty(true);
     setDraft((prev) => ({
       ...prev,
       report: { ...prev.report, [key]: value },
@@ -129,57 +129,84 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
     }));
   }
 
-  // For BulletEditor — saves immediately + marks section verified
+  // For BulletEditor — marks section verified (save deferred to Save & Preview)
   function updateFieldAndSave(key: keyof GeneratedReport, value: string) {
+    setIsDirty(true);
     setDraft((prev) => {
       const newVerified: SectionVerified = { ...prev.verified, [key]: true };
       const nowAllDone = SECTION_KEYS.every((k) => newVerified[k as keyof SectionVerified]);
-      const updated: ServiceReport = {
+      return {
         ...prev,
         report: { ...prev.report, [key]: value },
         verified: newVerified,
         status: nowAllDone ? "complete" : prev.status,
-        updatedAt: new Date().toISOString(),
       };
-      saveReport(updated);
-      return updated;
     });
-    setAutoSaved(true);
-    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
-    savedTimerRef.current = setTimeout(() => setAutoSaved(false), 2500);
   }
 
   function updateJobField(field: keyof JobDetails, value: string) {
-    setAutoSaved(false);
+    setIsDirty(true);
     setDraft((prev) => ({ ...prev, job: { ...prev.job, [field]: value } }));
   }
 
-  // Uses latestDraft ref so it always saves the most recent state
-  const handleBlur = useCallback(() => {
-    try {
-      const current = latestDraft.current;
-      const updated: ServiceReport = {
-        ...current,
-        updatedAt: new Date().toISOString(),
-      };
-      saveReport(updated);
-      setAutoSaved(true);
-      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
-      savedTimerRef.current = setTimeout(() => setAutoSaved(false), 2500);
-    } catch {
-      // Silent failure — localStorage full or unavailable
+  // No-op — changes are saved only when Save & Preview is pressed
+  const handleBlur = useCallback(() => {}, []);
+
+  function handleBack() {
+    if (isDirty) {
+      setShowDiscardConfirm(true);
+    } else {
+      onBack();
     }
-  }, []);
+  }
+
+  function handleDiscard() {
+    setShowDiscardConfirm(false);
+    onBack();
+  }
 
   function handlePreview() {
+    const current = latestDraft.current;
     const completed: ServiceReport = {
-      ...latestDraft.current,
+      ...current,
       status: "complete",
       updatedAt: new Date().toISOString(),
     };
     saveReport(completed);
     setDraft(completed);
+    setIsDirty(false);
     onPreview(completed);
+  }
+
+  // ── Cross-section bullet move ────────────────────────────────────────────────
+  function handleStartMove(text: string, from: keyof GeneratedReport) {
+    setMovingBullet({ text, from });
+  }
+
+  function handleMoveToSection(target: keyof GeneratedReport) {
+    if (!movingBullet) return;
+    const { text, from } = movingBullet;
+    setMovingBullet(null);
+    setIsDirty(true);
+    setDraft((prev) => {
+      // Remove from source
+      const sourceItems = prev.report[from]
+        .split("\n")
+        .filter((l) => l.replace(/^[•\-]\s*/, "").trim() !== text.trim());
+      // Append to target
+      const targetItems = prev.report[target]
+        .split("\n")
+        .filter(Boolean);
+      targetItems.push(`• ${text.trim()}`);
+      return {
+        ...prev,
+        report: {
+          ...prev.report,
+          [from]: sourceItems.join("\n"),
+          [target]: targetItems.join("\n"),
+        },
+      };
+    });
   }
 
   // ── Section card header with verify tick ────────────────────────────────────
@@ -199,13 +226,17 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
           <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">{title}</CardTitle>
           <button
             onClick={() => toggleVerify(sectionKey)}
-            className="shrink-0 transition-transform active:scale-90"
+            className="shrink-0 flex items-center gap-1.5 transition-transform active:scale-90"
             aria-label={verified ? "Unmark verified" : "Mark as verified"}
           >
-            {verified
-              ? <CheckCircle2 className="w-5 h-5 text-orange-500" />
-              : <Circle className="w-5 h-5 text-slate-300" />
-            }
+            {verified ? (
+              <CheckCircle2 className="w-5 h-5 text-orange-500" />
+            ) : (
+              <>
+                <span className="text-xs font-semibold text-slate-500">Verify</span>
+                <Circle className="w-5 h-5 text-slate-400" />
+              </>
+            )}
           </button>
         </div>
         {subtitle && (
@@ -221,7 +252,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
           <button
-            onClick={onBack}
+            onClick={handleBack}
             className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
             aria-label="Back"
           >
@@ -299,7 +330,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               )}
             </div>
 
-            {/* ── Date / Service type ── */}
+            {/* ── Date / Next Service Due ── */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="ed-date">Date</Label>
@@ -313,32 +344,41 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="ed-service">Service type</Label>
-                <select
-                  id="ed-service"
-                  value={draft.job.serviceType}
-                  onChange={(e) => updateJobField("serviceType", e.target.value)}
+                <Label htmlFor="ed-next-service">Next Service Due</Label>
+                <Input
+                  id="ed-next-service"
+                  type="date"
+                  value={draft.job.nextServiceDate ?? ""}
+                  onChange={(e) => updateJobField("nextServiceDate", e.target.value)}
                   onBlur={handleBlur}
-                  className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-300"
-                >
-                  {Object.entries(SERVICE_TYPE_LABELS).map(([value, label]) => (
-                    <option key={value} value={value}>{label}</option>
-                  ))}
-                </select>
+                  className="h-11 text-base"
+                />
               </div>
             </div>
 
-            {/* ── Next Service Due ── */}
+            {/* ── Service type ── */}
             <div className="space-y-1.5">
-              <Label htmlFor="ed-next-service">Next Service Due</Label>
-              <Input
-                id="ed-next-service"
-                type="date"
-                value={draft.job.nextServiceDate ?? ""}
-                onChange={(e) => updateJobField("nextServiceDate", e.target.value)}
+              <Label htmlFor="ed-service">Service type</Label>
+              <select
+                id="ed-service"
+                value={draft.job.serviceType}
+                onChange={(e) => updateJobField("serviceType", e.target.value)}
                 onBlur={handleBlur}
-                className="h-11 text-base"
-              />
+                className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-300"
+              >
+                {Object.entries(SERVICE_TYPE_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+              {draft.job.serviceType === "other" && (
+                <Input
+                  value={draft.job.customServiceType ?? ""}
+                  onChange={(e) => updateJobField("customServiceType", e.target.value)}
+                  onBlur={handleBlur}
+                  placeholder="e.g. Plumbing, Electrical…"
+                  className="h-11 text-base mt-2"
+                />
+              )}
             </div>
 
             {/* ── Equipment ── */}
@@ -407,6 +447,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               <Textarea
                 value={draft.job.voiceNotes.jobNotes}
                 onChange={(e) => {
+                  setIsDirty(true);
                   setDraft((prev) => ({
                     ...prev,
                     job: {
@@ -529,6 +570,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                 <BulletEditor
                   value={draft.report.findings}
                   onChange={(v) => updateFieldAndSave("findings", v)}
+                  onMove={(text) => handleStartMove(text, "findings")}
                   emptyState="No findings — tap + to add one"
                 />
               </CardContent>
@@ -542,12 +584,13 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               <SectionHeader
                 sectionKey="workPerformed"
                 title="Work Performed"
-                subtitle="Each task carried out — tap to edit, + to add"
+                subtitle="Everything completed during the visit"
               />
               <CardContent className="px-4 pb-4">
                 <BulletEditor
                   value={draft.report.workPerformed}
                   onChange={(v) => updateFieldAndSave("workPerformed", v)}
+                  onMove={(text) => handleStartMove(text, "workPerformed")}
                   emptyState="No tasks added yet"
                 />
               </CardContent>
@@ -567,6 +610,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                 <BulletEditor
                   value={draft.report.recommendations}
                   onChange={(v) => updateFieldAndSave("recommendations", v)}
+                  onMove={(text) => handleStartMove(text, "recommendations")}
                   emptyState="No recommendations — tap + to add one"
                 />
               </CardContent>
@@ -590,16 +634,79 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         </Card>
       </main>
 
-      {/* Save toast */}
-      <div
-        className={cn(
-          "fixed bottom-24 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2 bg-slate-900 text-white text-sm font-semibold px-4 py-2.5 rounded-full shadow-lg transition-all duration-300",
-          autoSaved ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none"
-        )}
-      >
-        <CheckCircle2 className="w-4 h-4 text-green-400" />
-        Changes saved
-      </div>
+      {/* Move bullet bottom sheet */}
+      {movingBullet && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50"
+          onClick={() => setMovingBullet(null)}
+        >
+          <div
+            className="bg-white rounded-t-3xl px-4 pt-3 pb-10 w-full max-w-lg mx-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
+            <p className="text-base font-bold text-slate-900 text-center mb-1">Move to…</p>
+            <p className="text-xs text-slate-400 text-center mb-5 px-4 truncate">"{movingBullet.text}"</p>
+            <div className="space-y-2">
+              {(
+                [
+                  { key: "findings", label: "Findings" },
+                  { key: "workPerformed", label: "Work Performed" },
+                  { key: "recommendations", label: "Recommendations" },
+                ] as { key: keyof GeneratedReport; label: string }[]
+              )
+                .filter((s) => s.key !== movingBullet.from)
+                .map((section) => (
+                  <button
+                    key={section.key}
+                    onClick={() => handleMoveToSection(section.key)}
+                    className="w-full h-14 rounded-2xl bg-slate-50 border border-slate-100 text-base font-semibold text-slate-700 active:bg-orange-50 active:border-orange-200 active:text-orange-600 transition-colors"
+                  >
+                    {section.label}
+                  </button>
+                ))}
+            </div>
+            <button
+              onClick={() => setMovingBullet(null)}
+              className="w-full h-12 mt-3 text-sm font-semibold text-slate-400 active:text-slate-600 transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Discard changes bottom sheet */}
+      {showDiscardConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50"
+          onClick={() => setShowDiscardConfirm(false)}
+        >
+          <div
+            className="bg-white rounded-t-3xl px-4 pt-3 pb-10 w-full max-w-lg mx-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Handle */}
+            <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
+            <p className="text-base font-bold text-slate-900 text-center">Discard changes?</p>
+            <p className="text-sm text-slate-500 text-center mt-1 mb-6">Your edits won't be saved.</p>
+            <div className="space-y-3">
+              <button
+                onClick={handleDiscard}
+                className="w-full h-14 rounded-2xl bg-red-500 text-base font-bold text-white active:bg-red-600 transition-colors"
+              >
+                Discard
+              </button>
+              <button
+                onClick={() => setShowDiscardConfirm(false)}
+                className="w-full h-14 rounded-2xl bg-slate-100 text-base font-semibold text-slate-700 active:bg-slate-200 transition-colors"
+              >
+                Keep editing
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Sticky footer */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
@@ -616,7 +723,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
           )}
           <button
             onClick={handlePreview}
-            disabled={isUngenerated}
+            disabled={!allVerified}
             className="w-full h-14 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 transition-colors disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-md shadow-orange-200/50"
           >
             <Eye className="w-5 h-5" />

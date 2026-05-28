@@ -68,7 +68,7 @@ export async function POST(request: Request) {
     equipment: truncate(str(body.equipment), 200) || undefined,
     voiceNotes: {
       jobNotes: truncate(jobNotes.trim(), 3000),
-      recommendations: truncate(str(voiceNotes?.recommendations).trim(), 1000),
+      recommendations: "", // single recording flow — always empty, AI extracts from jobNotes
     },
   };
 
