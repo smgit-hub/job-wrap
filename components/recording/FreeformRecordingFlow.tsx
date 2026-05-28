@@ -1,14 +1,18 @@
 "use client";
 
 // ---------------------------------------------------------------------------
-// FreeformRecordingFlow — two guided recordings
+// FreeformRecordingFlow — single recording screen.
 //
-// Step 1: "What happened today?" — job notes (findings + work in one narrative)
-// Step 2: "Anything they need next?" — recommendations (optional, skippable)
+// The technician records everything in one take:
+//   • What they found / diagnosed
+//   • Every task they completed
+//   • Any recommendations for the customer
+//
+// The AI extracts all three areas from the single narrative.
 // ---------------------------------------------------------------------------
 
 import { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ArrowRight, Mic, Square, Loader2, MicOff, SkipForward } from "lucide-react";
+import { ChevronLeft, Sparkles, Mic, Square, Loader2, MicOff } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import type { JobDetails, VoiceNotes } from "@/types/report";
@@ -17,45 +21,11 @@ import { saveDraft } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 
-type RecordingStep = "job-notes" | "recommendations";
-
-type StepConfig = {
-  title: string;
-  prompt: string;
-  cues: string[];
-  nextStepHint?: string;
-  placeholder: string;
-  nextLabel: string;
-  skippable: boolean;
-};
-
-const STEP_CONFIG: Record<RecordingStep, StepConfig> = {
-  "job-notes": {
-    title: "Job Notes",
-    prompt: "What happened today?",
-    cues: [
-      "Findings — what you observed or diagnosed",
-      "Work performed — every task you completed",
-      "Any results, readings, or test outcomes",
-    ],
-    nextStepHint: "Next step: recommendations for the customer",
-    placeholder: "Tap the mic to start, or type here…",
-    nextLabel: "Next",
-    skippable: false,
-  },
-  "recommendations": {
-    title: "Recommendations",
-    prompt: "Anything they need next?",
-    cues: [
-      "Follow-up work or parts that need attention",
-      "Next service timing or interval",
-      "Any advice or actions for the customer",
-    ],
-    placeholder: "Tap the mic to start, or type here…",
-    nextLabel: "Done",
-    skippable: true,
-  },
-};
+const CUES = [
+  "What you found — faults, observations, readings",
+  "Every task you completed",
+  "Any recommendations or follow-up for the customer",
+];
 
 interface FreeformRecordingFlowProps {
   job: JobDetails;
@@ -68,51 +38,35 @@ export default function FreeformRecordingFlow({
   onBack,
   onComplete,
 }: FreeformRecordingFlowProps) {
-  const [recordingStep, setRecordingStep] = useState<RecordingStep>("job-notes");
-  const [jobNotes, setJobNotes] = useState(job.voiceNotes.jobNotes);
-  const [recommendations, setRecommendations] = useState(job.voiceNotes.recommendations);
+  const [notes, setNotes] = useState(job.voiceNotes.jobNotes);
   const [confirmBack, setConfirmBack] = useState(false);
   const speech = useSpeechRecognition();
 
   const textBeforeRecordingRef = useRef("");
-  const pendingActionRef = useRef<"next" | "skip" | null>(null);
-
-  const currentText = recordingStep === "job-notes" ? jobNotes : recommendations;
-  const setCurrentText = recordingStep === "job-notes" ? setJobNotes : setRecommendations;
-  const config = STEP_CONFIG[recordingStep];
 
   // Persist draft on text change
   useEffect(() => {
     saveDraft({
       job: {
         ...job,
-        voiceNotes: { jobNotes, recommendations },
+        voiceNotes: { ...EMPTY_VOICE_NOTES, jobNotes: notes },
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [jobNotes, recommendations]);
+  }, [notes]);
 
-  // Commit transcript + handle deferred navigation when recording stops
+  // Commit transcript when recording stops
   useEffect(() => {
     if (speech.isListening) return;
 
-    let committed = currentText;
     if (speech.transcript) {
       const base = textBeforeRecordingRef.current.trim();
       const added = speech.transcript.trim();
-      committed = base ? `${base}\n${added}` : added;
-      setCurrentText(committed);
+      const committed = base ? `${base}\n${added}` : added;
+      setNotes(committed);
       speech.resetTranscript();
     }
     textBeforeRecordingRef.current = "";
-
-    if (pendingActionRef.current === "next") {
-      pendingActionRef.current = null;
-      handleAdvance(committed);
-    } else if (pendingActionRef.current === "skip") {
-      pendingActionRef.current = null;
-      handleSkip();
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [speech.isListening]);
 
@@ -120,52 +74,24 @@ export default function FreeformRecordingFlow({
     if (speech.isListening) {
       speech.stopListening();
     } else {
-      textBeforeRecordingRef.current = currentText;
+      textBeforeRecordingRef.current = notes;
       speech.startListening();
     }
   }
 
-  function handleAdvance(text: string) {
-    const finalJobNotes = recordingStep === "job-notes" ? text : jobNotes;
-    const finalRecs = recordingStep === "recommendations" ? text : recommendations;
-
-    if (recordingStep === "job-notes") {
-      setJobNotes(finalJobNotes);
-      setRecordingStep("recommendations");
-      window.scrollTo({ top: 0 });
-    } else {
-      onComplete({ jobNotes: finalJobNotes, recommendations: finalRecs });
-    }
-  }
-
-  function handleSkip() {
-    onComplete({ jobNotes, recommendations: "" });
-  }
-
-  function handleNext() {
+  function handleDone() {
     if (speech.isListening || speech.state === "stopping") {
-      pendingActionRef.current = "next";
+      // Stop recording first, then complete via the isListening effect
+      // We can't defer here easily — just stop and let them tap Done again
       speech.stopListening();
       return;
     }
-    handleAdvance(currentText);
-  }
-
-  function handleSkipClick() {
-    if (speech.isListening || speech.state === "stopping") {
-      pendingActionRef.current = "skip";
-      speech.stopListening();
-      return;
-    }
-    handleSkip();
+    onComplete({ jobNotes: notes.trim(), recommendations: "" });
   }
 
   function handleBack() {
     if (speech.isListening) speech.stopListening();
-    if (recordingStep === "recommendations") {
-      setRecordingStep("job-notes");
-      window.scrollTo({ top: 0 });
-    } else if (jobNotes.trim()) {
+    if (notes.trim()) {
       setConfirmBack(true);
     } else {
       onBack();
@@ -173,7 +99,7 @@ export default function FreeformRecordingFlow({
   }
 
   const isStopping = speech.state === "stopping";
-  const hasEnoughText = currentText.trim().length >= 20;
+  const hasEnoughText = notes.trim().length >= 20;
 
   const displayValue = speech.isListening
     ? (() => {
@@ -181,7 +107,7 @@ export default function FreeformRecordingFlow({
         const live = (speech.transcript + speech.interimTranscript).trim();
         return base && live ? `${base}\n${live}` : base || live;
       })()
-    : currentText;
+    : notes;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
@@ -196,7 +122,7 @@ export default function FreeformRecordingFlow({
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <span className="flex-1 font-bold text-slate-900 ml-3">{config.title}</span>
+          <span className="flex-1 font-bold text-slate-900 ml-3">Job Notes</span>
         </div>
         <StepIndicator steps={REPORT_STEPS} currentStep={2} />
       </header>
@@ -206,25 +132,20 @@ export default function FreeformRecordingFlow({
 
         {/* ── Prompt ── */}
         <div className="text-center">
-          <p className="text-xl font-bold text-slate-900">{config.prompt}</p>
+          <p className="text-xl font-bold text-slate-900">What happened today?</p>
         </div>
 
         {/* ── Cue card ── */}
         <div className="bg-white rounded-2xl px-4 py-3.5 shadow-card space-y-2">
           <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Speak naturally — cover</p>
           <ul className="space-y-2">
-            {config.cues.map((cue) => (
+            {CUES.map((cue) => (
               <li key={cue} className="flex items-center gap-2.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
                 <span className="text-sm text-slate-600">{cue}</span>
               </li>
             ))}
           </ul>
-          {config.nextStepHint && (
-            <p className="text-xs text-slate-400 pt-1 border-t border-slate-100">
-              {config.nextStepHint}
-            </p>
-          )}
         </div>
 
         {/* ── Circular mic button ── */}
@@ -275,13 +196,13 @@ export default function FreeformRecordingFlow({
                 </span>
               )}
             </span>
-            {currentText.trim() && !speech.isListening && (
+            {notes.trim() && !speech.isListening && (
               <button
                 type="button"
                 onClick={() => {
                   speech.resetTranscript();
                   textBeforeRecordingRef.current = "";
-                  setCurrentText("");
+                  setNotes("");
                 }}
                 className="text-orange-500 text-sm font-semibold active:text-orange-700 transition-colors"
               >
@@ -290,9 +211,9 @@ export default function FreeformRecordingFlow({
             )}
           </div>
           <Textarea
-            placeholder={config.placeholder}
+            placeholder="Tap the mic to start, or type here…"
             value={displayValue}
-            onChange={(e) => !speech.isListening && setCurrentText(e.target.value)}
+            onChange={(e) => !speech.isListening && setNotes(e.target.value)}
             readOnly={speech.isListening}
             enterKeyHint="done"
             className={cn(
@@ -329,31 +250,20 @@ export default function FreeformRecordingFlow({
 
       {/* ── Sticky footer ── */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
-        <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer space-y-2">
+        <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer">
           <button
-            onClick={handleNext}
+            onClick={handleDone}
             disabled={!hasEnoughText || isStopping}
             className={cn(
               "w-full h-14 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 transition-all",
               hasEnoughText && !isStopping
-                ? "bg-slate-900 active:bg-slate-800 shadow-md shadow-slate-200"
+                ? "bg-orange-500 active:bg-orange-600 shadow-md shadow-orange-200"
                 : "bg-slate-300"
             )}
           >
-            {config.nextLabel}
-            <ArrowRight className="w-5 h-5" />
+            <Sparkles className="w-5 h-5" />
+            Generate Report
           </button>
-
-          {config.skippable && (
-            <button
-              onClick={handleSkipClick}
-              disabled={isStopping}
-              className="w-full h-10 flex items-center justify-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors"
-            >
-              <SkipForward className="w-4 h-4" />
-              Skip — no recommendations
-            </button>
-          )}
         </div>
       </div>
     </div>
