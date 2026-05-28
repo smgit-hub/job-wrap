@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, FileText, Wrench, Settings, LogOut, Trash2, ChevronRight, CheckCircle2, Clock, ChevronLeft, FileCheck2, FileClock, Users } from "lucide-react";
+import { Plus, FileText, ClipboardCheck, Settings, LogOut, Trash2, ChevronRight, CheckCircle2, Clock, ChevronLeft, FileCheck2, FileClock, Users } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { ServiceReport } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
@@ -204,7 +204,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
         <div className="max-w-lg mx-auto px-4 flex items-center justify-between py-4">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">
-              <Wrench className="w-4 h-4 text-white" />
+              <ClipboardCheck className="w-4 h-4 text-white" />
             </div>
             <div>
               <p className="text-base font-bold text-white leading-tight tracking-tight">JobWrap</p>
