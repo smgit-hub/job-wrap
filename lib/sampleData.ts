@@ -1,6 +1,7 @@
 // sampleData.ts
 // Five realistic HVAC service reports seeded on first launch.
-// voiceNotes.jobNotes are written in natural tech-voice style for AI testing.
+// Reports are pre-loaded with job notes only — no generated content.
+// Demo flow: pick a report → Generate Report → review and export.
 
 import type { ServiceReport, Customer } from "@/types/report";
 
@@ -23,9 +24,9 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
   // ── 1. Annual maintenance — all good, no findings ─────────────────────────
   {
     id: "sample_001",
-    status: "complete",
+    status: "draft",
     createdAt: "2026-05-20T09:00:00.000Z",
-    updatedAt: "2026-05-20T10:15:00.000Z",
+    updatedAt: "2026-05-20T09:00:00.000Z",
     business: SAMPLE_BUSINESS,
     job: {
       customerName: "Rachel Kim",
@@ -40,29 +41,19 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       },
     },
     report: {
-      customerSummary:
-        "We completed your annual preventative maintenance on your Daikin 6kW reverse-cycle split system today, cleaning the filters, evaporator coil, and condenser coil, which had accumulated grass and debris fouling. The system is operating correctly with refrigerant pressures and temperatures all within specification. We recommend scheduling your next service in May 2027 to keep the system running at peak efficiency.",
+      customerSummary: "",
       findings: "",
-      workPerformed: [
-        "• Cleaned and washed indoor unit filters",
-        "• Cleaned indoor evaporator coil",
-        "• Cleaned outdoor condenser coil — grass clippings and debris removed from fins",
-        "• Checked refrigerant pressures — within manufacturer specification",
-        "• Tested heating and cooling operation — temperatures confirmed correct",
-        "• Inspected run capacitors — confirmed serviceable",
-        "• Cleared and tested condensate drain — flowing freely",
-      ].join("\n"),
-      recommendations:
-        "• Schedule your next annual service in May 2027 to maintain system efficiency and warranty compliance",
+      workPerformed: "",
+      recommendations: "",
     },
   },
 
   // ── 2. Gas heater repair — failed thermocouple, blocked burner ─────────────
   {
     id: "sample_002",
-    status: "complete",
+    status: "draft",
     createdAt: "2026-05-14T08:30:00.000Z",
-    updatedAt: "2026-05-14T11:00:00.000Z",
+    updatedAt: "2026-05-14T08:30:00.000Z",
     business: SAMPLE_BUSINESS,
     job: {
       customerName: "Marcus Webb",
@@ -76,22 +67,10 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       },
     },
     report: {
-      customerSummary:
-        "We attended your property today to diagnose why your Brivis ducted gas heater had stopped lighting. We found a failed thermocouple and partially blocked burner manifold ports, both of which were resolved during the visit. The heater is now lighting and holding flame correctly with good heat output across all registers. We've noted an item below worth planning for.",
-      findings: [
-        "• Failed thermocouple — unit unable to hold pilot ignition",
-        "• Partially blocked burner manifold ports — carbon and oxidation buildup",
-      ].join("\n"),
-      workPerformed: [
-        "• Confirmed no ignition on call for heat",
-        "• Inspected ignition sequence — ignitor sparking correctly, thermocouple identified as faulty",
-        "• Replaced failed thermocouple — compatible unit installed",
-        "• Removed and cleaned burner manifold — carbon and oxidation deposits cleared from ports",
-        "• Tested ignition sequence — unit lighting and holding flame correctly",
-        "• Ran full heating cycle — confirmed good heat output at all registers",
-      ].join("\n"),
-      recommendations:
-        "• Your heater is 14 years old and parts availability is becoming limited — we recommend budgeting for a replacement system within the next 1–2 years to avoid extended downtime during winter",
+      customerSummary: "",
+      findings: "",
+      workPerformed: "",
+      recommendations: "",
     },
   },
 
@@ -100,7 +79,7 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
     id: "sample_003",
     status: "draft",
     createdAt: "2026-05-28T13:00:00.000Z",
-    updatedAt: "2026-05-28T14:30:00.000Z",
+    updatedAt: "2026-05-28T13:00:00.000Z",
     business: SAMPLE_BUSINESS,
     job: {
       customerName: "Sarah O'Brien",
@@ -114,33 +93,19 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       },
     },
     report: {
-      customerSummary:
-        "We carried out your pre-season service on your Mitsubishi multi-split system today, cleaning all three indoor units and checking all refrigerant circuits. We found and corrected a refrigerant undercharge on the master bedroom circuit, and cleared a partial blockage in the living room condensate tray. All three zones are now operating correctly in heating and cooling. We've noted a couple of items below worth following up on.",
-      findings: [
-        "• Master bedroom circuit suction pressure low — refrigerant undercharge confirmed",
-        "• Living room condensate tray partially blocked by debris",
-      ].join("\n"),
-      workPerformed: [
-        "• Cleaned filters on all three indoor units",
-        "• Cleaned evaporator coils on all three indoor units",
-        "• Checked refrigerant pressures on all three circuits",
-        "• Recharged master bedroom circuit with 150g R32",
-        "• Cleared debris blockage from living room condensate tray",
-        "• Tested all three zones in heating and cooling mode — all operating correctly",
-      ].join("\n"),
-      recommendations: [
-        "• Your master bedroom refrigerant loss suggests a slow leak — a leak detection service within the next 6 months is recommended to locate the source before the cooling season",
-        "• Your next annual service is due in October 2026",
-      ].join("\n"),
+      customerSummary: "",
+      findings: "",
+      workPerformed: "",
+      recommendations: "",
     },
   },
 
   // ── 4. Emergency repair — refrigerant leak, Schrader valve ─────────────────
   {
     id: "sample_004",
-    status: "complete",
+    status: "draft",
     createdAt: "2026-05-10T10:00:00.000Z",
-    updatedAt: "2026-05-10T12:30:00.000Z",
+    updatedAt: "2026-05-10T10:00:00.000Z",
     business: SAMPLE_BUSINESS,
     job: {
       customerName: "Tom Nguyen",
@@ -154,33 +119,19 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       },
     },
     report: {
-      customerSummary:
-        "We responded to your emergency call today for the Carrier rooftop unit that had lost all cooling. We identified a cracked and leaking Schrader valve core on the high side service port, which had caused the system to lose its full refrigerant charge. We replaced the valve core, pressure tested, evacuated, and fully recharged the system — the unit is now back online and cooling correctly. We've noted an item below we'd recommend acting on.",
-      findings: [
-        "• Refrigerant charge lost — both high and low side pressures near zero on arrival",
-        "• High side Schrader valve core cracked and leaking — confirmed source of refrigerant loss",
-      ].join("\n"),
-      workPerformed: [
-        "• Identified both refrigerant pressures at near-zero on arrival",
-        "• Located leak at high side service port Schrader valve — cracked valve core confirmed",
-        "• Replaced Schrader valve core",
-        "• Pressure tested refrigerant circuit to 400 psi — held for 30 minutes with no pressure drop",
-        "• Vacuumed refrigerant circuit — held vacuum confirmed",
-        "• Recharged system with R410A to full operating pressures",
-        "• Tested unit — confirmed cooling correctly, supply temperature approximately 12°C",
-        "• Verified airflow at all diffusers inside — confirmed good distribution",
-      ].join("\n"),
-      recommendations:
-        "• Your rooftop service ports appear to have been tampered with — we recommend installing a locked cage or cover over the service point, and reviewing the incident with building security",
+      customerSummary: "",
+      findings: "",
+      workPerformed: "",
+      recommendations: "",
     },
   },
 
   // ── 5. New installation — Daikin split, living area ────────────────────────
   {
     id: "sample_005",
-    status: "complete",
+    status: "draft",
     createdAt: "2026-05-05T07:30:00.000Z",
-    updatedAt: "2026-05-05T13:00:00.000Z",
+    updatedAt: "2026-05-05T07:30:00.000Z",
     business: SAMPLE_BUSINESS,
     job: {
       customerName: "Linda Chen",
@@ -194,25 +145,10 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       },
     },
     report: {
-      customerSummary:
-        "We completed the installation of your new Daikin 7.1kW reverse-cycle split system in the main living area today. All refrigerant pipework, pressure testing, electrical connections, and commissioning have been completed, and the system is running correctly. We've noted a few items below to keep in mind following your new installation.",
+      customerSummary: "",
       findings: "",
-      workPerformed: [
-        "• Mounted indoor unit to feature wall in main living area",
-        "• Mounted outdoor unit on concrete pad at north side of building",
-        "• Ran refrigerant lineset through wall cavity — indoor to outdoor unit",
-        "• Pressure tested refrigerant circuit to 600 psi — held for 30 minutes with no pressure drop",
-        "• Vacuumed refrigerant circuit — held vacuum confirmed",
-        "• Installed dedicated 20A isolator at consumer mains",
-        "• Wired indoor and outdoor units — electrical connections completed",
-        "• Commissioned system — confirmed cooling correctly, supply temperature approximately 14°C",
-        "• Demonstrated remote operation, timer, and sleep mode functions to customer",
-      ].join("\n"),
-      recommendations: [
-        "• Register your warranty with Daikin within 30 days of installation",
-        "• Your first filter clean is due in approximately 3 months",
-        "• Schedule annual servicing from next year to maintain performance and warranty compliance",
-      ].join("\n"),
+      workPerformed: "",
+      recommendations: "",
     },
   },
 
