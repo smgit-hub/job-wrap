@@ -11,6 +11,7 @@ import type { ServiceReport, GeneratedReport, JobPhoto, JobDetails } from "@/typ
 import { saveReport } from "@/lib/storage";
 import { getPhotosForReport, savePhotosForReport } from "@/lib/photoStorage";
 import PhotoSection from "@/components/PhotoSection";
+import BulletEditor from "@/components/BulletEditor";
 import { cn } from "@/lib/utils";
 
 interface ReportEditorProps {
@@ -20,8 +21,6 @@ interface ReportEditorProps {
   onPreview: (report: ServiceReport) => void;
   onRegenerate?: (job: JobDetails) => Promise<GeneratedReport>;
 }
-
-type SectionKey = keyof GeneratedReport;
 
 const SERVICE_TYPE_LABELS: Record<string, string> = {
   "hvac-maintenance": "Maintenance",
@@ -34,32 +33,6 @@ const SERVICE_TYPE_LABELS: Record<string, string> = {
   other: "Other",
 };
 
-const SECTIONS: { key: SectionKey; label: string; rows: number; hint?: string }[] = [
-  {
-    key: "customerSummary",
-    label: "Customer Summary",
-    rows: 3,
-    hint: "Plain English, warm tone — written for the customer, not the trade",
-  },
-  {
-    key: "findings",
-    label: "Findings",
-    rows: 4,
-    hint: "Faults, observations, and anything worth noting",
-  },
-  {
-    key: "workPerformed",
-    label: "Work Performed",
-    rows: 5,
-    hint: "List each task — include the outcome",
-  },
-  {
-    key: "recommendations",
-    label: "Recommendations",
-    rows: 3,
-    hint: "Next steps and anything the customer should keep in mind",
-  },
-];
 
 export default function ReportEditor({ report, isNewReport, onBack, onPreview, onRegenerate }: ReportEditorProps) {
   const [draft, setDraft] = useState<ServiceReport>(report);
@@ -111,12 +84,29 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
     }
   }
 
-  function updateField(key: SectionKey, value: string) {
+  function updateField(key: keyof GeneratedReport, value: string) {
     setAutoSaved(false);
     setDraft((prev) => ({
       ...prev,
       report: { ...prev.report, [key]: value },
     }));
+  }
+
+  // Used by BulletEditor — updates state and immediately saves to storage
+  // (BulletEditor commits on blur/enter, so we can't rely on a separate onBlur)
+  function updateFieldAndSave(key: keyof GeneratedReport, value: string) {
+    setDraft((prev) => {
+      const updated: ServiceReport = {
+        ...prev,
+        report: { ...prev.report, [key]: value },
+        updatedAt: new Date().toISOString(),
+      };
+      saveReport(updated);
+      return updated;
+    });
+    setAutoSaved(true);
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    savedTimerRef.current = setTimeout(() => setAutoSaved(false), 2500);
   }
 
   function updateJobField(field: keyof JobDetails, value: string) {
@@ -507,33 +497,80 @@ const handleBlur = useCallback((current: ServiceReport) => {
         )}
 
         {/* Editable sections */}
-        {(!isUngenerated) && SECTIONS.map(({ key, label, rows, hint }) => (
-          <Card
-            key={key}
-            className="border border-slate-100 shadow-card"
-          >
-            <CardHeader className="pb-2 px-4 pt-4">
-              <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                {label}
-              </CardTitle>
-              {hint && (
+        {!isUngenerated && (
+          <>
+            {/* Customer Summary — prose, stays as text area */}
+            <Card className="border border-slate-100 shadow-card">
+              <CardHeader className="pb-2 px-4 pt-4">
+                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Customer Summary</CardTitle>
                 <p className="text-xs text-slate-400 mt-0.5 normal-case tracking-normal font-normal">
-                  {hint}
+                  Plain English, warm tone — written for the customer
                 </p>
-              )}
-            </CardHeader>
-            <CardContent className="px-4 pb-4">
-              <Textarea
-                value={draft.report[key]}
-                onChange={(e) => updateField(key, e.target.value)}
-                onBlur={() => handleBlur(draft)}
-                rows={rows}
-                enterKeyHint="done"
-                className="text-base leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
-              />
-            </CardContent>
-          </Card>
-        ))}
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <Textarea
+                  value={draft.report.customerSummary}
+                  onChange={(e) => updateField("customerSummary", e.target.value)}
+                  onBlur={() => handleBlur(draft)}
+                  rows={3}
+                  enterKeyHint="done"
+                  className="text-base leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Findings — bullet editor */}
+            <Card className="border border-slate-100 shadow-card">
+              <CardHeader className="pb-2 px-4 pt-4">
+                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Findings</CardTitle>
+                <p className="text-xs text-slate-400 mt-0.5 normal-case tracking-normal font-normal">
+                  Faults, observations, and anything worth noting
+                </p>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <BulletEditor
+                  value={draft.report.findings}
+                  onChange={(v) => updateFieldAndSave("findings", v)}
+                  emptyState="No findings — tap + to add one"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Work Performed — bullet editor */}
+            <Card className="border border-slate-100 shadow-card">
+              <CardHeader className="pb-2 px-4 pt-4">
+                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Work Performed</CardTitle>
+                <p className="text-xs text-slate-400 mt-0.5 normal-case tracking-normal font-normal">
+                  Each task carried out — tap to edit, + to add
+                </p>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <BulletEditor
+                  value={draft.report.workPerformed}
+                  onChange={(v) => updateFieldAndSave("workPerformed", v)}
+                  emptyState="No tasks added yet"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Recommendations — bullet editor */}
+            <Card className="border border-slate-100 shadow-card">
+              <CardHeader className="pb-2 px-4 pt-4">
+                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Recommendations</CardTitle>
+                <p className="text-xs text-slate-400 mt-0.5 normal-case tracking-normal font-normal">
+                  Next steps and anything the customer should keep in mind
+                </p>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <BulletEditor
+                  value={draft.report.recommendations}
+                  onChange={(v) => updateFieldAndSave("recommendations", v)}
+                  emptyState="No recommendations — tap + to add one"
+                />
+              </CardContent>
+            </Card>
+          </>
+        )}
 
         {/* Photos */}
         <Card className="border border-slate-100 shadow-card">
