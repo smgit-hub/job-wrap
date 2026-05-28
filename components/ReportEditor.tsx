@@ -291,50 +291,53 @@ const handleBlur = useCallback((current: ServiceReport) => {
           </CardContent>
         </Card>
 
-        {/* Original notes */}
-        {(originalNotes || isUngenerated) && (
-          <Card className="border border-slate-100 shadow-card">
-            <CardHeader className="pb-2 px-4 pt-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Job Notes</CardTitle>
-                {!isUngenerated && (
-                  <button
-                    onClick={() => setShowNotes((v) => !v)}
-                    className="text-xs text-orange-500 font-semibold"
-                  >
-                    {showNotes ? "Hide" : "Show"}
-                  </button>
-                )}
-              </div>
-              {!showNotes && !isUngenerated && originalNotes && (
-                <p className="text-sm text-slate-500 mt-1 truncate normal-case tracking-normal font-normal">
-                  {originalNotes.slice(0, 80)}{originalNotes.length > 80 ? "…" : ""}
-                </p>
+        {/* Original notes — always visible so the tech can reference or edit what was recorded */}
+        <Card className="border border-slate-100 shadow-card">
+          <CardHeader className="pb-2 px-4 pt-4">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Job Notes</CardTitle>
+              {!isUngenerated && (
+                <button
+                  onClick={() => setShowNotes((v) => !v)}
+                  className="text-xs text-orange-500 font-semibold"
+                >
+                  {showNotes ? "Hide" : "Show"}
+                </button>
               )}
-            </CardHeader>
-            {(showNotes || isUngenerated) && (
-              <CardContent className="px-4 pb-4">
-                <Textarea
-                  value={draft.job.voiceNotes.jobNotes}
-                  onChange={(e) => {
-                    setDraft((prev) => ({
-                      ...prev,
-                      job: {
-                        ...prev.job,
-                        voiceNotes: { ...prev.job.voiceNotes, jobNotes: e.target.value },
-                      },
-                    }));
-                  }}
-                  onBlur={() => handleBlur(draft)}
-                  rows={5}
-                  placeholder="Add or edit your job notes here…"
-                  enterKeyHint="done"
-                  className="text-base leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
-                />
-              </CardContent>
+            </div>
+            {!showNotes && !isUngenerated && originalNotes && (
+              <p className="text-sm text-slate-500 mt-1 truncate normal-case tracking-normal font-normal">
+                {originalNotes.slice(0, 80)}{originalNotes.length > 80 ? "…" : ""}
+              </p>
             )}
-          </Card>
-        )}
+            {!showNotes && !isUngenerated && !originalNotes && (
+              <p className="text-sm text-slate-400 mt-1 normal-case tracking-normal font-normal italic">
+                No notes recorded
+              </p>
+            )}
+          </CardHeader>
+          {(showNotes || isUngenerated) && (
+            <CardContent className="px-4 pb-4">
+              <Textarea
+                value={draft.job.voiceNotes.jobNotes}
+                onChange={(e) => {
+                  setDraft((prev) => ({
+                    ...prev,
+                    job: {
+                      ...prev.job,
+                      voiceNotes: { ...prev.job.voiceNotes, jobNotes: e.target.value },
+                    },
+                  }));
+                }}
+                onBlur={() => handleBlur(draft)}
+                rows={5}
+                placeholder="Add or edit your job notes here…"
+                enterKeyHint="done"
+                className="text-base leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
+              />
+            </CardContent>
+          )}
+        </Card>
 
         {/* Regenerate */}
         {onRegenerate && !isRegenerating && !confirmRegen && (
