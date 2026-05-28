@@ -4,7 +4,7 @@
 
 import type { ServiceReport, Customer } from "@/types/report";
 
-const SAMPLE_BUSINESS = {
+export const SAMPLE_BUSINESS = {
   businessName: "Arctic Air HVAC",
   technicianName: "Jake Simmons",
   phone: "(03) 9555 0100",

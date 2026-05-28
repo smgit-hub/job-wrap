@@ -140,9 +140,13 @@ export function seedSampleData(): void {
     return;
   }
   // Lazy import to avoid bundling sample data in every page load
-  import("@/lib/sampleData").then(({ SAMPLE_REPORTS, SAMPLE_CUSTOMERS }) => {
+  import("@/lib/sampleData").then(({ SAMPLE_REPORTS, SAMPLE_CUSTOMERS, SAMPLE_BUSINESS }) => {
     SAMPLE_REPORTS.forEach((r) => saveReport(r));
     SAMPLE_CUSTOMERS.forEach((c) => saveCustomer(c));
+    // Only seed business profile if the user hasn't configured one yet
+    if (!getBusinessProfile().businessName) {
+      saveBusinessProfile(SAMPLE_BUSINESS);
+    }
     localStorage.setItem(SEEDED_KEY, "1");
   });
 }
