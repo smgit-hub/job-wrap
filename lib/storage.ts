@@ -4,6 +4,7 @@ const DRAFT_KEY = "jobwrap_draft";
 const REPORTS_KEY = "jobwrap_reports";
 const BUSINESS_KEY = "jobwrap_business";
 const CUSTOMERS_KEY = "jobwrap_customers";
+const SEEDED_KEY = "jobwrap_seeded";
 
 export const DEFAULT_BUSINESS: BusinessProfile = {
   businessName: "",
@@ -126,6 +127,24 @@ export function deleteCustomer(id: string): void {
 
 export function clearCustomers(): void {
   if (typeof window !== "undefined") localStorage.removeItem(CUSTOMERS_KEY);
+}
+
+// One-time sample data seed — only runs on the very first launch.
+// Skipped if the user already has real reports or has previously dismissed the samples.
+export function seedSampleData(): void {
+  if (typeof window === "undefined") return;
+  if (localStorage.getItem(SEEDED_KEY)) return; // already seeded once
+  if (getReports().length > 0) {
+    // Real data exists — mark as seeded and skip
+    localStorage.setItem(SEEDED_KEY, "1");
+    return;
+  }
+  // Lazy import to avoid bundling sample data in every page load
+  import("@/lib/sampleData").then(({ SAMPLE_REPORTS, SAMPLE_CUSTOMERS }) => {
+    SAMPLE_REPORTS.forEach((r) => saveReport(r));
+    SAMPLE_CUSTOMERS.forEach((c) => saveCustomer(c));
+    localStorage.setItem(SEEDED_KEY, "1");
+  });
 }
 
 // One-time migration: seed customer records from all existing saved reports.

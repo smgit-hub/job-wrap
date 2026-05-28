@@ -5,7 +5,7 @@ import { Plus, FileText, Wrench, Settings, LogOut, Trash2, ChevronRight, CheckCi
 import { Badge } from "@/components/ui/badge";
 import type { ServiceReport } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
-import { getReports, deleteReport, getBusinessProfile, clearCustomers, migrateCustomersFromReports, DEFAULT_BUSINESS } from "@/lib/storage";
+import { getReports, deleteReport, getBusinessProfile, migrateCustomersFromReports, seedSampleData, DEFAULT_BUSINESS } from "@/lib/storage";
 import type { BusinessProfile } from "@/types/report";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
@@ -114,17 +114,14 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setProfile(getBusinessProfile());
+    seedSampleData();
     migrateCustomersFromReports();
-    const stored = getReports();
-    // Clear any leftover sample data from previous dev sessions
-    const allDemo = stored.length > 0 && stored.every((r) => r.id.startsWith("sample_"));
-    if (allDemo) {
-      stored.forEach((r) => deleteReport(r.id));
-      clearCustomers();
-      setReports([]);
-    } else {
-      setReports(stored);
-    }
+    // seedSampleData is async (dynamic import) — reload reports after a tick
+    // so the dashboard renders with the samples on first launch
+    setTimeout(() => {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setReports(getReports());
+    }, 50);
   }, []);
 
   const sorted = [...reports].sort(
