@@ -43,12 +43,10 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [regenError, setRegenError] = useState<string | null>(null);
   const [showNotes, setShowNotes] = useState(false);
-  const [showRecs, setShowRecs] = useState(false);
   const [customerExpanded, setCustomerExpanded] = useState(false);
   const [equipmentExpanded, setEquipmentExpanded] = useState(false);
 
   const originalNotes = draft.job.voiceNotes.jobNotes.trim();
-  const originalRecs = draft.job.voiceNotes.recommendations.trim();
   const isUngenerated =
     !draft.report.customerSummary &&
     !draft.report.workPerformed;
@@ -337,47 +335,6 @@ const handleBlur = useCallback((current: ServiceReport) => {
             )}
           </Card>
         )}
-
-        {/* Recommendation notes — always visible so techs can add notes after generation */}
-        <Card className="border border-slate-100 shadow-card">
-          <CardHeader className="pb-2 px-4 pt-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Recommendation Notes</CardTitle>
-                  <button
-                onClick={() => setShowRecs((v) => !v)}
-                className="text-xs text-orange-500 font-semibold"
-              >
-                {showRecs ? "Hide" : "Show"}
-              </button>
-            </div>
-            {originalRecs && !showRecs && (
-              <p className="text-sm text-slate-500 mt-1 truncate normal-case tracking-normal font-normal">
-                {originalRecs.slice(0, 80)}{originalRecs.length > 80 ? "…" : ""}
-              </p>
-            )}
-          </CardHeader>
-          {showRecs && (
-            <CardContent className="px-4 pb-4">
-              <Textarea
-                value={draft.job.voiceNotes.recommendations}
-                onChange={(e) => {
-                  setDraft((prev) => ({
-                    ...prev,
-                    job: {
-                      ...prev.job,
-                      voiceNotes: { ...prev.job.voiceNotes, recommendations: e.target.value },
-                    },
-                  }));
-                }}
-                onBlur={() => handleBlur(draft)}
-                rows={3}
-                placeholder="Add recommendation notes here…"
-                enterKeyHint="done"
-                className="text-base leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
-              />
-            </CardContent>
-          )}
-        </Card>
 
         {/* Regenerate */}
         {onRegenerate && !isRegenerating && !confirmRegen && (
