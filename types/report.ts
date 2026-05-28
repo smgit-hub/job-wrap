@@ -83,6 +83,14 @@ export interface GeneratedReport {
   recommendations: string;
 }
 
+/** Per-section sign-off — true once the tech has read/edited the section */
+export interface SectionVerified {
+  customerSummary?: boolean;
+  findings?: boolean;
+  workPerformed?: boolean;
+  recommendations?: boolean;
+}
+
 export interface ServiceReport {
   id: string;
   status: ReportStatus;
@@ -91,6 +99,7 @@ export interface ServiceReport {
   business: BusinessProfile;
   job: JobDetails;
   report: GeneratedReport;
+  verified?: SectionVerified;
 }
 
 export const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {

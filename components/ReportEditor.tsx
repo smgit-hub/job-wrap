@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { ChevronLeft, Eye, CheckCircle2, AlertTriangle, RefreshCw, Loader2, Sparkles } from "lucide-react";
+import { ChevronLeft, Eye, CheckCircle2, Circle, AlertTriangle, RefreshCw, Loader2, Sparkles } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
-import type { ServiceReport, GeneratedReport, JobPhoto, JobDetails } from "@/types/report";
+import type { ServiceReport, GeneratedReport, JobPhoto, JobDetails, SectionVerified } from "@/types/report";
 import { saveReport } from "@/lib/storage";
 import { getPhotosForReport, savePhotosForReport } from "@/lib/photoStorage";
 import PhotoSection from "@/components/PhotoSection";
@@ -33,6 +33,12 @@ const SERVICE_TYPE_LABELS: Record<string, string> = {
   other: "Other",
 };
 
+const SECTION_KEYS: (keyof GeneratedReport)[] = [
+  "customerSummary",
+  "findings",
+  "workPerformed",
+  "recommendations",
+];
 
 export default function ReportEditor({ report, isNewReport, onBack, onPreview, onRegenerate }: ReportEditorProps) {
   const [draft, setDraft] = useState<ServiceReport>(report);
@@ -46,10 +52,40 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
   const [customerExpanded, setCustomerExpanded] = useState(false);
   const [equipmentExpanded, setEquipmentExpanded] = useState(false);
 
+  // Keep a ref to the latest draft so handleBlur always saves fresh state
+  const latestDraft = useRef<ServiceReport>(draft);
+  useEffect(() => { latestDraft.current = draft; }, [draft]);
+
   const originalNotes = draft.job.voiceNotes.jobNotes.trim();
   const isUngenerated =
     !draft.report.customerSummary &&
     !draft.report.workPerformed;
+
+  // Verification helpers
+  const v = draft.verified ?? {};
+  const verifiedCount = SECTION_KEYS.filter((k) => v[k as keyof SectionVerified]).length;
+  const allVerified = verifiedCount === SECTION_KEYS.length;
+
+  function isVerified(key: keyof GeneratedReport) {
+    return (draft.verified?.[key as keyof SectionVerified]) ?? false;
+  }
+
+  // Called when tech manually taps the tick icon (toggles)
+  function toggleVerify(key: keyof GeneratedReport) {
+    setDraft((prev) => {
+      const wasVerified = prev.verified?.[key as keyof SectionVerified] ?? false;
+      const newVerified: SectionVerified = { ...prev.verified, [key]: !wasVerified };
+      const nowAllDone = SECTION_KEYS.every((k) => newVerified[k as keyof SectionVerified]);
+      const updated: ServiceReport = {
+        ...prev,
+        verified: newVerified,
+        status: nowAllDone ? "complete" : prev.status,
+        updatedAt: new Date().toISOString(),
+      };
+      saveReport(updated);
+      return updated;
+    });
+  }
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -71,6 +107,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
       const updated: ServiceReport = {
         ...draft,
         report: newReport,
+        verified: {}, // clear all — new content needs re-reading
         updatedAt: new Date().toISOString(),
       };
       setDraft(updated);
@@ -82,21 +119,26 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
     }
   }
 
+  // For customerSummary textarea — editing counts as verified
   function updateField(key: keyof GeneratedReport, value: string) {
     setAutoSaved(false);
     setDraft((prev) => ({
       ...prev,
       report: { ...prev.report, [key]: value },
+      verified: { ...prev.verified, [key]: true },
     }));
   }
 
-  // Used by BulletEditor — updates state and immediately saves to storage
-  // (BulletEditor commits on blur/enter, so we can't rely on a separate onBlur)
+  // For BulletEditor — saves immediately + marks section verified
   function updateFieldAndSave(key: keyof GeneratedReport, value: string) {
     setDraft((prev) => {
+      const newVerified: SectionVerified = { ...prev.verified, [key]: true };
+      const nowAllDone = SECTION_KEYS.every((k) => newVerified[k as keyof SectionVerified]);
       const updated: ServiceReport = {
         ...prev,
         report: { ...prev.report, [key]: value },
+        verified: newVerified,
+        status: nowAllDone ? "complete" : prev.status,
         updatedAt: new Date().toISOString(),
       };
       saveReport(updated);
@@ -109,14 +151,13 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
 
   function updateJobField(field: keyof JobDetails, value: string) {
     setAutoSaved(false);
-    setDraft((prev) => {
-      const updated = { ...prev, job: { ...prev.job, [field]: value } };
-      return updated;
-    });
+    setDraft((prev) => ({ ...prev, job: { ...prev.job, [field]: value } }));
   }
 
-const handleBlur = useCallback((current: ServiceReport) => {
+  // Uses latestDraft ref so it always saves the most recent state
+  const handleBlur = useCallback(() => {
     try {
+      const current = latestDraft.current;
       const updated: ServiceReport = {
         ...current,
         updatedAt: new Date().toISOString(),
@@ -132,13 +173,46 @@ const handleBlur = useCallback((current: ServiceReport) => {
 
   function handlePreview() {
     const completed: ServiceReport = {
-      ...draft,
+      ...latestDraft.current,
       status: "complete",
       updatedAt: new Date().toISOString(),
     };
     saveReport(completed);
     setDraft(completed);
     onPreview(completed);
+  }
+
+  // ── Section card header with verify tick ────────────────────────────────────
+  function SectionHeader({
+    sectionKey,
+    title,
+    subtitle,
+  }: {
+    sectionKey: keyof GeneratedReport;
+    title: string;
+    subtitle?: string;
+  }) {
+    const verified = isVerified(sectionKey);
+    return (
+      <CardHeader className="pb-2 px-4 pt-4">
+        <div className="flex items-center justify-between gap-2">
+          <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">{title}</CardTitle>
+          <button
+            onClick={() => toggleVerify(sectionKey)}
+            className="shrink-0 transition-transform active:scale-90"
+            aria-label={verified ? "Unmark verified" : "Mark as verified"}
+          >
+            {verified
+              ? <CheckCircle2 className="w-5 h-5 text-orange-500" />
+              : <Circle className="w-5 h-5 text-slate-300" />
+            }
+          </button>
+        </div>
+        {subtitle && (
+          <p className="text-xs text-slate-400 mt-0.5 normal-case tracking-normal font-normal">{subtitle}</p>
+        )}
+      </CardHeader>
+    );
   }
 
   return (
@@ -154,12 +228,24 @@ const handleBlur = useCallback((current: ServiceReport) => {
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
           <span className="flex-1 font-bold text-slate-900 ml-3">Edit Report</span>
+          {/* Verified progress chip */}
+          {!isUngenerated && (
+            <span className={cn(
+              "text-xs font-bold px-2.5 py-1 rounded-full",
+              allVerified
+                ? "bg-orange-500 text-white"
+                : "bg-slate-100 text-slate-400"
+            )}>
+              {verifiedCount}/{SECTION_KEYS.length}
+            </span>
+          )}
         </div>
         {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={3} />}
       </header>
 
       <main className="flex-1 max-w-lg mx-auto w-full px-4 py-5 pb-32 space-y-4">
-        {/* Job Details card — editable */}
+
+        {/* Job Details card */}
         <Card className="border border-slate-100 shadow-card">
           <CardHeader className="pb-2 px-4 pt-4">
             <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Job Details</CardTitle>
@@ -193,7 +279,7 @@ const handleBlur = useCallback((current: ServiceReport) => {
                       id="ed-customer"
                       value={draft.job.customerName}
                       onChange={(e) => updateJobField("customerName", e.target.value)}
-                      onBlur={() => handleBlur(draft)}
+                      onBlur={handleBlur}
                       placeholder="e.g. Sandra Kowalski"
                       className="h-11 text-base"
                     />
@@ -204,7 +290,7 @@ const handleBlur = useCallback((current: ServiceReport) => {
                       id="ed-address"
                       value={draft.job.serviceAddress}
                       onChange={(e) => updateJobField("serviceAddress", e.target.value)}
-                      onBlur={() => handleBlur(draft)}
+                      onBlur={handleBlur}
                       placeholder="e.g. 142 Birchwood Drive"
                       className="h-11 text-base"
                     />
@@ -222,7 +308,7 @@ const handleBlur = useCallback((current: ServiceReport) => {
                   type="date"
                   value={draft.job.jobDate}
                   onChange={(e) => updateJobField("jobDate", e.target.value)}
-                  onBlur={() => handleBlur(draft)}
+                  onBlur={handleBlur}
                   className="h-11 text-base"
                 />
               </div>
@@ -232,7 +318,7 @@ const handleBlur = useCallback((current: ServiceReport) => {
                   id="ed-service"
                   value={draft.job.serviceType}
                   onChange={(e) => updateJobField("serviceType", e.target.value)}
-                  onBlur={() => handleBlur(draft)}
+                  onBlur={handleBlur}
                   className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-300"
                 >
                   {Object.entries(SERVICE_TYPE_LABELS).map(([value, label]) => (
@@ -250,7 +336,7 @@ const handleBlur = useCallback((current: ServiceReport) => {
                 type="date"
                 value={draft.job.nextServiceDate ?? ""}
                 onChange={(e) => updateJobField("nextServiceDate", e.target.value)}
-                onBlur={() => handleBlur(draft)}
+                onBlur={handleBlur}
                 className="h-11 text-base"
               />
             </div>
@@ -280,7 +366,7 @@ const handleBlur = useCallback((current: ServiceReport) => {
                     id="ed-equipment"
                     value={draft.job.equipment ?? ""}
                     onChange={(e) => updateJobField("equipment", e.target.value)}
-                    onBlur={() => handleBlur(draft)}
+                    onBlur={handleBlur}
                     placeholder="e.g. Daikin FTXM50W 6kW, installed 2018"
                     className="h-11 text-base"
                   />
@@ -291,7 +377,7 @@ const handleBlur = useCallback((current: ServiceReport) => {
           </CardContent>
         </Card>
 
-        {/* Original notes — always visible so the tech can reference or edit what was recorded */}
+        {/* Job Notes — always visible */}
         <Card className="border border-slate-100 shadow-card">
           <CardHeader className="pb-2 px-4 pt-4">
             <div className="flex items-center justify-between">
@@ -329,7 +415,7 @@ const handleBlur = useCallback((current: ServiceReport) => {
                     },
                   }));
                 }}
-                onBlur={() => handleBlur(draft)}
+                onBlur={handleBlur}
                 rows={5}
                 placeholder="Add or edit your job notes here…"
                 enterKeyHint="done"
@@ -404,22 +490,24 @@ const handleBlur = useCallback((current: ServiceReport) => {
           </div>
         )}
 
-        {/* Editable sections */}
+        {/* ── Editable sections with verification ── */}
         {!isUngenerated && (
           <>
-            {/* Customer Summary — prose, stays as text area */}
-            <Card className="border border-slate-100 shadow-card">
-              <CardHeader className="pb-2 px-4 pt-4">
-                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Customer Summary</CardTitle>
-                <p className="text-xs text-slate-400 mt-0.5 normal-case tracking-normal font-normal">
-                  Plain English, warm tone — written for the customer
-                </p>
-              </CardHeader>
+            {/* Customer Summary */}
+            <Card className={cn(
+              "border shadow-card transition-colors",
+              isVerified("customerSummary") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
+            )}>
+              <SectionHeader
+                sectionKey="customerSummary"
+                title="Customer Summary"
+                subtitle="Plain English, warm tone — written for the customer"
+              />
               <CardContent className="px-4 pb-4">
                 <Textarea
                   value={draft.report.customerSummary}
                   onChange={(e) => updateField("customerSummary", e.target.value)}
-                  onBlur={() => handleBlur(draft)}
+                  onBlur={handleBlur}
                   rows={3}
                   enterKeyHint="done"
                   className="text-base leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
@@ -427,14 +515,16 @@ const handleBlur = useCallback((current: ServiceReport) => {
               </CardContent>
             </Card>
 
-            {/* Findings — bullet editor */}
-            <Card className="border border-slate-100 shadow-card">
-              <CardHeader className="pb-2 px-4 pt-4">
-                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Findings</CardTitle>
-                <p className="text-xs text-slate-400 mt-0.5 normal-case tracking-normal font-normal">
-                  Faults, observations, and anything worth noting
-                </p>
-              </CardHeader>
+            {/* Findings */}
+            <Card className={cn(
+              "border shadow-card transition-colors",
+              isVerified("findings") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
+            )}>
+              <SectionHeader
+                sectionKey="findings"
+                title="Findings"
+                subtitle="Faults, observations, and anything worth noting"
+              />
               <CardContent className="px-4 pb-4">
                 <BulletEditor
                   value={draft.report.findings}
@@ -444,14 +534,16 @@ const handleBlur = useCallback((current: ServiceReport) => {
               </CardContent>
             </Card>
 
-            {/* Work Performed — bullet editor */}
-            <Card className="border border-slate-100 shadow-card">
-              <CardHeader className="pb-2 px-4 pt-4">
-                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Work Performed</CardTitle>
-                <p className="text-xs text-slate-400 mt-0.5 normal-case tracking-normal font-normal">
-                  Each task carried out — tap to edit, + to add
-                </p>
-              </CardHeader>
+            {/* Work Performed */}
+            <Card className={cn(
+              "border shadow-card transition-colors",
+              isVerified("workPerformed") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
+            )}>
+              <SectionHeader
+                sectionKey="workPerformed"
+                title="Work Performed"
+                subtitle="Each task carried out — tap to edit, + to add"
+              />
               <CardContent className="px-4 pb-4">
                 <BulletEditor
                   value={draft.report.workPerformed}
@@ -461,14 +553,16 @@ const handleBlur = useCallback((current: ServiceReport) => {
               </CardContent>
             </Card>
 
-            {/* Recommendations — bullet editor */}
-            <Card className="border border-slate-100 shadow-card">
-              <CardHeader className="pb-2 px-4 pt-4">
-                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Recommendations</CardTitle>
-                <p className="text-xs text-slate-400 mt-0.5 normal-case tracking-normal font-normal">
-                  Next steps and anything the customer should keep in mind
-                </p>
-              </CardHeader>
+            {/* Recommendations */}
+            <Card className={cn(
+              "border shadow-card transition-colors",
+              isVerified("recommendations") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
+            )}>
+              <SectionHeader
+                sectionKey="recommendations"
+                title="Recommendations"
+                subtitle="Next steps and anything the customer should keep in mind"
+              />
               <CardContent className="px-4 pb-4">
                 <BulletEditor
                   value={draft.report.recommendations}
@@ -507,9 +601,19 @@ const handleBlur = useCallback((current: ServiceReport) => {
         Changes saved
       </div>
 
-      {/* Sticky Preview CTA */}
+      {/* Sticky footer */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
         <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer">
+          {!isUngenerated && (
+            <p className={cn(
+              "text-center text-xs mb-2 font-medium transition-colors",
+              allVerified ? "text-orange-500" : "text-slate-400"
+            )}>
+              {allVerified
+                ? "All sections verified — ready to export"
+                : `${verifiedCount} of ${SECTION_KEYS.length} sections verified`}
+            </p>
+          )}
           <button
             onClick={handlePreview}
             disabled={isUngenerated}
