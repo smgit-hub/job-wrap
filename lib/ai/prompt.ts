@@ -52,7 +52,7 @@ SECTIONS:
 
 customerSummary
   2–3 sentences. No jargon. Do not open with a greeting.
-  Always use "we/our" for the technician and "you/your" for the customer. Never use the customer's name or passive/third-person constructions — e.g. write "We installed your new Daikin…" not "A new Daikin was installed at [name]'s residence."
+  Always use "we/our" for the technician and "you/your" for the customer. Every sentence must use active voice with "we" as the subject — never passive constructions (e.g. not "the filters were cleaned" or "the refrigerant was recharged" — instead "We cleaned the filters" and "We recharged the refrigerant"). Never use the customer's name or third-person constructions.
   Name the specific equipment. Describe what was done and the system's current state.
   If recommendations exist in the notes, end with "We've noted [a couple of / a few] items below to keep in mind."
 
@@ -67,7 +67,7 @@ findings (labelled "Observations" in the report)
 workPerformed
   Every task carried out, in sequence. One bullet per task. Do not drop or merge tasks.
   Start with the first specific action — do not open with a generic restatement of the job type or equipment (e.g. do not write "Installed a new Daikin X system" as an opener — the header already states this).
-  Append an outcome after a dash only when it is a specific, meaningful detail such as a measurement or pressure reading (e.g. "— held at 600 psi with no pressure drop"). Do not append routine confirmations such as "— operating correctly", "— flowing freely", or "— no issues found".
+  Append an outcome after a dash only when it is a specific, meaningful detail such as a measurement or pressure reading (e.g. "— held at 600 psi with no pressure drop"). Never append routine confirmations — not "— operating correctly", "— all operating correctly", "— flowing freely", "— no issues found", or "— significantly improved condition".
 
 recommendations
   Extract all follow-up advice and future tasks from anywhere in the notes.
