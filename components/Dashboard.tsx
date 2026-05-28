@@ -5,9 +5,8 @@ import { Plus, FileText, Wrench, Settings, LogOut, Trash2, ChevronRight, CheckCi
 import { Badge } from "@/components/ui/badge";
 import type { ServiceReport } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
-import { getReports, saveReport, deleteReport, getBusinessProfile, saveBusinessProfile, getCustomers, clearCustomers, migrateCustomersFromReports, DEFAULT_BUSINESS } from "@/lib/storage";
+import { getReports, deleteReport, getBusinessProfile, clearCustomers, migrateCustomersFromReports, DEFAULT_BUSINESS } from "@/lib/storage";
 import type { BusinessProfile } from "@/types/report";
-import { SAMPLE_REPORTS, SAMPLE_BUSINESS } from "@/lib/sampleData";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 
@@ -117,19 +116,9 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
     setProfile(getBusinessProfile());
     migrateCustomersFromReports();
     const stored = getReports();
+    // Clear any leftover sample data from previous dev sessions
     const allDemo = stored.length > 0 && stored.every((r) => r.id.startsWith("sample_"));
-    if (process.env.NODE_ENV !== "production" && (stored.length === 0 || allDemo)) {
-      // Dev-only: seed sample reports so the app is non-empty on first run.
-      // In production real users start with an empty dashboard.
-      stored.forEach((r) => deleteReport(r.id));
-      clearCustomers();
-      SAMPLE_REPORTS.forEach((r) => saveReport(r));
-      // Seed business profile only if it hasn't been configured yet
-      const existingProfile = getBusinessProfile();
-      if (!existingProfile.businessName) saveBusinessProfile(SAMPLE_BUSINESS);
-      setReports(SAMPLE_REPORTS);
-    } else if (allDemo) {
-      // Production: user somehow has leftover sample data — clear it
+    if (allDemo) {
       stored.forEach((r) => deleteReport(r.id));
       clearCustomers();
       setReports([]);
