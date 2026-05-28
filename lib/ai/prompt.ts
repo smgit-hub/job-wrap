@@ -60,6 +60,7 @@ findings (labelled "Observations" in the report)
   What was found or noticed during the visit. Notable conditions, defects, and faults only. Bullets (•), most significant first.
   Include conditions discovered during work even if resolved in the same visit (e.g. blocked drain, debris-packed coil fins) — the observation goes here, the fix goes in workPerformed.
   State the condition only — not what was done about it.
+  Elevate casual descriptions to professional trade language (e.g. "basically no pressure on the high side" → "suction and discharge pressures critically depleted, indicating significant refrigerant loss").
   Exclude routine pass results (e.g. "pressures within spec", "no cracks found", "operating correctly", "flowing freely").
   Return "" if nothing abnormal or notable was observed.
 
@@ -72,7 +73,7 @@ recommendations
   Extract all follow-up advice and future tasks from anywhere in the notes.
   Include items phrased as past-tense reminders ("reminded them to register the warranty" → "• Register your warranty…").
   Include brief or fragmented notes about future tasks ("annual service from next year" → "• Your next annual service is due next year", "filter clean in 3 months" → "• Your filter is due for a clean in approximately 3 months").
-  One bullet per item, beginning with "your" or "you" — e.g. "Your next service is due…", "You should consider…", "You may want to…". Preserve all figures and timeframes exactly.
+  One bullet per item, beginning with "your" or "you" — e.g. "Your next service is due…", "You should consider…", "You may want to…". Never use bare imperatives or vague openers — not "Consider installing…", "It may be worth…", "Install…", or "Schedule…". Preserve all figures and timeframes exactly.
   Return "" only if the notes contain absolutely no recommendations, reminders, or future tasks.
 
 Return ONLY valid JSON with no markdown or explanation:
