@@ -11,11 +11,7 @@ export interface GenerateReportInput {
   customerName: string;
   technicianName: string;
   jobDate: string;
-  equipmentBrand?: string;
-  equipmentModel?: string;
-  equipmentCapacity?: string;
-  equipmentInstallYear?: string;
-  equipmentDetails?: string;
+  equipment?: string;
   voiceNotes: VoiceNotes;
 }
 
@@ -194,16 +190,7 @@ CORRECT OUTPUT:
 // ── Equipment line builder ────────────────────────────────────────────────────
 
 function buildEquipmentLine(input: GenerateReportInput): string {
-  const main = [input.equipmentBrand, input.equipmentModel, input.equipmentCapacity]
-    .filter(Boolean)
-    .join(" ");
-  const year = input.equipmentInstallYear?.trim()
-    ? `installed ${input.equipmentInstallYear.trim()}`
-    : "";
-  const notes = input.equipmentDetails?.trim() ?? "";
-  const extras = [year, notes].filter(Boolean).join(", ");
-  const full = main && extras ? `${main} — ${extras}` : main || extras;
-  return full.trim();
+  return input.equipment?.trim() ?? "";
 }
 
 // ── User message builder (variable parts) ────────────────────────────────────

@@ -10,7 +10,7 @@ export interface ExtractedJobInfo {
   customerName?: string;
   serviceAddress?: string;
   serviceType?: ServiceType;
-  equipmentDetails?: string;
+  equipment?: string;
 }
 
 function toTitleCase(str: string): string {
@@ -42,7 +42,7 @@ export function extractJobInfo(transcript: string): ExtractedJobInfo {
       parts.push(toTitleCase(m));
     }
   }
-  if (parts.length > 0) result.equipmentDetails = parts.join(", ");
+  if (parts.length > 0) result.equipment = parts.join(", ");
 
   // ── Service type ───────────────────────────────────────────────────────────
   if (/no cooling|not cooling|won.t cool|no cold air|warm air|no ac\b|unit not cooling|not cold/i.test(lower)) {

@@ -278,16 +278,7 @@ function Divider() {
 // ── Main document ────────────────────────────────────────────────────────────
 
 function buildEquipmentString(job: ServiceReport["job"]): string {
-  const main = [job.equipmentBrand, job.equipmentModel, job.equipmentCapacity]
-    .filter(Boolean)
-    .join(" ");
-  const year = job.equipmentInstallYear?.trim()
-    ? `Installed ${job.equipmentInstallYear.trim()}`
-    : "";
-  const notes = job.equipmentDetails?.trim() ?? "";
-  const secondary = [year, notes].filter(Boolean).join(" · ");
-  if (!main && !secondary) return "";
-  return [main, secondary].filter(Boolean).join("\n");
+  return job.equipment?.trim() ?? "";
 }
 
 export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocumentProps) {

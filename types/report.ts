@@ -68,13 +68,8 @@ export interface JobDetails {
   /** Free-text label used when serviceType === "other" */
   customServiceType?: string;
   jobDate: string;
-  // ── Structured equipment fields — captured per job, not per customer ────────
-  equipmentBrand?: string;       // e.g. "Daikin"
-  equipmentModel?: string;       // e.g. "FTXM50W"
-  equipmentCapacity?: string;    // e.g. "6kW"
-  equipmentInstallYear?: string; // e.g. "2018"
-  /** Additional notes — serial number, system type, secondary units, etc. */
-  equipmentDetails?: string;
+  /** Free-text equipment description — brand, model, capacity, install year, etc. e.g. "Daikin FTXM50W 6kW, installed 2018" */
+  equipment?: string;
   /** Next recommended service date — shown in the PDF info grid if set */
   nextServiceDate?: string;
   voiceNotes: VoiceNotes;

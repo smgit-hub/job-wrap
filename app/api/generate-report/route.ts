@@ -65,11 +65,7 @@ export async function POST(request: Request) {
     customerName: truncate(str(body.customerName), 120),
     technicianName: truncate(str(body.technicianName), 120),
     jobDate: str(body.jobDate, new Date().toISOString().split("T")[0]),
-    equipmentBrand: truncate(str(body.equipmentBrand), 60) || undefined,
-    equipmentModel: truncate(str(body.equipmentModel), 80) || undefined,
-    equipmentCapacity: truncate(str(body.equipmentCapacity), 20) || undefined,
-    equipmentInstallYear: truncate(str(body.equipmentInstallYear), 4) || undefined,
-    equipmentDetails: truncate(str(body.equipmentDetails), 200) || undefined,
+    equipment: truncate(str(body.equipment), 200) || undefined,
     voiceNotes: {
       jobNotes: truncate(jobNotes.trim(), 3000),
       recommendations: truncate(str(voiceNotes?.recommendations).trim(), 1000),

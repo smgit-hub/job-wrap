@@ -268,7 +268,7 @@ const handleBlur = useCallback((current: ServiceReport) => {
                   <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Equipment</p>
                   {!equipmentExpanded && (
                     <p className="text-sm font-semibold text-slate-700 mt-0.5 truncate">
-                      {[draft.job.equipmentBrand, draft.job.equipmentModel, draft.job.equipmentCapacity].filter(Boolean).join(" ") || "—"}
+                      {draft.job.equipment?.trim() || "—"}
                     </p>
                   )}
                 </div>
@@ -277,67 +277,15 @@ const handleBlur = useCallback((current: ServiceReport) => {
                 </span>
               </button>
               {equipmentExpanded && (
-                <div className="px-3 pb-3 pt-2 space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="ed-equip-brand" className="text-xs text-slate-400">Brand</Label>
-                      <Input
-                        id="ed-equip-brand"
-                        value={draft.job.equipmentBrand ?? ""}
-                        onChange={(e) => updateJobField("equipmentBrand", e.target.value)}
-                        onBlur={() => handleBlur(draft)}
-                        placeholder="e.g. Daikin"
-                        className="h-11 text-base"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="ed-equip-model" className="text-xs text-slate-400">Model</Label>
-                      <Input
-                        id="ed-equip-model"
-                        value={draft.job.equipmentModel ?? ""}
-                        onChange={(e) => updateJobField("equipmentModel", e.target.value)}
-                        onBlur={() => handleBlur(draft)}
-                        placeholder="e.g. FTXM50W"
-                        className="h-11 text-base"
-                      />
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div className="space-y-1.5">
-                      <Label htmlFor="ed-equip-capacity" className="text-xs text-slate-400">Capacity</Label>
-                      <Input
-                        id="ed-equip-capacity"
-                        value={draft.job.equipmentCapacity ?? ""}
-                        onChange={(e) => updateJobField("equipmentCapacity", e.target.value)}
-                        onBlur={() => handleBlur(draft)}
-                        placeholder="e.g. 6kW"
-                        className="h-11 text-base"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label htmlFor="ed-equip-year" className="text-xs text-slate-400">Install Year</Label>
-                      <Input
-                        id="ed-equip-year"
-                        value={draft.job.equipmentInstallYear ?? ""}
-                        onChange={(e) => updateJobField("equipmentInstallYear", e.target.value)}
-                        onBlur={() => handleBlur(draft)}
-                        placeholder="e.g. 2018"
-                        inputMode="numeric"
-                        className="h-11 text-base"
-                      />
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="ed-equip-details" className="text-xs text-slate-400">Additional details</Label>
-                    <Input
-                      id="ed-equip-details"
-                      value={draft.job.equipmentDetails ?? ""}
-                      onChange={(e) => updateJobField("equipmentDetails", e.target.value)}
-                      onBlur={() => handleBlur(draft)}
-                      placeholder="Serial number, system type, other notes…"
-                      className="h-11 text-base"
-                    />
-                  </div>
+                <div className="px-3 pb-3 pt-2">
+                  <Input
+                    id="ed-equipment"
+                    value={draft.job.equipment ?? ""}
+                    onChange={(e) => updateJobField("equipment", e.target.value)}
+                    onBlur={() => handleBlur(draft)}
+                    placeholder="e.g. Daikin FTXM50W 6kW, installed 2018"
+                    className="h-11 text-base"
+                  />
                 </div>
               )}
             </div>

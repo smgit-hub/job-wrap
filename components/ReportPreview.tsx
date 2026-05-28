@@ -28,12 +28,7 @@ function formatDate(dateStr: string): string {
 }
 
 function buildEquipmentString(job: ServiceReport["job"]): string {
-  const main = [job.equipmentBrand, job.equipmentModel, job.equipmentCapacity]
-    .filter(Boolean).join(" ");
-  const year = job.equipmentInstallYear?.trim() ? `installed ${job.equipmentInstallYear.trim()}` : "";
-  const notes = job.equipmentDetails?.trim() ?? "";
-  const extras = [year, notes].filter(Boolean).join(", ");
-  return main && extras ? `${main} — ${extras}` : main || extras;
+  return job.equipment?.trim() ?? "";
 }
 
 function buildPlainText(report: ServiceReport): string {

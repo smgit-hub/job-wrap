@@ -400,65 +400,17 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
             </div>
 
             {/* Equipment */}
-            <div className="space-y-3">
-              <Label className="flex items-center gap-1.5 text-slate-500">
+            <div className="space-y-1.5">
+              <Label htmlFor="equipment" className="flex items-center gap-1.5 text-slate-500">
                 <Wrench className="w-3.5 h-3.5" />Equipment / System
               </Label>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="equipBrand" className="text-xs text-slate-400">Brand</Label>
-                  <Input
-                    id="equipBrand"
-                    value={job.equipmentBrand ?? ""}
-                    onChange={(e) => setJob((prev) => ({ ...prev, equipmentBrand: e.target.value }))}
-                    placeholder="e.g. Daikin"
-                    className="h-11 text-base bg-slate-50 border-slate-200"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="equipModel" className="text-xs text-slate-400">Model</Label>
-                  <Input
-                    id="equipModel"
-                    value={job.equipmentModel ?? ""}
-                    onChange={(e) => setJob((prev) => ({ ...prev, equipmentModel: e.target.value }))}
-                    placeholder="e.g. FTXM50W"
-                    className="h-11 text-base bg-slate-50 border-slate-200"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="equipCapacity" className="text-xs text-slate-400">Capacity</Label>
-                  <Input
-                    id="equipCapacity"
-                    value={job.equipmentCapacity ?? ""}
-                    onChange={(e) => setJob((prev) => ({ ...prev, equipmentCapacity: e.target.value }))}
-                    placeholder="e.g. 6kW"
-                    className="h-11 text-base bg-slate-50 border-slate-200"
-                  />
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="equipYear" className="text-xs text-slate-400">Install Year</Label>
-                  <Input
-                    id="equipYear"
-                    value={job.equipmentInstallYear ?? ""}
-                    onChange={(e) => setJob((prev) => ({ ...prev, equipmentInstallYear: e.target.value }))}
-                    placeholder="e.g. 2018"
-                    inputMode="numeric"
-                    className="h-11 text-base bg-slate-50 border-slate-200"
-                  />
-                </div>
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="equipDetails" className="text-xs text-slate-400">Additional details</Label>
-                <Input
-                  id="equipDetails"
-                  value={job.equipmentDetails ?? ""}
-                  onChange={(e) => setJob((prev) => ({ ...prev, equipmentDetails: e.target.value }))}
-                  placeholder="Serial number, system type, other notes…"
-                  className="h-11 text-base bg-slate-50 border-slate-200"
-                />
-              </div>
+              <Input
+                id="equipment"
+                value={job.equipment ?? ""}
+                onChange={(e) => setJob((prev) => ({ ...prev, equipment: e.target.value }))}
+                placeholder="e.g. Daikin FTXM50W 6kW, installed 2018"
+                className="h-11 text-base bg-slate-50 border-slate-200"
+              />
             </div>
 
             {/* Date / Next Service */}
