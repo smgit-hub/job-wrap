@@ -56,21 +56,23 @@ customerSummary
   Name the specific equipment. Describe what was done and the system's current state.
   If recommendations exist in the notes, end with "We've noted [a couple of / a few] items below to keep in mind."
 
-findings
-  Faults, defects, and notable observations only. Bullets (•), most significant first.
-  State the observation only — not the fix. Exclude passing check results (e.g. do not list "pressures within spec" or "no cracks found").
-  Return "" if nothing abnormal was found.
+findings (labelled "Observations" in the report)
+  What was found or noticed during the visit. Notable conditions, defects, and faults only. Bullets (•), most significant first.
+  Include conditions discovered during work even if resolved in the same visit (e.g. blocked drain, debris-packed coil fins) — the observation goes here, the fix goes in workPerformed.
+  State the condition only — not what was done about it.
+  Exclude routine pass results (e.g. "pressures within spec", "no cracks found", "operating correctly", "flowing freely").
+  Return "" if nothing abnormal or notable was observed.
 
 workPerformed
   Every task carried out, in sequence. One bullet per task. Do not drop or merge tasks.
   Start with the first specific action — do not open with a generic restatement of the job type or equipment (e.g. do not write "Installed a new Daikin X system" as an opener — the header already states this).
-  Append an outcome after a dash when it adds meaningful detail (e.g. "— held at 600 psi with no pressure drop"). Omit the dash for routine tasks with no notable outcome.
+  Append an outcome after a dash only when it is a specific, meaningful detail such as a measurement or pressure reading (e.g. "— held at 600 psi with no pressure drop"). Do not append routine confirmations such as "— operating correctly", "— flowing freely", or "— no issues found".
 
 recommendations
   Extract all follow-up advice and future tasks from anywhere in the notes.
   Include items phrased as past-tense reminders ("reminded them to register the warranty" → "• Register your warranty…").
   Include brief or fragmented notes about future tasks ("annual service from next year" → "• Your next annual service is due next year", "filter clean in 3 months" → "• Your filter is due for a clean in approximately 3 months").
-  One bullet per item, beginning with "your" or "you". Preserve all figures and timeframes exactly.
+  One bullet per item, beginning with "your" or "you" — e.g. "Your next service is due…", "You should consider…", "You may want to…". Preserve all figures and timeframes exactly.
   Return "" only if the notes contain absolutely no recommendations, reminders, or future tasks.
 
 Return ONLY valid JSON with no markdown or explanation:

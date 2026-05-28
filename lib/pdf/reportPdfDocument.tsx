@@ -379,11 +379,11 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
             </View>
           )}
 
-          {/* Findings */}
+          {/* Observations */}
           {Boolean(rpt.findings) && (
             <>
               <Divider />
-              <Text style={s.sectionLabel}>Findings</Text>
+              <Text style={s.sectionLabel}>Observations</Text>
               <BulletList text={rpt.findings} />
             </>
           )}

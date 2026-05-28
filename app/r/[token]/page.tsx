@@ -160,7 +160,7 @@ export default async function SharedReportPage({
             {rpt.findings && (
               <div>
                 <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
-                  Findings
+                  Observations
                 </h3>
                 <BulletSection text={rpt.findings} />
               </div>

@@ -556,22 +556,22 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               </CardContent>
             </Card>
 
-            {/* Findings */}
+            {/* Observations */}
             <Card className={cn(
               "border shadow-card transition-colors",
               isVerified("findings") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
             )}>
               <SectionHeader
                 sectionKey="findings"
-                title="Findings"
-                subtitle="Faults, observations, and anything worth noting"
+                title="Observations"
+                subtitle="Conditions noticed — not what was done about them"
               />
               <CardContent className="px-4 pb-4">
                 <BulletEditor
                   value={draft.report.findings}
                   onChange={(v) => updateFieldAndSave("findings", v)}
                   onMove={(text) => handleStartMove(text, "findings")}
-                  emptyState="No findings — tap + to add one"
+                  emptyState="No observations — tap + to add one"
                 />
               </CardContent>
             </Card>
@@ -650,7 +650,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             <div className="space-y-2">
               {(
                 [
-                  { key: "findings", label: "Findings" },
+                  { key: "findings", label: "Observations" },
                   { key: "workPerformed", label: "Work Performed" },
                   { key: "recommendations", label: "Recommendations" },
                 ] as { key: keyof GeneratedReport; label: string }[]
