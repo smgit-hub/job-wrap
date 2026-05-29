@@ -23,7 +23,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ activeSection, onDashboard, onNewReport, onCustomers, onSettings }: SidebarProps) {
   const profile = getBusinessProfile();
-  const { user, signOut } = useAuth();
+  const { isConfigured, signOut } = useAuth();
 
   const handlers: Record<ActiveSection, () => void> = {
     dashboard: onDashboard,
@@ -82,7 +82,7 @@ export default function Sidebar({ activeSection, onDashboard, onNewReport, onCus
       </nav>
 
       {/* Sign out */}
-      {user && (
+      {isConfigured && (
         <div className="px-3 pb-5 border-t border-slate-100 pt-3">
           <button
             onClick={async () => { await signOut(); window.location.href = "/login"; }}

@@ -54,7 +54,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
   const [saved, setSaved] = useState(false);
   const [logoLoading, setLogoLoading] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
-  const { user, signOut } = useAuth();
+  const { isConfigured, signOut } = useAuth();
 
   function update(field: keyof BusinessProfile, value: string) {
     setSaved(false);
@@ -308,7 +308,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         <p className="text-center text-xs text-slate-400">Settings saved on this device</p>
 
         {/* Sign out */}
-        {user && (
+        {isConfigured && (
           <div className="pt-2 pb-4">
             <button
               onClick={async () => { await signOut(); window.location.href = "/login"; }}
