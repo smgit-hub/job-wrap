@@ -626,7 +626,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             onClick={handlePreview}
             className="w-full h-14 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-md shadow-orange-200/50 transition-colors"
           >
-            Preview
+            Save & Preview
             <Eye className="w-5 h-5" />
           </button>
         </div>

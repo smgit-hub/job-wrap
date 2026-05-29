@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ChevronLeft, CheckCircle2, Loader2, AlertCircle, Mail, Download, Link, Pencil } from "lucide-react";
+import { ChevronLeft, CheckCircle2, Loader2, AlertCircle, Mail, Download, Link, Share2, Pencil } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 import type { ServiceReport, JobPhoto } from "@/types/report";
@@ -144,7 +144,9 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
     setPhotos(getPhotosForReport(report.id));
   }, [report.id]);
 
-  async function handleCopyLink() {
+  const canNativeShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
+
+  async function handleShareOrCopy() {
     if (linkState === "generating") return;
     setLinkState("generating");
     try {
@@ -155,10 +157,26 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
       });
       if (!res.ok) throw new Error("Failed");
       const { url } = (await res.json()) as { url: string };
-      await navigator.clipboard.writeText(url);
-      setLinkState("copied");
-      setTimeout(() => setLinkState("idle"), 3000);
-    } catch {
+
+      if (canNativeShare) {
+        // Mobile: open native share sheet
+        await navigator.share({
+          title: `Service Report – ${job.customerName || business.businessName}`,
+          url,
+        });
+        setLinkState("idle");
+      } else {
+        // Desktop: copy link to clipboard
+        await navigator.clipboard.writeText(url);
+        setLinkState("copied");
+        setTimeout(() => setLinkState("idle"), 3000);
+      }
+    } catch (err) {
+      // User dismissed share sheet — not an error
+      if (err instanceof Error && err.name === "AbortError") {
+        setLinkState("idle");
+        return;
+      }
       setLinkState("error");
       setTimeout(() => setLinkState("idle"), 3000);
     }
@@ -388,9 +406,9 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
                   href={emailHref}
                 />
                 <ActionTile
-                  icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : <Link className="w-5 h-5 text-slate-500" />}
-                  label={linkState === "generating" ? "Creating…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : "Copy Link"}
-                  onClick={handleCopyLink}
+                  icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : canNativeShare ? <Share2 className="w-5 h-5 text-slate-500" /> : <Link className="w-5 h-5 text-slate-500" />}
+                  label={linkState === "generating" ? "Sharing…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : canNativeShare ? "Share" : "Copy Link"}
+                  onClick={handleShareOrCopy}
                   disabled={linkState === "generating"}
                 />
               </div>
@@ -417,9 +435,9 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
                   disabled={exportState === "generating"}
                 />
                 <ActionTile
-                  icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : <Link className="w-5 h-5 text-slate-500" />}
-                  label={linkState === "generating" ? "Creating…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : "Copy Link"}
-                  onClick={handleCopyLink}
+                  icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : canNativeShare ? <Share2 className="w-5 h-5 text-slate-500" /> : <Link className="w-5 h-5 text-slate-500" />}
+                  label={linkState === "generating" ? "Sharing…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : canNativeShare ? "Share" : "Copy Link"}
+                  onClick={handleShareOrCopy}
                   disabled={linkState === "generating"}
                 />
               </div>
