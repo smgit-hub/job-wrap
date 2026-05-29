@@ -1,12 +1,13 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ChevronLeft, CheckCircle2, Upload, X, Palette } from "lucide-react";
+import { ChevronLeft, CheckCircle2, Upload, X, Palette, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { BusinessProfile } from "@/types/report";
 import { saveBusinessProfile } from "@/lib/storage";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 
 interface BrandingSettingsProps {
@@ -53,6 +54,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
   const [saved, setSaved] = useState(false);
   const [logoLoading, setLogoLoading] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const { user, signOut } = useAuth();
 
   function update(field: keyof BusinessProfile, value: string) {
     setSaved(false);
@@ -306,6 +308,19 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         </Card>
 
         <p className="text-center text-xs text-slate-400">Settings saved on this device</p>
+
+        {/* Sign out — mobile only (desktop uses sidebar) */}
+        {user && (
+          <div className="lg:hidden pt-2 pb-4">
+            <button
+              onClick={async () => { await signOut(); window.location.href = "/login"; }}
+              className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-medium text-slate-400 border border-slate-200 hover:bg-slate-50 hover:text-slate-600 active:bg-slate-100 transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign out
+            </button>
+          </div>
+        )}
       </main>
 
       {/* Sticky Save button */}

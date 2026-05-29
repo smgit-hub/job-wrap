@@ -1,20 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, FileText, ClipboardCheck, Settings, LogOut, Trash2, ChevronRight, CheckCircle2, Clock, ChevronLeft, FileCheck2, FileClock, Users } from "lucide-react";
+import { Plus, FileText, Trash2, ChevronRight, CheckCircle2, Clock, ChevronLeft, FileCheck2, FileClock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import type { ServiceReport } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
 import { getReports, deleteReport, getBusinessProfile, migrateCustomersFromReports, seedSampleData, DEFAULT_BUSINESS } from "@/lib/storage";
 import type { BusinessProfile } from "@/types/report";
-import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 
 interface DashboardProps {
   onNewReport: () => void;
   onOpenReport: (report: ServiceReport) => void;
   onSettings: () => void;
-  onCustomers: () => void;
 }
 
 type View = "dashboard" | "completed" | "drafts";
@@ -104,11 +102,10 @@ function JobCard({
   );
 }
 
-export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCustomers }: DashboardProps) {
+export default function Dashboard({ onNewReport, onOpenReport, onSettings }: DashboardProps) {
   const [reports, setReports] = useState<ServiceReport[]>([]);
   const [view, setView] = useState<View>("dashboard");
   const [profile, setProfile] = useState<BusinessProfile>(DEFAULT_BUSINESS);
-  const { user, signOut } = useAuth();
   const firstName = profile.technicianName.split(" ")[0];
 
   useEffect(() => {
@@ -163,7 +160,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
           </div>
         </header>
 
-        <main className="max-w-lg lg:max-w-4xl mx-auto px-4 py-5 pb-10">
+        <main className="max-w-lg lg:max-w-4xl mx-auto px-4 py-5 pb-28 lg:pb-10">
           {folderJobs.length === 0 ? (
             <div className="bg-white rounded-2xl p-10 text-center shadow-card mt-2">
               <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
@@ -198,49 +195,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
   // ── Main dashboard ─────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-100 animate-screen-enter">
-      {/* Header — mobile only; desktop uses the sidebar */}
-      <header className="lg:hidden bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-        <div className="max-w-lg mx-auto px-4 flex items-center justify-between py-3">
-          <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
-              <ClipboardCheck className="w-5 h-5 text-orange-500" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-slate-900 leading-tight tracking-tight">JobWrap</p>
-              {profile.businessName && (
-                <p className="text-xs text-slate-400 leading-tight">{profile.businessName}</p>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-0.5">
-            <button
-              onClick={onCustomers}
-              className="w-9 h-9 rounded-xl flex items-center justify-center active:bg-slate-100 transition-colors"
-              aria-label="Customers"
-            >
-              <Users className="w-4 h-4 text-slate-400" />
-            </button>
-            <button
-              onClick={onSettings}
-              className="w-9 h-9 rounded-xl flex items-center justify-center active:bg-slate-100 transition-colors"
-              aria-label="Settings"
-            >
-              <Settings className="w-4 h-4 text-slate-400" />
-            </button>
-            {user && (
-              <button
-                onClick={async () => { await signOut(); window.location.href = "/login"; }}
-                className="w-9 h-9 rounded-xl flex items-center justify-center active:bg-slate-100 transition-colors"
-                aria-label="Sign out"
-              >
-                <LogOut className="w-4 h-4 text-slate-300" />
-              </button>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-5 lg:pt-8 pb-6 space-y-5 lg:space-y-6">
+      <main className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-10 lg:pt-8 pb-28 lg:pb-8 space-y-5 lg:space-y-6">
         {/* Greeting */}
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">

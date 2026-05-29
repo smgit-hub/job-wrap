@@ -9,6 +9,7 @@ import BrandingSettings from "@/components/BrandingSettings";
 import CustomerSelectScreen from "@/components/CustomerSelectScreen";
 import CustomerProfile from "@/components/CustomerProfile";
 import Sidebar, { type ActiveSection } from "@/components/Sidebar";
+import BottomNav from "@/components/BottomNav";
 import type { ServiceReport, JobDetails, BusinessProfile, GeneratedReport, Customer } from "@/types/report";
 import {
   getBusinessProfile,
@@ -135,6 +136,17 @@ export default function Home() {
         onSettings={() => setScreen("settings")}
       />
 
+      {/* Bottom nav — mobile only, dashboard screen only (avoids sticky-footer conflicts) */}
+      {screen === "dashboard" && (
+        <BottomNav
+          activeSection={getActiveSection(screen)}
+          onDashboard={() => setScreen("dashboard")}
+          onNewReport={handleNewReport}
+          onCustomers={() => setScreen("customers")}
+          onSettings={() => setScreen("settings")}
+        />
+      )}
+
       {/* Content — offset right of sidebar on desktop */}
       <div className="lg:pl-60">
 
@@ -143,7 +155,6 @@ export default function Home() {
           onNewReport={handleNewReport}
           onOpenReport={handleOpenReport}
           onSettings={() => setScreen("settings")}
-          onCustomers={() => setScreen("customers")}
         />
       )}
 
