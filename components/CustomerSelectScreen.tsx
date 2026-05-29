@@ -111,26 +111,10 @@ export default function CustomerSelectScreen({
     const isNew = mode === "new";
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-        <header className="lg:hidden bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-          <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center">
-            <button
-              onClick={() => setMode("list")}
-              className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
-              aria-label="Back"
-            >
-              <ChevronLeft className="w-5 h-5 text-slate-600" />
-            </button>
-            <span className="flex-1 font-bold text-slate-900 ml-3">{isNew ? "New Customer" : "Edit Customer"}</span>
-            <div className="w-9 h-9 flex items-center justify-center shrink-0">
-              {saved && <CheckCircle2 className="w-4 h-4 text-green-500" />}
-            </div>
-          </div>
-        </header>
+        <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-32 space-y-4">
 
-        <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 py-6 pb-32 space-y-4">
-
-          {/* Desktop page title */}
-          <div className="hidden lg:flex items-center gap-3">
+          {/* Page title */}
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setMode("list")}
               className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 hover:bg-slate-50 active:bg-slate-100 transition-colors"
@@ -280,23 +264,19 @@ export default function CustomerSelectScreen({
   // ── List mode ──────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-      <header className="lg:hidden bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center">
+      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 pt-10 lg:pt-8 space-y-3">
+
+        {/* Page title */}
+        <div className="flex items-center gap-3 pb-1">
           <button
             onClick={onBack}
-            className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
+            className="lg:hidden w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 active:bg-slate-100 transition-colors"
             aria-label="Back"
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <span className="flex-1 font-bold text-slate-900 ml-3">Customers</span>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Customers</h1>
         </div>
-      </header>
-
-      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 py-5 space-y-3">
-
-        {/* Desktop page title */}
-        <h1 className="hidden lg:block text-2xl font-extrabold text-slate-900 tracking-tight pb-1">Customers</h1>
 
         {/* Search */}
         {customers.length > 0 && (

@@ -93,32 +93,20 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-      {/* Header */}
-      <header className="lg:hidden bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center">
-          <button
-            onClick={onBack}
-            className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
-            aria-label="Back"
-          >
-            <ChevronLeft className="w-5 h-5 text-slate-600" />
-          </button>
-          <span className="flex-1 font-bold text-slate-900 ml-3">Business Settings</span>
-          <div className="w-9 h-9 flex items-center justify-center shrink-0">
-            {saved && (
-              <span className="text-xs text-green-600 flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" /> Saved
-              </span>
-            )}
+      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-32 space-y-5">
+
+        {/* Page title */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onBack}
+              className="lg:hidden w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 active:bg-slate-100 transition-colors"
+              aria-label="Back"
+            >
+              <ChevronLeft className="w-5 h-5 text-slate-600" />
+            </button>
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Business Settings</h1>
           </div>
-        </div>
-      </header>
-
-      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 py-6 pb-32 space-y-5">
-
-        {/* Desktop page title */}
-        <div className="hidden lg:flex items-center justify-between">
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Business Settings</h1>
           {saved && (
             <span className="text-sm text-green-600 flex items-center gap-1.5 font-semibold">
               <CheckCircle2 className="w-4 h-4" /> Saved

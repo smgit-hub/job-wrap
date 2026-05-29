@@ -217,13 +217,6 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
   if (formStep === "generating") {
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-        <header className="lg:hidden bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-          <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center">
-            <span className="flex-1 font-bold text-slate-900">Generating Report</span>
-          </div>
-          <StepIndicator steps={REPORT_STEPS} currentStep={3} />
-        </header>
-
         <main className="flex-1 flex flex-col items-center justify-center px-4 py-12">
           {generateError ? (
             <div className="w-full max-w-sm space-y-4">
@@ -277,24 +270,10 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
   // ── Step: Customer Setup ─────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-      <header className="lg:hidden bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center">
-          <button
-            onClick={handleBack}
-            className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
-            aria-label="Back"
-          >
-            <ChevronLeft className="w-5 h-5 text-slate-600" />
-          </button>
-          <span className="flex-1 font-bold text-slate-900 ml-3">New Job</span>
-        </div>
-        <StepIndicator steps={REPORT_STEPS} currentStep={1} />
-      </header>
+      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-32 space-y-5">
 
-      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 pt-5 pb-32 space-y-5">
-
-        {/* Desktop page title */}
-        <div className="hidden lg:flex items-center gap-3">
+        {/* Page title */}
+        <div className="flex items-center gap-3">
           <button
             onClick={handleBack}
             className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 hover:bg-slate-50 active:bg-slate-100 transition-colors"
@@ -304,7 +283,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
           </button>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex-1">New Job</h1>
         </div>
-        <div className="hidden lg:block"><StepIndicator steps={REPORT_STEPS} currentStep={1} /></div>
+        <StepIndicator steps={REPORT_STEPS} currentStep={1} />
 
         {/* ── Customer section ────────────────────────────────────────────── */}
         <div className="space-y-2">

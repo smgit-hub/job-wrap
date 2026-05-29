@@ -235,36 +235,10 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-      {/* Header */}
-      <header className="lg:hidden bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center">
-          <button
-            onClick={handleBack}
-            className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
-            aria-label="Back"
-          >
-            <ChevronLeft className="w-5 h-5 text-slate-600" />
-          </button>
-          <span className="flex-1 font-bold text-slate-900 ml-3">Edit Report</span>
-          {/* Verified progress chip */}
-          {!isUngenerated && (
-            <span className={cn(
-              "text-xs font-bold px-2.5 py-1 rounded-full",
-              allVerified
-                ? "bg-orange-500 text-white"
-                : "bg-slate-100 text-slate-400"
-            )}>
-              {verifiedCount}/{SECTION_KEYS.length}
-            </span>
-          )}
-        </div>
-        {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={3} />}
-      </header>
+      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-32 space-y-4">
 
-      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 py-5 pb-32 space-y-4">
-
-        {/* Desktop page title */}
-        <div className="hidden lg:flex items-center gap-3">
+        {/* Page title */}
+        <div className="flex items-center gap-3">
           <button
             onClick={handleBack}
             className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 hover:bg-slate-50 active:bg-slate-100 transition-colors"
@@ -282,7 +256,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             </span>
           )}
         </div>
-        {isNewReport && <div className="hidden lg:block"><StepIndicator steps={REPORT_STEPS} currentStep={3} /></div>}
+        {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={3} />}
 
         {/* Job Details card */}
         <Card className="border border-slate-100 shadow-card">

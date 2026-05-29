@@ -190,44 +190,10 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-      {/* ── Header ── */}
-      <header className="lg:hidden bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center">
-          <button
-            onClick={onBack}
-            className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
-            aria-label="Back"
-          >
-            <ChevronLeft className="w-5 h-5 text-slate-600" />
-          </button>
-          <span className="flex-1 font-bold text-slate-900 ml-3">Service Report</span>
-          <div className="flex items-center gap-1">
-            {!isNewReport && (
-              <button
-                onClick={onEdit}
-                className="h-9 px-3 rounded-xl text-sm font-semibold text-slate-600 bg-slate-100 active:bg-slate-200 transition-colors"
-              >
-                Edit
-              </button>
-            )}
-            {canShare && (
-              <button
-                onClick={handleShare}
-                className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center active:bg-slate-200 transition-colors"
-                aria-label="Share"
-              >
-                <Share2 className="w-4 h-4 text-slate-600" />
-              </button>
-            )}
-          </div>
-        </div>
-        {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={4} />}
-      </header>
+      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-72">
 
-      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 py-5 pb-72">
-
-        {/* Desktop page title */}
-        <div className="hidden lg:flex items-center gap-3 mb-3">
+        {/* Page title */}
+        <div className="flex items-center gap-3 mb-3">
           <button
             onClick={onBack}
             className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 hover:bg-slate-50 active:bg-slate-100 transition-colors"
@@ -256,7 +222,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             )}
           </div>
         </div>
-        {isNewReport && <div className="hidden lg:block"><StepIndicator steps={REPORT_STEPS} currentStep={4} /></div>}
+        {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={4} />}
         {/* ── Report card ── */}
         <div className="bg-white rounded-2xl shadow-card-hover overflow-hidden border border-slate-100">
 

@@ -83,37 +83,10 @@ export default function CustomerProfile({
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-      <header className="lg:hidden bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
-            aria-label="Back"
-          >
-            <ChevronLeft className="w-5 h-5 text-slate-600" />
-          </button>
-          <span className="flex-1 font-bold text-slate-900 truncate">{displayName}</span>
-          {saved ? (
-            <span className="flex items-center gap-1 text-sm font-semibold text-green-500">
-              <Check className="w-4 h-4" />
-              Saved
-            </span>
-          ) : (
-            <button
-              onClick={handleSave}
-              disabled={!isDirty || !form.name.trim()}
-              className="text-sm font-semibold text-orange-500 disabled:text-slate-300 active:text-orange-700 transition-colors"
-            >
-              Save
-            </button>
-          )}
-        </div>
-      </header>
+      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-28 space-y-5">
 
-      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 py-5 pb-28 space-y-5">
-
-        {/* Desktop page title */}
-        <div className="hidden lg:flex items-center gap-3">
+        {/* Page title */}
+        <div className="flex items-center gap-3">
           <button
             onClick={onBack}
             className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 hover:bg-slate-50 active:bg-slate-100 transition-colors"
@@ -121,7 +94,21 @@ export default function CustomerProfile({
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight truncate">{displayName}</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight truncate flex-1">{displayName}</h1>
+          {saved ? (
+            <span className="flex items-center gap-1 text-sm font-semibold text-green-500 shrink-0">
+              <Check className="w-4 h-4" />
+              Saved
+            </span>
+          ) : (
+            <button
+              onClick={handleSave}
+              disabled={!isDirty || !form.name.trim()}
+              className="text-sm font-semibold text-orange-500 disabled:text-slate-300 active:text-orange-700 transition-colors shrink-0"
+            >
+              Save
+            </button>
+          )}
         </div>
 
         {/* Editable fields */}
