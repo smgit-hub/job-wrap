@@ -27,10 +27,6 @@ function formatDate(dateStr: string): string {
   });
 }
 
-function buildEquipmentString(job: ServiceReport["job"]): string {
-  return job.equipment?.trim() ?? "";
-}
-
 function buildPlainText(report: ServiceReport): string {
   const { business, job, report: rpt } = report;
   const lines: string[] = [];
@@ -40,7 +36,7 @@ function buildPlainText(report: ServiceReport): string {
   lines.push(`Date: ${formatDate(job.jobDate)}`);
   if (job.customerName) lines.push(`Customer: ${job.customerName}`);
   if (job.serviceAddress) lines.push(`Address: ${job.serviceAddress}`);
-  const equipStr = buildEquipmentString(job);
+  const equipStr = job.equipment?.trim() ?? "";
   if (equipStr) lines.push(`Equipment: ${equipStr}`);
   if (job.nextServiceDate) lines.push(`Next Service Due: ${formatDate(job.nextServiceDate)}`);
   lines.push("");
@@ -269,7 +265,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-3">
               {SERVICE_TYPE_LABELS[job.serviceType]}  ·  {formatDate(job.jobDate)}
             </p>
-            {(() => { const eq = buildEquipmentString(job); return eq ? <p className="text-xs text-slate-500 mt-1">{eq}</p> : null; })()}
+            {job.equipment?.trim() && <p className="text-xs text-slate-500 mt-1">{job.equipment.trim()}</p>}
             {job.nextServiceDate && (
               <p className="text-xs font-semibold text-slate-500 mt-1">
                 Next service due: {formatDate(job.nextServiceDate)}

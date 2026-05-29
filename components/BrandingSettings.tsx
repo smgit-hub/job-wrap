@@ -155,7 +155,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
             <div className="space-y-2">
               <Label>Licences / Registrations</Label>
               <div className="grid grid-cols-2 gap-2">
-                <Input value={form.licence1Label} onChange={(e) => update("licence1Label", e.target.value)} placeholder="Label (e.g. ARCtick)" className="h-11 text-base" />
+                <Input value={form.licence1Label} onChange={(e) => update("licence1Label", e.target.value)} placeholder="e.g. ARCtick, Gas Safe, EPA 608" className="h-11 text-base" />
                 <Input value={form.licence1Number} onChange={(e) => update("licence1Number", e.target.value)} placeholder="Number" className="h-11 text-base" />
               </div>
               <div className="grid grid-cols-2 gap-2">

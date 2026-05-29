@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Wrench, Eye, EyeOff } from "lucide-react";
+import { ClipboardCheck, Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -42,7 +42,7 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
         {/* Logo */}
         <div className="flex items-center gap-2.5 mb-10">
           <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center">
-            <Wrench className="w-5 h-5 text-white" />
+            <ClipboardCheck className="w-5 h-5 text-white" />
           </div>
           <span className="text-2xl font-bold text-slate-900">JobWrap</span>
         </div>

@@ -12,7 +12,14 @@
 // ---------------------------------------------------------------------------
 
 import { useState, useEffect, useRef } from "react";
-import { ChevronLeft, Sparkles, Mic, Square, Loader2, MicOff } from "lucide-react";
+import {
+  ChevronLeft,
+  Sparkles,
+  Mic,
+  Square,
+  Loader2,
+  MicOff,
+} from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
 import type { JobDetails, VoiceNotes } from "@/types/report";
@@ -101,17 +108,15 @@ export default function FreeformRecordingFlow({
   const isStopping = speech.state === "stopping";
   const hasEnoughText = notes.trim().length >= 20;
 
-  const displayValue = speech.isListening
-    ? (() => {
-        const base = textBeforeRecordingRef.current.trim();
-        const live = (speech.transcript + speech.interimTranscript).trim();
-        return base && live ? `${base}\n${live}` : base || live;
-      })()
+  // During recording, notes is frozen (textarea is readOnly), so it equals the
+  // pre-recording baseline. Combine it with the live transcript for display.
+  const liveTranscript = (speech.transcript + speech.interimTranscript).trim();
+  const displayValue = speech.isListening && liveTranscript
+    ? (notes.trim() ? `${notes.trim()}\n${liveTranscript}` : liveTranscript)
     : notes;
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-
       {/* ── Header ── */}
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
@@ -122,22 +127,27 @@ export default function FreeformRecordingFlow({
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <span className="flex-1 font-bold text-slate-900 ml-3">Job Notes</span>
+          <span className="flex-1 font-bold text-slate-900 ml-3">
+            Job Notes
+          </span>
         </div>
         <StepIndicator steps={REPORT_STEPS} currentStep={2} />
       </header>
 
       {/* ── Main ── */}
       <main className="flex-1 max-w-lg mx-auto w-full px-4 pt-6 pb-28 flex flex-col gap-6">
-
         {/* ── Prompt ── */}
         <div className="text-center">
-          <p className="text-xl font-bold text-slate-900">What happened today?</p>
+          <p className="text-xl font-bold text-slate-900">
+            What happened today?
+          </p>
         </div>
 
         {/* ── Cue card ── */}
         <div className="bg-white rounded-2xl px-4 py-3.5 shadow-card space-y-2">
-          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Speak naturally — cover</p>
+          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+            Speak naturally — cover
+          </p>
           <ul className="space-y-2">
             {CUES.map((cue) => (
               <li key={cue} className="flex items-center gap-2.5">
@@ -155,13 +165,15 @@ export default function FreeformRecordingFlow({
               <button
                 onClick={handleMicPress}
                 disabled={isStopping}
-                aria-label={speech.isListening ? "Stop recording" : "Start recording"}
+                aria-label={
+                  speech.isListening ? "Stop recording" : "Start recording"
+                }
                 className={cn(
                   "w-36 h-36 rounded-full flex items-center justify-center shadow-lg transition-all select-none",
                   speech.isListening
                     ? "bg-red-500 animate-pulse-subtle shadow-red-200"
                     : "bg-slate-900 active:scale-95 shadow-slate-300",
-                  isStopping && "opacity-60 pointer-events-none"
+                  isStopping && "opacity-60 pointer-events-none",
                 )}
               >
                 {isStopping ? (
@@ -173,7 +185,11 @@ export default function FreeformRecordingFlow({
                 )}
               </button>
               <span className="text-sm font-medium text-slate-500">
-                {isStopping ? "Finishing…" : speech.isListening ? "Tap to stop" : "Tap mic to start"}
+                {isStopping
+                  ? "Finishing…"
+                  : speech.isListening
+                    ? "Tap to stop"
+                    : "Tap mic to start"}
               </span>
             </>
           ) : (
@@ -218,7 +234,8 @@ export default function FreeformRecordingFlow({
             enterKeyHint="done"
             className={cn(
               "min-h-[140px] text-base leading-relaxed resize-none bg-white border-slate-200 rounded-xl",
-              speech.isListening && "border-red-300 bg-red-50/30 caret-transparent"
+              speech.isListening &&
+                "border-red-300 bg-red-50/30 caret-transparent",
             )}
           />
         </div>
@@ -228,8 +245,12 @@ export default function FreeformRecordingFlow({
       {confirmBack && (
         <div className="fixed inset-0 z-30 bg-black/40 flex items-end justify-center">
           <div className="w-full max-w-lg bg-white rounded-t-2xl px-5 pt-5 pb-8 space-y-4">
-            <p className="text-base font-bold text-slate-900">Discard these notes?</p>
-            <p className="text-sm text-slate-500">Your notes will be lost if you go back now.</p>
+            <p className="text-base font-bold text-slate-900">
+              Discard these notes?
+            </p>
+            <p className="text-sm text-slate-500">
+              Your notes will be lost if you go back now.
+            </p>
             <div className="flex gap-3">
               <button
                 onClick={() => setConfirmBack(false)}
@@ -258,7 +279,7 @@ export default function FreeformRecordingFlow({
               "w-full h-14 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 transition-all",
               hasEnoughText && !isStopping
                 ? "bg-orange-500 active:bg-orange-600 shadow-md shadow-orange-200"
-                : "bg-slate-300"
+                : "bg-slate-300",
             )}
           >
             <Sparkles className="w-5 h-5" />

@@ -44,10 +44,10 @@ export default function Home() {
     setScreen(report.status === "complete" ? "preview" : "editor");
   }
 
-  // Async: calls the API route, throws on failure so NewReportForm can show the error
-  async function handleGenerate(job: JobDetails): Promise<void> {
+  // Shared helper: POST to /api/generate-report and return the GeneratedReport.
+  // Throws on HTTP errors or when the AI returns an empty report (notes too brief).
+  async function callGenerateApi(job: JobDetails): Promise<GeneratedReport> {
     const business = getBusinessProfile();
-
     const response = await fetch("/api/generate-report", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -69,27 +69,30 @@ export default function Home() {
 
     const data = (await response.json()) as { report: GeneratedReport };
 
-    // If the AI returned all-empty fields the notes were too brief to work with.
-    // Throw so NewReportForm shows the error and the tech can add more detail.
+    // All-empty fields means the notes were too brief for the AI to work with.
     if (!data.report.customerSummary && !data.report.workPerformed) {
       throw new Error(
         "Your notes don't have enough detail to generate a report. Try describing the specific tasks you completed on site."
       );
     }
 
+    return data.report;
+  }
+
+  async function handleGenerate(job: JobDetails): Promise<void> {
+    const generatedReport = await callGenerateApi(job);
+
     const report: ServiceReport = {
       id: generateId(),
       status: "draft",
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-      business,
+      business: getBusinessProfile(),
       job,
-      report: data.report,
+      report: generatedReport,
     };
 
-    // Auto-save / update the customer record from confirmed job details
     upsertCustomerFromJob(job);
-
     saveReport(report);
     clearDraft();
     setActiveReport(report);
@@ -98,31 +101,7 @@ export default function Home() {
   }
 
   async function handleRegenerate(job: JobDetails): Promise<GeneratedReport> {
-    const business = getBusinessProfile();
-    const response = await fetch("/api/generate-report", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        serviceType: job.serviceType,
-        customServiceType: job.customServiceType,
-        customerName: job.customerName,
-        technicianName: business.technicianName,
-        jobDate: job.jobDate,
-        equipment: job.equipment,
-        voiceNotes: job.voiceNotes,
-      }),
-    });
-    if (!response.ok) {
-      const data = (await response.json().catch(() => ({}))) as { error?: string };
-      throw new Error(data.error ?? "Regeneration failed. Please try again.");
-    }
-    const data = (await response.json()) as { report: GeneratedReport };
-    if (!data.report.customerSummary && !data.report.workPerformed) {
-      throw new Error(
-        "Your notes don't have enough detail to generate a report. Try describing the specific tasks you completed on site."
-      );
-    }
-    return data.report;
+    return callGenerateApi(job);
   }
 
   function handlePreview(report: ServiceReport) {

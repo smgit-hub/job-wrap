@@ -13,26 +13,12 @@
 // ---------------------------------------------------------------------------
 
 import type { GeneratedReport } from "@/types/report";
-import { buildPrompt, parseResponse, RECOMMENDATIONS_FALLBACK, type GenerateReportInput, type PromptParts } from "./prompt";
+import { buildPrompt, RECOMMENDATIONS_FALLBACK, type GenerateReportInput, type PromptParts } from "./prompt";
 import { callAnthropic } from "./providers/anthropic";
 import { callOpenAI } from "./providers/openai";
 import { callGemini } from "./providers/gemini";
 
 export type { GenerateReportInput };
-
-// ── Per-provider wrappers ─────────────────────────────────────────────────────
-
-async function runAnthropic(parts: PromptParts): Promise<GeneratedReport> {
-  return callAnthropic(parts);
-}
-
-async function runOpenAI(parts: PromptParts): Promise<GeneratedReport> {
-  return callOpenAI(parts);
-}
-
-async function runGemini(parts: PromptParts): Promise<GeneratedReport> {
-  return callGemini(parts);
-}
 
 // ── Provider runner ───────────────────────────────────────────────────────────
 
@@ -72,20 +58,20 @@ export async function generateReport(input: GenerateReportInput): Promise<Genera
   let report: GeneratedReport;
 
   // Explicit provider selection
-  if (provider === "anthropic") report = await run("Anthropic", runAnthropic, parts);
-  else if (provider === "openai") report = await run("OpenAI", runOpenAI, parts);
-  else if (provider === "gemini") report = await run("Gemini", runGemini, parts);
+  if (provider === "anthropic") report = await run("Anthropic", callAnthropic, parts);
+  else if (provider === "openai") report = await run("OpenAI", callOpenAI, parts);
+  else if (provider === "gemini") report = await run("Gemini", callGemini, parts);
   // Auto-detect from whichever key is present (Gemini excluded — see header comment)
-  // If the primary provider fails, fall back to the secondary automatically.
+  // If both keys are set, try OpenAI first and fall back to Anthropic on failure.
   else if (process.env.OPENAI_API_KEY && process.env.ANTHROPIC_API_KEY) {
     try {
-      report = await run("OpenAI", runOpenAI, parts);
+      report = await run("OpenAI", callOpenAI, parts);
     } catch (openAiErr) {
       console.warn("[generate-report] OpenAI failed, falling back to Anthropic:", openAiErr);
-      report = await run("Anthropic", runAnthropic, parts);
+      report = await run("Anthropic", callAnthropic, parts);
     }
-  } else if (process.env.OPENAI_API_KEY) report = await run("OpenAI", runOpenAI, parts);
-  else if (process.env.ANTHROPIC_API_KEY) report = await run("Anthropic", runAnthropic, parts);
+  } else if (process.env.OPENAI_API_KEY) report = await run("OpenAI", callOpenAI, parts);
+  else if (process.env.ANTHROPIC_API_KEY) report = await run("Anthropic", callAnthropic, parts);
   else throw new Error("AI unavailable — please try again later.");
 
   return applyFallbacks(report);

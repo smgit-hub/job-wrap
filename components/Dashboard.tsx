@@ -119,7 +119,6 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
     // seedSampleData is async (dynamic import) — reload reports after a tick
     // so the dashboard renders with the samples on first launch
     setTimeout(() => {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setReports(getReports());
     }, 50);
   }, []);
@@ -204,7 +203,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
         <div className="max-w-lg mx-auto px-4 flex items-center justify-between py-4">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">
-              <ClipboardCheck className="w-4 h-4 text-white" />
+              <ClipboardCheck className="w-6 h-6 text-white" />
             </div>
             <div>
               <p className="text-base font-bold text-white leading-tight tracking-tight">JobWrap</p>
@@ -243,9 +242,19 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
         {/* Greeting */}
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            {getGreeting()}, {firstName}
+            {firstName ? `${getGreeting()}, ${firstName}` : `${getGreeting()}!`}
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">Ready to wrap up a job?</p>
+          {!profile.businessName ? (
+            <p className="text-sm text-slate-500 mt-0.5">
+              To get started,{" "}
+              <button onClick={onSettings} className="text-orange-500 font-semibold underline underline-offset-2">
+                fill in your business details
+              </button>
+              {" "}in Settings.
+            </p>
+          ) : (
+            <p className="text-sm text-slate-500 mt-0.5">Ready to wrap up a job?</p>
+          )}
         </div>
 
         {/* New job CTA */}

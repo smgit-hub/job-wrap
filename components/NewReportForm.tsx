@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   ChevronLeft, ChevronDown, ChevronUp,
   Sparkles, Loader2, AlertCircle, BookmarkCheck, ArrowRight,
@@ -52,19 +52,22 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
     email: initialCustomer?.email ?? "",
     siteNotes: initialCustomer?.siteNotes ?? "",
   });
-  // Existing customers start collapsed; new customers start with the form open
-  const [detailsExpanded, setDetailsExpanded] = useState(!isExisting);
-  const [isGenerating, setIsGenerating] = useState(false);
+  // Both new and existing customers start collapsed
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
 
-  // Capture initial job values so we can detect changes
-  const initialJob = useRef({
-    serviceType: isExisting ? "hvac-maintenance" : "hvac-maintenance",
-    equipment: initialCustomer?.equipment ?? "",
-    jobDate: new Date().toISOString().split("T")[0],
-    nextServiceDate: "",
-  });
+  // Stable initial values for dirty-checking — computed once on mount
+  const initialJob = useMemo(
+    () => ({
+      serviceType: "hvac-maintenance",
+      equipment: initialCustomer?.equipment ?? "",
+      jobDate: new Date().toISOString().split("T")[0],
+      nextServiceDate: "",
+    }),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
 
   // Dirty if any customer field OR job field has changed from its starting value
   const customerFormDirty = isExisting
@@ -84,10 +87,10 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
       );
 
   const jobDirty =
-    job.serviceType !== initialJob.current.serviceType ||
-    (job.equipment ?? "") !== initialJob.current.equipment ||
-    job.jobDate !== initialJob.current.jobDate ||
-    (job.nextServiceDate ?? "") !== initialJob.current.nextServiceDate;
+    job.serviceType !== initialJob.serviceType ||
+    (job.equipment ?? "") !== initialJob.equipment ||
+    job.jobDate !== initialJob.jobDate ||
+    (job.nextServiceDate ?? "") !== initialJob.nextServiceDate;
 
   const isDirty = customerFormDirty || jobDirty;
 
@@ -107,7 +110,6 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setJob(raw as JobDetails);
     // Restore name + address into customerForm
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setCustomerForm((p) => ({
       ...p,
       name: raw.customerName || p.name,
@@ -122,13 +124,11 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
   }, [job]);
 
   async function doGenerate(jobToUse: JobDetails) {
-    setIsGenerating(true);
     setGenerateError(null);
     try {
       await onGenerate(jobToUse);
     } catch (err) {
       setGenerateError(err instanceof Error ? err.message : "Generation failed. Please try again.");
-      setIsGenerating(false);
     }
   }
 
@@ -297,38 +297,63 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
         <div className="space-y-2">
           <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Customer</h2>
 
-          {isExisting && !detailsExpanded ? (
-            /* Compact summary — existing customer, not editing */
-            <div className="bg-white rounded-2xl shadow-card px-4 py-3.5 flex items-center justify-between gap-3">
-              <div className="min-w-0">
-                <p className="font-semibold text-slate-900 truncate">{customerForm.name}</p>
-                {customerForm.address && (
-                  <p className="text-xs text-slate-400 truncate mt-0.5">{customerForm.address}</p>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => setDetailsExpanded(true)}
-                className="flex items-center gap-1 text-xs font-semibold text-orange-500 active:text-orange-700 transition-colors shrink-0"
-              >
-                Edit <ChevronDown className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ) : (
-            /* Full editable form */
-            <div className="bg-white rounded-2xl shadow-card px-4 py-4 space-y-4">
-              {isExisting && (
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-slate-700">Edit details</p>
+          {!detailsExpanded ? (
+            /* Collapsed — name only for new, summary card for existing */
+            <div className="bg-white rounded-2xl shadow-card px-4 py-4 space-y-3">
+              {isExisting ? (
+                /* Existing customer compact summary */
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-semibold text-slate-900 truncate">{customerForm.name}</p>
+                    {customerForm.address && (
+                      <p className="text-xs text-slate-400 truncate mt-0.5">{customerForm.address}</p>
+                    )}
+                  </div>
                   <button
                     type="button"
-                    onClick={() => setDetailsExpanded(false)}
-                    className="flex items-center gap-1 text-xs font-semibold text-slate-400 active:text-slate-600"
+                    onClick={() => setDetailsExpanded(true)}
+                    className="flex items-center gap-1 text-xs font-semibold text-orange-500 active:text-orange-700 transition-colors shrink-0"
                   >
-                    Collapse <ChevronUp className="w-3.5 h-3.5" />
+                    Edit <ChevronDown className="w-3.5 h-3.5" />
                   </button>
                 </div>
+              ) : (
+                /* New customer — name input + expand option */
+                <>
+                  <Input
+                    id="cf-name"
+                    value={customerForm.name}
+                    onChange={(e) => setCustomerForm((p) => ({ ...p, name: e.target.value }))}
+                    placeholder="Customer name"
+                    autoFocus
+                    className="h-11 text-base bg-slate-50 border-slate-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setDetailsExpanded(true)}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-orange-500 active:text-orange-700 transition-colors"
+                  >
+                    <ChevronDown className="w-3.5 h-3.5" />
+                    Add address &amp; contact details
+                  </button>
+                </>
               )}
+            </div>
+          ) : (
+            /* Expanded — full form for both new and existing */
+            <div className="bg-white rounded-2xl shadow-card px-4 py-4 space-y-4">
+              <div className="flex items-center justify-between">
+                <p className="text-sm font-semibold text-slate-700">
+                  {isExisting ? "Edit details" : "Address & contact details"}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setDetailsExpanded(false)}
+                  className="flex items-center gap-1 text-xs font-semibold text-slate-400 active:text-slate-600"
+                >
+                  Hide <ChevronUp className="w-3.5 h-3.5" />
+                </button>
+              </div>
 
               <div className="space-y-1.5">
                 <Label htmlFor="cf-name" className="flex items-center gap-1.5 text-slate-500">
@@ -339,7 +364,6 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                   value={customerForm.name}
                   onChange={(e) => setCustomerForm((p) => ({ ...p, name: e.target.value }))}
                   placeholder="Customer name"
-                  autoFocus={!isExisting}
                   className="h-11 text-base bg-slate-50 border-slate-200"
                 />
               </div>
@@ -490,7 +514,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
           >
             <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
             <p className="text-base font-bold text-slate-900 text-center">Discard changes?</p>
-            <p className="text-sm text-slate-500 text-center mt-1 mb-6">Your customer details won't be saved.</p>
+            <p className="text-sm text-slate-500 text-center mt-1 mb-6">Your customer details won&apos;t be saved.</p>
             <div className="space-y-3">
               <button
                 onClick={handleDiscard}

@@ -188,6 +188,7 @@ export default function BulletEditor({
 
   // Sync when parent value changes (e.g. after AI regeneration)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setItems(parseItems(value));
     setEditingId(null);
   }, [value]);

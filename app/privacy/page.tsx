@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Wrench } from "lucide-react";
+import { ClipboardCheck } from "lucide-react";
 
 export const metadata = {
   title: "Privacy Policy — JobWrap",
@@ -12,7 +12,7 @@ export default function PrivacyPage() {
       <header className="bg-white border-b border-slate-100">
         <div className="max-w-lg mx-auto px-4 py-4 flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center">
-            <Wrench className="w-4 h-4 text-white" />
+            <ClipboardCheck className="w-4 h-4 text-white" />
           </div>
           <span className="font-bold text-slate-900">JobWrap</span>
         </div>

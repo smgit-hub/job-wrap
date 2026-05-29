@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ChevronLeft, Search, UserPlus, MapPin, Pencil, Trash2, CheckCircle2, StickyNote, Phone, Mail, ArrowRight, ChevronRight } from "lucide-react";
+import { ChevronLeft, Search, UserPlus, MapPin, Trash2, CheckCircle2, StickyNote, Phone, Mail, ArrowRight, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Customer } from "@/types/report";
@@ -16,7 +16,6 @@ interface CustomerSelectScreenProps {
 }
 
 type Mode = "list" | "edit" | "new";
-
 
 export default function CustomerSelectScreen({
   onBack,
@@ -39,21 +38,6 @@ export default function CustomerSelectScreen({
 
   function reload() {
     setCustomers(getCustomers().sort((a, b) => a.name.localeCompare(b.name)));
-  }
-
-  function openEdit(e: React.MouseEvent, customer: Customer) {
-    e.stopPropagation();
-    setEditingCustomer(customer);
-    setEditForm({
-      name: customer.name,
-      address: customer.address,
-      siteNotes: customer.siteNotes,
-      phone: customer.phone ?? "",
-      email: customer.email ?? "",
-    });
-    setConfirmDelete(false);
-    setSaved(false);
-    setMode("edit");
   }
 
   function openNew() {
@@ -178,7 +162,7 @@ export default function CustomerSelectScreen({
                 type="tel"
                 value={editForm.phone}
                 onChange={(e) => setEditForm((p) => ({ ...p, phone: e.target.value }))}
-                placeholder="+1 555 000 0000"
+                placeholder="Phone number"
                 className="h-12 text-base bg-white"
                 inputMode="tel"
               />

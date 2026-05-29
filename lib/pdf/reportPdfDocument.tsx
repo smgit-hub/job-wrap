@@ -5,12 +5,12 @@
 
 import React from "react";
 import { Document, Page, View, Text, Image, StyleSheet, Font } from "@react-pdf/renderer";
+import type { ServiceReport, JobPhoto } from "@/types/report";
+import { SERVICE_TYPE_LABELS } from "@/types/report";
 
 // Disable automatic hyphenation globally — prevents model numbers like
 // "MXZ-AP50VGD outdoor" being broken as "out-door" across lines.
 Font.registerHyphenationCallback((word: string) => [word]);
-import type { ServiceReport, JobPhoto } from "@/types/report";
-import { SERVICE_TYPE_LABELS } from "@/types/report";
 
 interface ReportPdfDocumentProps {
   report: ServiceReport;
@@ -277,14 +277,10 @@ function Divider() {
 
 // ── Main document ────────────────────────────────────────────────────────────
 
-function buildEquipmentString(job: ServiceReport["job"]): string {
-  return job.equipment?.trim() ?? "";
-}
-
 export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocumentProps) {
   const { business, job, report: rpt } = report;
   const brandColor = business.brandColor || "#0f172a";
-  const equipmentStr = buildEquipmentString(job);
+  const equipmentStr = job.equipment?.trim() ?? "";
 
   const footerItems = [
     business.businessName,

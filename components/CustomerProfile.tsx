@@ -28,7 +28,6 @@ function formatDate(iso: string): string {
   });
 }
 
-
 export default function CustomerProfile({
   customer,
   onBack,
@@ -59,6 +58,7 @@ export default function CustomerProfile({
     const matched = all
       .filter((r) => r.job.customerName.toLowerCase() === customer.name.toLowerCase())
       .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setReports(matched);
   }, [customer.name]);
 

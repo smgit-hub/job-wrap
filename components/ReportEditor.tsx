@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ChevronLeft, Eye, CheckCircle2, Circle, AlertTriangle, RefreshCw, Loader2, Sparkles } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -23,13 +23,49 @@ interface ReportEditorProps {
   onRegenerate?: (job: JobDetails) => Promise<GeneratedReport>;
 }
 
-
 const SECTION_KEYS: (keyof GeneratedReport)[] = [
   "customerSummary",
   "findings",
   "workPerformed",
   "recommendations",
 ];
+
+function SectionHeader({
+  title,
+  subtitle,
+  verified,
+  onToggle,
+}: {
+  title: string;
+  subtitle?: string;
+  verified: boolean;
+  onToggle: () => void;
+}) {
+  return (
+    <CardHeader className="pb-2 px-4 pt-4">
+      <div className="flex items-center justify-between gap-2">
+        <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">{title}</CardTitle>
+        <button
+          onClick={onToggle}
+          className="shrink-0 flex items-center gap-1.5 transition-transform active:scale-90"
+          aria-label={verified ? "Unmark verified" : "Mark as verified"}
+        >
+          {verified ? (
+            <CheckCircle2 className="w-5 h-5 text-orange-500" />
+          ) : (
+            <>
+              <span className="text-xs font-semibold text-slate-500">Verify</span>
+              <Circle className="w-5 h-5 text-slate-400" />
+            </>
+          )}
+        </button>
+      </div>
+      {subtitle && (
+        <p className="text-xs text-slate-400 mt-0.5 normal-case tracking-normal font-normal">{subtitle}</p>
+      )}
+    </CardHeader>
+  );
+}
 
 export default function ReportEditor({ report, isNewReport, onBack, onPreview, onRegenerate }: ReportEditorProps) {
   const [draft, setDraft] = useState<ServiceReport>(report);
@@ -44,7 +80,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
   const [customerExpanded, setCustomerExpanded] = useState(false);
   const [equipmentExpanded, setEquipmentExpanded] = useState(false);
 
-  // Keep a ref to the latest draft so handleBlur always saves fresh state
+  // Keep a ref to the latest draft so handlePreview always saves fresh state
   const latestDraft = useRef<ServiceReport>(draft);
   useEffect(() => { latestDraft.current = draft; }, [draft]);
 
@@ -140,9 +176,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
     setDraft((prev) => ({ ...prev, job: { ...prev.job, [field]: value } }));
   }
 
-  // No-op — changes are saved only when Save & Preview is pressed
-  const handleBlur = useCallback(() => {}, []);
-
   function handleBack() {
     if (isDirty) {
       setShowDiscardConfirm(true);
@@ -198,43 +231,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         },
       };
     });
-  }
-
-  // ── Section card header with verify tick ────────────────────────────────────
-  function SectionHeader({
-    sectionKey,
-    title,
-    subtitle,
-  }: {
-    sectionKey: keyof GeneratedReport;
-    title: string;
-    subtitle?: string;
-  }) {
-    const verified = isVerified(sectionKey);
-    return (
-      <CardHeader className="pb-2 px-4 pt-4">
-        <div className="flex items-center justify-between gap-2">
-          <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">{title}</CardTitle>
-          <button
-            onClick={() => toggleVerify(sectionKey)}
-            className="shrink-0 flex items-center gap-1.5 transition-transform active:scale-90"
-            aria-label={verified ? "Unmark verified" : "Mark as verified"}
-          >
-            {verified ? (
-              <CheckCircle2 className="w-5 h-5 text-orange-500" />
-            ) : (
-              <>
-                <span className="text-xs font-semibold text-slate-500">Verify</span>
-                <Circle className="w-5 h-5 text-slate-400" />
-              </>
-            )}
-          </button>
-        </div>
-        {subtitle && (
-          <p className="text-xs text-slate-400 mt-0.5 normal-case tracking-normal font-normal">{subtitle}</p>
-        )}
-      </CardHeader>
-    );
   }
 
   return (
@@ -301,7 +297,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                       id="ed-customer"
                       value={draft.job.customerName}
                       onChange={(e) => updateJobField("customerName", e.target.value)}
-                      onBlur={handleBlur}
                       placeholder="e.g. Sandra Kowalski"
                       className="h-11 text-base"
                     />
@@ -312,7 +307,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                       id="ed-address"
                       value={draft.job.serviceAddress}
                       onChange={(e) => updateJobField("serviceAddress", e.target.value)}
-                      onBlur={handleBlur}
                       placeholder="e.g. 142 Birchwood Drive"
                       className="h-11 text-base"
                     />
@@ -330,7 +324,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                   type="date"
                   value={draft.job.jobDate}
                   onChange={(e) => updateJobField("jobDate", e.target.value)}
-                  onBlur={handleBlur}
                   className="h-11 text-base"
                 />
               </div>
@@ -341,7 +334,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                   type="date"
                   value={draft.job.nextServiceDate ?? ""}
                   onChange={(e) => updateJobField("nextServiceDate", e.target.value)}
-                  onBlur={handleBlur}
                   className="h-11 text-base"
                 />
               </div>
@@ -354,7 +346,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                 id="ed-service"
                 value={draft.job.serviceType}
                 onChange={(e) => updateJobField("serviceType", e.target.value)}
-                onBlur={handleBlur}
                 className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-300"
               >
                 {Object.entries(SERVICE_TYPE_LABELS).map(([value, label]) => (
@@ -365,7 +356,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                 <Input
                   value={draft.job.customServiceType ?? ""}
                   onChange={(e) => updateJobField("customServiceType", e.target.value)}
-                  onBlur={handleBlur}
                   placeholder="e.g. Plumbing, Electrical…"
                   className="h-11 text-base mt-2"
                 />
@@ -397,7 +387,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                     id="ed-equipment"
                     value={draft.job.equipment ?? ""}
                     onChange={(e) => updateJobField("equipment", e.target.value)}
-                    onBlur={handleBlur}
                     placeholder="e.g. Daikin FTXM50W 6kW, installed 2018"
                     className="h-11 text-base"
                   />
@@ -445,7 +434,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                     },
                   }));
                 }}
-                onBlur={handleBlur}
                 rows={5}
                 placeholder="Add or edit your job notes here…"
                 enterKeyHint="done"
@@ -469,7 +457,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         {isRegenerating && (
           <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 text-sm">
             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            Regenerating…
+            {isUngenerated ? "Generating report…" : "Regenerating…"}
           </div>
         )}
 
@@ -529,15 +517,15 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               isVerified("customerSummary") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
             )}>
               <SectionHeader
-                sectionKey="customerSummary"
                 title="Customer Summary"
                 subtitle="Plain English, warm tone — written for the customer"
+                verified={isVerified("customerSummary")}
+                onToggle={() => toggleVerify("customerSummary")}
               />
               <CardContent className="px-4 pb-4">
                 <Textarea
                   value={draft.report.customerSummary}
                   onChange={(e) => updateField("customerSummary", e.target.value)}
-                  onBlur={handleBlur}
                   rows={3}
                   enterKeyHint="done"
                   className="text-base leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
@@ -551,9 +539,10 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               isVerified("findings") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
             )}>
               <SectionHeader
-                sectionKey="findings"
                 title="Observations"
                 subtitle="Conditions noticed — not what was done about them"
+                verified={isVerified("findings")}
+                onToggle={() => toggleVerify("findings")}
               />
               <CardContent className="px-4 pb-4">
                 <BulletEditor
@@ -571,9 +560,10 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               isVerified("workPerformed") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
             )}>
               <SectionHeader
-                sectionKey="workPerformed"
                 title="Work Performed"
                 subtitle="Everything completed during the visit"
+                verified={isVerified("workPerformed")}
+                onToggle={() => toggleVerify("workPerformed")}
               />
               <CardContent className="px-4 pb-4">
                 <BulletEditor
@@ -591,9 +581,10 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               isVerified("recommendations") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
             )}>
               <SectionHeader
-                sectionKey="recommendations"
                 title="Recommendations"
                 subtitle="Next steps and anything the customer should keep in mind"
+                verified={isVerified("recommendations")}
+                onToggle={() => toggleVerify("recommendations")}
               />
               <CardContent className="px-4 pb-4">
                 <BulletEditor
@@ -635,7 +626,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
           >
             <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
             <p className="text-base font-bold text-slate-900 text-center mb-1">Move to…</p>
-            <p className="text-xs text-slate-400 text-center mb-5 px-4 truncate">"{movingBullet.text}"</p>
+            <p className="text-xs text-slate-400 text-center mb-5 px-4 truncate">&ldquo;{movingBullet.text}&rdquo;</p>
             <div className="space-y-2">
               {(
                 [
@@ -678,7 +669,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             {/* Handle */}
             <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
             <p className="text-base font-bold text-slate-900 text-center">Discard changes?</p>
-            <p className="text-sm text-slate-500 text-center mt-1 mb-6">Your edits won't be saved.</p>
+            <p className="text-sm text-slate-500 text-center mt-1 mb-6">Your edits won&apos;t be saved.</p>
             <div className="space-y-3">
               <button
                 onClick={handleDiscard}
