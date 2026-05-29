@@ -27,47 +27,6 @@ function formatDate(dateStr: string): string {
   });
 }
 
-function buildPlainText(report: ServiceReport): string {
-  const { business, job, report: rpt } = report;
-  const lines: string[] = [];
-
-  lines.push("Service Report", "");
-  lines.push(`${business.businessName}${business.technicianName ? ` · ${business.technicianName}` : ""}`);
-  lines.push(`Date: ${formatDate(job.jobDate)}`);
-  if (job.customerName) lines.push(`Customer: ${job.customerName}`);
-  if (job.serviceAddress) lines.push(`Address: ${job.serviceAddress}`);
-  const equipStr = job.equipment?.trim() ?? "";
-  if (equipStr) lines.push(`Equipment: ${equipStr}`);
-  if (job.nextServiceDate) lines.push(`Next Service Due: ${formatDate(job.nextServiceDate)}`);
-  lines.push("");
-
-  if (rpt.customerSummary) {
-    lines.push(rpt.customerSummary, "");
-  }
-
-  if (rpt.findings) {
-    lines.push("FINDINGS");
-    lines.push(rpt.findings, "");
-  }
-  if (rpt.workPerformed) {
-    lines.push("WORK PERFORMED");
-    lines.push(rpt.workPerformed, "");
-  }
-  if (rpt.recommendations) {
-    lines.push("RECOMMENDATIONS");
-    lines.push(rpt.recommendations, "");
-  }
-
-  lines.push("---");
-  lines.push(business.businessName);
-  if (business.technicianName) lines.push(`Technician: ${business.technicianName}`);
-  if (business.licence1Label && business.licence1Number) lines.push(`${business.licence1Label}: ${business.licence1Number}`);
-  if (business.licence2Label && business.licence2Number) lines.push(`${business.licence2Label}: ${business.licence2Number}`);
-  if (business.phone) lines.push(business.phone);
-  if (business.email) lines.push(business.email);
-
-  return lines.join("\n");
-}
 
 function BulletSection({ text }: { text: string }) {
   const lines = text
@@ -111,14 +70,6 @@ function ActionTile({
   );
 }
 
-function EmailTile({ icon, label, href }: { icon: React.ReactNode; label: string; href: string }) {
-  return (
-    <a href={href} className={TILE_CLASS}>
-      {icon}
-      <span className="text-xs font-semibold text-slate-600 leading-none">{label}</span>
-    </a>
-  );
-}
 
 export default function ReportPreview({ report, isNewReport, onBack, onEdit, onDone }: ReportPreviewProps) {
   const { business, job, report: rpt } = report;
@@ -127,17 +78,9 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
   const [exportState, setExportState] = useState<ExportState>("idle");
   const [exportError, setExportError] = useState<string | null>(null);
   const [linkState, setLinkState] = useState<"idle" | "generating" | "copied" | "error">("idle");
+  const [emailState, setEmailState] = useState<"idle" | "generating" | "error">("idle");
   const [photos, setPhotos] = useState<JobPhoto[]>([]);
 
-  // Pre-compute mailto href — capped so the OS always opens the mail app
-  const emailHref = (() => {
-    const subject = encodeURIComponent(`Service Report – ${job.customerName || business.businessName}`);
-    const plainText = buildPlainText(report);
-    const body = encodeURIComponent(
-      plainText.length > 800 ? plainText.slice(0, 800) + "\n\n[full report attached as PDF]" : plainText
-    );
-    return `mailto:?subject=${subject}&body=${body}`;
-  })();
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -182,6 +125,43 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
     }
   }
 
+
+  async function handleEmail() {
+    if (emailState === "generating") return;
+    setEmailState("generating");
+    const subject = `Service Report – ${job.customerName || business.businessName}`;
+    try {
+      // Generate the PDF
+      const res = await fetch("/api/export-pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ report, photos }),
+      });
+      if (!res.ok) throw new Error("PDF generation failed");
+      const disposition = res.headers.get("Content-Disposition") ?? "";
+      const match = disposition.match(/filename="([^"]+)"/);
+      const filename = match?.[1] ?? `${subject}.pdf`;
+      const blob = await res.blob();
+      const file = new File([blob], filename, { type: "application/pdf" });
+
+      // Share the PDF — on iOS/Android this opens the share sheet; pick Mail to attach
+      await navigator.share({ files: [file], title: subject });
+      setEmailState("idle");
+    } catch (err) {
+      // User cancelled the share sheet — not a real error
+      if (err instanceof Error && err.name === "AbortError") {
+        setEmailState("idle");
+        return;
+      }
+      // Fallback: open mail app with just the subject (no attachment)
+      setEmailState("idle");
+      const a = document.createElement("a");
+      a.href = `mailto:?subject=${encodeURIComponent(subject)}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+  }
 
   async function handleExportPdf() {
     if (exportState === "generating") return;
@@ -400,10 +380,11 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
                 )}
               </button>
               <div className="grid grid-cols-2 gap-2">
-                <EmailTile
-                  icon={<Mail className="w-5 h-5 text-slate-500" />}
-                  label="Email"
-                  href={emailHref}
+                <ActionTile
+                  icon={emailState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : <Mail className="w-5 h-5 text-slate-500" />}
+                  label={emailState === "generating" ? "Preparing…" : "Email"}
+                  onClick={handleEmail}
+                  disabled={emailState === "generating"}
                 />
                 <ActionTile
                   icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : canNativeShare ? <Share2 className="w-5 h-5 text-slate-500" /> : <Link className="w-5 h-5 text-slate-500" />}
@@ -423,10 +404,11 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             /* Existing report — sharing tiles grouped, Edit separate below */
             <>
               <div className="grid grid-cols-3 gap-2">
-                <EmailTile
-                  icon={<Mail className="w-5 h-5 text-slate-500" />}
-                  label="Email"
-                  href={emailHref}
+                <ActionTile
+                  icon={emailState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : <Mail className="w-5 h-5 text-slate-500" />}
+                  label={emailState === "generating" ? "Preparing…" : "Email"}
+                  onClick={handleEmail}
+                  disabled={emailState === "generating"}
                 />
                 <ActionTile
                   icon={exportState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : exportState === "done" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Download className="w-5 h-5 text-slate-500" />}
