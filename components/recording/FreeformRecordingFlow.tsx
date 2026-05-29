@@ -119,7 +119,7 @@ export default function FreeformRecordingFlow({
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       {/* ── Header ── */}
       {/* ── Main ── */}
-      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-28 flex flex-col gap-4">
+      <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-28 flex flex-col gap-4">
 
         {/* Page title */}
         <div className="flex items-center gap-3">
@@ -130,7 +130,7 @@ export default function FreeformRecordingFlow({
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex-1">Job Notes</h1>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex-1">Job Notes</h1>
         </div>
         <StepIndicator steps={REPORT_STEPS} currentStep={2} />
         {/* ── Prompt ── */}
@@ -268,7 +268,7 @@ export default function FreeformRecordingFlow({
 
       {/* ── Sticky footer ── */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
-        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 pt-3 sticky-footer">
+        <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer">
           <button
             onClick={handleDone}
             disabled={!hasEnoughText || isStopping}

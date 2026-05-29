@@ -111,7 +111,7 @@ export default function CustomerSelectScreen({
     const isNew = mode === "new";
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-        <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-32 space-y-4">
+        <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-32 space-y-4">
 
           {/* Page title */}
           <div className="flex items-center gap-3">
@@ -122,7 +122,7 @@ export default function CustomerSelectScreen({
             >
               <ChevronLeft className="w-5 h-5 text-slate-600" />
             </button>
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex-1">
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex-1">
               {isNew ? "New Customer" : "Edit Customer"}
             </h1>
             {saved && <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />}
@@ -232,7 +232,7 @@ export default function CustomerSelectScreen({
 
         {/* Footer actions */}
         <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
-          <div className="max-w-lg lg:max-w-2xl mx-auto px-4 pt-3 sticky-footer space-y-2">
+          <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer space-y-2">
             {/* Standalone edit: Start job is the primary CTA */}
             {!isNew && standalone && (
               <button
@@ -264,7 +264,7 @@ export default function CustomerSelectScreen({
   // ── List mode ──────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 pt-10 lg:pt-8 space-y-3">
+      <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 space-y-3">
 
         {/* Page title */}
         <div className="flex items-center gap-3 pb-1">
@@ -275,7 +275,7 @@ export default function CustomerSelectScreen({
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Customers</h1>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Customers</h1>
         </div>
 
         {/* Search */}

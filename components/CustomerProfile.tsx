@@ -83,7 +83,7 @@ export default function CustomerProfile({
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-28 space-y-5">
+      <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-28 space-y-5">
 
         {/* Page title */}
         <div className="flex items-center gap-3">
@@ -94,7 +94,7 @@ export default function CustomerProfile({
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight truncate flex-1">{displayName}</h1>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight truncate flex-1">{displayName}</h1>
           {saved ? (
             <span className="flex items-center gap-1 text-sm font-semibold text-green-500 shrink-0">
               <Check className="w-4 h-4" />
@@ -279,7 +279,7 @@ export default function CustomerProfile({
 
       {/* Start new job */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
-        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 pt-3 sticky-footer">
+        <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer">
           <button
             onClick={() => onStartJob(customer)}
             className="w-full h-14 rounded-2xl bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold text-base flex items-center justify-center gap-2 transition-all shadow-md shadow-orange-200"

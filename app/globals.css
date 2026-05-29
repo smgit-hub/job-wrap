@@ -136,6 +136,9 @@
     text-size-adjust: 100%;
     /* Smooth scrolling for anchor navigation */
     scroll-behavior: smooth;
+    /* Reserve scrollbar space to prevent layout jump when navigating
+       between short and tall pages */
+    scrollbar-gutter: stable;
   }
   /* Momentum scrolling on all scrollable containers */
   [class*="overflow-y-auto"],
