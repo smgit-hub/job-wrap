@@ -93,7 +93,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       {/* Header */}
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
+        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center">
           <button
             onClick={onBack}
             className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
@@ -112,7 +112,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         </div>
       </header>
 
-      <main className="flex-1 max-w-lg mx-auto w-full px-4 py-6 pb-32 space-y-5">
+      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 py-6 pb-32 space-y-5">
         {/* Live preview */}
         <div
           className="rounded-2xl p-5 text-white transition-all shadow-md"
@@ -310,7 +310,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
 
       {/* Sticky Save button */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
-        <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer">
+        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 pt-3 sticky-footer">
           <button
             onClick={handleSave}
             className="w-full h-14 rounded-2xl text-base font-bold bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white flex items-center justify-center gap-2 transition-colors shadow-md shadow-orange-200/50"

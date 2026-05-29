@@ -8,6 +8,7 @@ import ReportPreview from "@/components/ReportPreview";
 import BrandingSettings from "@/components/BrandingSettings";
 import CustomerSelectScreen from "@/components/CustomerSelectScreen";
 import CustomerProfile from "@/components/CustomerProfile";
+import Sidebar, { type ActiveSection } from "@/components/Sidebar";
 import type { ServiceReport, JobDetails, BusinessProfile, GeneratedReport, Customer } from "@/types/report";
 import {
   getBusinessProfile,
@@ -19,6 +20,12 @@ import {
 } from "@/lib/storage";
 
 type Screen = "dashboard" | "customers" | "customer-select" | "customer-profile" | "new-report" | "editor" | "preview" | "settings";
+
+function getActiveSection(screen: Screen): ActiveSection {
+  if (screen === "customers" || screen === "customer-profile") return "customers";
+  if (screen === "settings") return "settings";
+  return "dashboard";
+}
 
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("dashboard");
@@ -120,6 +127,17 @@ export default function Home() {
 
   return (
     <>
+      <Sidebar
+        activeSection={getActiveSection(screen)}
+        onDashboard={() => setScreen("dashboard")}
+        onNewReport={handleNewReport}
+        onCustomers={() => setScreen("customers")}
+        onSettings={() => setScreen("settings")}
+      />
+
+      {/* Content — offset right of sidebar on desktop */}
+      <div className="lg:pl-60">
+
       {screen === "dashboard" && (
         <Dashboard
           onNewReport={handleNewReport}
@@ -209,6 +227,8 @@ export default function Home() {
           onSave={handleSaveSettings}
         />
       )}
+
+      </div>{/* end lg:pl-60 content wrapper */}
     </>
   );
 }

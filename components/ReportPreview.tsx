@@ -192,7 +192,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       {/* ── Header ── */}
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
+        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center">
           <button
             onClick={onBack}
             className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
@@ -224,7 +224,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
         {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={4} />}
       </header>
 
-      <main className="flex-1 max-w-lg mx-auto w-full px-4 py-5 pb-72">
+      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 py-5 pb-72">
         {/* ── Report card ── */}
         <div className="bg-white rounded-2xl shadow-card-hover overflow-hidden border border-slate-100">
 
@@ -367,7 +367,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
 
       {/* ── Sticky action bar ── */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
-        <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer space-y-2.5">
+        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 pt-3 sticky-footer space-y-2.5">
           {/* Secondary actions — 2×2 grid */}
           <div className="grid grid-cols-2 gap-2">
             {/* Copy Link */}

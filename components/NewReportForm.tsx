@@ -218,7 +218,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
         <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-          <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
+          <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center">
             <span className="flex-1 font-bold text-slate-900">Generating Report</span>
           </div>
           <StepIndicator steps={REPORT_STEPS} currentStep={3} />
@@ -278,7 +278,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
+        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center">
           <button
             onClick={handleBack}
             className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
@@ -291,7 +291,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
         <StepIndicator steps={REPORT_STEPS} currentStep={1} />
       </header>
 
-      <main className="flex-1 max-w-lg mx-auto w-full px-4 pt-5 pb-32 space-y-5">
+      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 pt-5 pb-32 space-y-5">
 
         {/* ── Customer section ────────────────────────────────────────────── */}
         <div className="space-y-2">
@@ -535,7 +535,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
 
       {/* Sticky footer */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
-        <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer">
+        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 pt-3 sticky-footer">
           <button
             onClick={handleSetupContinue}
             disabled={!customerForm.name.trim()}

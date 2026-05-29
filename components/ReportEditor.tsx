@@ -237,7 +237,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       {/* Header */}
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
+        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center">
           <button
             onClick={handleBack}
             className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
@@ -261,7 +261,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={3} />}
       </header>
 
-      <main className="flex-1 max-w-lg mx-auto w-full px-4 py-5 pb-32 space-y-4">
+      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 py-5 pb-32 space-y-4">
 
         {/* Job Details card */}
         <Card className="border border-slate-100 shadow-card">
@@ -690,7 +690,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
 
       {/* Sticky footer */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
-        <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer">
+        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 pt-3 sticky-footer">
           {!isUngenerated && (
             <p className={cn(
               "text-center text-xs mb-2 font-medium transition-colors",

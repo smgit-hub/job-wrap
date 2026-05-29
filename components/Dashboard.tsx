@@ -146,7 +146,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
       <div className="min-h-screen bg-slate-100 animate-screen-enter">
         {/* Folder header */}
         <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-          <div className="max-w-lg mx-auto px-4 py-3 flex items-center">
+          <div className="max-w-lg lg:max-w-4xl mx-auto px-4 py-3 flex items-center">
             <button
               onClick={() => setView("dashboard")}
               className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
@@ -163,7 +163,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
           </div>
         </header>
 
-        <main className="max-w-lg mx-auto px-4 py-5 pb-10">
+        <main className="max-w-lg lg:max-w-4xl mx-auto px-4 py-5 pb-10">
           {folderJobs.length === 0 ? (
             <div className="bg-white rounded-2xl p-10 text-center shadow-card mt-2">
               <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
@@ -179,7 +179,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
               </p>
             </div>
           ) : (
-            <div className="space-y-2.5 mt-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 lg:gap-3 mt-2">
               {folderJobs.map((report) => (
                 <JobCard
                   key={report.id}
@@ -198,8 +198,8 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
   // ── Main dashboard ─────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-100 animate-screen-enter">
-      {/* Header */}
-      <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
+      {/* Header — mobile only; desktop uses the sidebar */}
+      <header className="lg:hidden bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
         <div className="max-w-lg mx-auto px-4 flex items-center justify-between py-3">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
@@ -240,7 +240,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 pt-5 pb-6 space-y-5">
+      <main className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-5 lg:pt-8 pb-6 space-y-5 lg:space-y-6">
         {/* Greeting */}
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -320,7 +320,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
               </p>
             </div>
           ) : (
-            <div className="space-y-2.5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 lg:gap-3">
               {recent.map((report) => (
                 <JobCard
                   key={report.id}

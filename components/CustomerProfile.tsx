@@ -84,7 +84,7 @@ export default function CustomerProfile({
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-        <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
+        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center gap-3">
           <button
             onClick={onBack}
             className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
@@ -110,7 +110,7 @@ export default function CustomerProfile({
         </div>
       </header>
 
-      <main className="flex-1 max-w-lg mx-auto w-full px-4 py-5 pb-28 space-y-5">
+      <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 py-5 pb-28 space-y-5">
 
         {/* Editable fields */}
         <div className="bg-white rounded-2xl shadow-card px-4 py-4 space-y-4">
@@ -280,7 +280,7 @@ export default function CustomerProfile({
 
       {/* Start new job */}
       <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
-        <div className="max-w-lg mx-auto px-4 pt-3 sticky-footer">
+        <div className="max-w-lg lg:max-w-2xl mx-auto px-4 pt-3 sticky-footer">
           <button
             onClick={() => onStartJob(customer)}
             className="w-full h-14 rounded-2xl bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold text-base flex items-center justify-center gap-2 transition-all shadow-md shadow-orange-200"
