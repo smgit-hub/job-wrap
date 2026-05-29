@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import FreeformRecordingFlow from "@/components/recording/FreeformRecordingFlow";
 import type { JobDetails, VoiceNotes, ServiceType, Customer, ServiceReport } from "@/types/report";
 import { EMPTY_VOICE_NOTES, EMPTY_REPORT, SERVICE_TYPE_LABELS } from "@/types/report";
-import { saveDraft, getDraft, saveReport, clearDraft, generateId, getBusinessProfile, saveCustomer } from "@/lib/storage";
+import { saveDraft, getDraft, saveReport, clearDraft, generateId, getBusinessProfile, saveCustomer, getCustomers } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 
@@ -35,7 +35,12 @@ const EMPTY_JOB: JobDetails = {
 type FormStep = "customer-setup" | "recording" | "generating";
 
 export default function NewReportForm({ initialCustomer, onBack, onGenerate, onSaveForLater }: NewReportFormProps) {
-  const isExisting = !!initialCustomer;
+  const [linkedCustomer, setLinkedCustomer] = useState<Customer | null>(initialCustomer ?? null);
+  const [suggestions, setSuggestions] = useState<Customer[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // True when the customer name field is linked to an existing customer record
+  const isLinked = linkedCustomer !== null;
 
   const [formStep, setFormStep] = useState<FormStep>("customer-setup");
   const [job, setJob] = useState<JobDetails>(() => ({
@@ -70,13 +75,13 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
   );
 
   // Dirty if any customer field OR job field has changed from its starting value
-  const customerFormDirty = isExisting
+  const customerFormDirty = isLinked
     ? (
-        customerForm.name !== (initialCustomer?.name ?? "") ||
-        customerForm.address !== (initialCustomer?.address ?? "") ||
-        customerForm.phone !== (initialCustomer?.phone ?? "") ||
-        customerForm.email !== (initialCustomer?.email ?? "") ||
-        customerForm.siteNotes !== (initialCustomer?.siteNotes ?? "")
+        customerForm.name !== (linkedCustomer.name) ||
+        customerForm.address !== (linkedCustomer.address ?? "") ||
+        customerForm.phone !== (linkedCustomer.phone ?? "") ||
+        customerForm.email !== (linkedCustomer.email ?? "") ||
+        customerForm.siteNotes !== (linkedCustomer.siteNotes ?? "")
       )
     : (
         customerForm.name.trim() !== "" ||
@@ -122,6 +127,43 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
   useEffect(() => {
     saveDraft({ job });
   }, [job]);
+
+  function handleNameChange(value: string) {
+    setCustomerForm((p) => ({ ...p, name: value }));
+    // Unlink if the user edits the name away from the linked customer
+    if (linkedCustomer && value !== linkedCustomer.name) {
+      setLinkedCustomer(null);
+    }
+    const trimmed = value.trim();
+    if (trimmed.length > 0) {
+      const matches = getCustomers().filter((c) =>
+        c.name.toLowerCase().includes(trimmed.toLowerCase())
+      );
+      setSuggestions(matches);
+      setShowSuggestions(matches.length > 0);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  }
+
+  function handleSelectCustomer(customer: Customer) {
+    setLinkedCustomer(customer);
+    setCustomerForm({
+      name: customer.name,
+      address: customer.address ?? "",
+      phone: customer.phone ?? "",
+      email: customer.email ?? "",
+      siteNotes: customer.siteNotes ?? "",
+    });
+    setJob((prev) => ({
+      ...prev,
+      customerName: customer.name,
+      serviceAddress: customer.address ?? "",
+      equipment: customer.equipment ?? prev.equipment ?? "",
+    }));
+    setShowSuggestions(false);
+  }
 
   async function doGenerate(jobToUse: JobDetails) {
     setGenerateError(null);
@@ -182,8 +224,8 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
       updatedAt: now,
     };
 
-    if (initialCustomer) {
-      saveCustomer({ ...initialCustomer, ...shared });
+    if (linkedCustomer) {
+      saveCustomer({ ...linkedCustomer, ...shared });
     } else {
       saveCustomer({
         id: `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
@@ -270,7 +312,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
   // ── Step: Customer Setup ─────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-      <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-32 space-y-5">
+      <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-52 lg:pb-32 space-y-5">
 
         {/* Page title */}
         <div className="flex items-center gap-3">
@@ -290,10 +332,10 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
           <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Customer</h2>
 
           {!detailsExpanded ? (
-            /* Collapsed — name only for new, summary card for existing */
+            /* Collapsed — autocomplete search for unlinked, summary card when linked */
             <div className="bg-white rounded-2xl shadow-card px-4 py-4 space-y-3">
-              {isExisting ? (
-                /* Existing customer compact summary */
+              {isLinked ? (
+                /* Linked customer compact summary */
                 <div className="flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="font-semibold text-slate-900 truncate">{customerForm.name}</p>
@@ -310,16 +352,40 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                   </button>
                 </div>
               ) : (
-                /* New customer — name input + expand option */
+                /* Unlinked — name input with autocomplete dropdown */
                 <>
-                  <Input
-                    id="cf-name"
-                    value={customerForm.name}
-                    onChange={(e) => setCustomerForm((p) => ({ ...p, name: e.target.value }))}
-                    placeholder="Customer name"
-                    autoFocus
-                    className="h-11 text-base bg-slate-50 border-slate-200"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="cf-name"
+                      value={customerForm.name}
+                      onChange={(e) => handleNameChange(e.target.value)}
+                      onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
+                      onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+                      placeholder="Customer name"
+                      autoFocus
+                      autoComplete="off"
+                      className="h-11 text-base bg-slate-50 border-slate-200"
+                    />
+                    {showSuggestions && suggestions.length > 0 && (
+                      <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-slate-100 z-20 overflow-hidden">
+                        {suggestions.map((c) => (
+                          <button
+                            key={c.id}
+                            type="button"
+                            onMouseDown={(e) => { e.preventDefault(); handleSelectCustomer(c); }}
+                            className="w-full flex items-start gap-3 px-4 py-3 text-left hover:bg-slate-50 active:bg-slate-100 transition-colors border-b border-slate-50 last:border-0"
+                          >
+                            <div className="min-w-0">
+                              <p className="text-sm font-semibold text-slate-900">{c.name}</p>
+                              {c.address && (
+                                <p className="text-xs text-slate-400 truncate">{c.address}</p>
+                              )}
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                   <button
                     type="button"
                     onClick={() => setDetailsExpanded(true)}
@@ -336,7 +402,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
             <div className="bg-white rounded-2xl shadow-card px-4 py-4 space-y-4">
               <div className="flex items-center justify-between">
                 <p className="text-sm font-semibold text-slate-700">
-                  {isExisting ? "Edit details" : "Address & contact details"}
+                  {isLinked ? "Edit details" : "Address & contact details"}
                 </p>
                 <button
                   type="button"
@@ -354,7 +420,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                 <Input
                   id="cf-name"
                   value={customerForm.name}
-                  onChange={(e) => setCustomerForm((p) => ({ ...p, name: e.target.value }))}
+                  onChange={(e) => handleNameChange(e.target.value)}
                   placeholder="Customer name"
                   className="h-11 text-base bg-slate-50 border-slate-200"
                 />
@@ -526,7 +592,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
       )}
 
       {/* Sticky footer */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
+      <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer">
           <button
             onClick={handleSetupContinue}

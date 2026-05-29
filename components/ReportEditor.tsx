@@ -30,64 +30,48 @@ const SECTION_KEYS: (keyof GeneratedReport)[] = [
   "recommendations",
 ];
 
-function SectionHeader({
-  title,
-  subtitle,
-  verified,
-  onToggle,
-}: {
-  title: string;
-  subtitle?: string;
-  verified: boolean;
-  onToggle: () => void;
-}) {
+// Verify toggle — just an icon, no label
+function VerifyButton({ verified, onToggle }: { verified: boolean; onToggle: () => void }) {
   return (
-    <CardHeader className="pb-2 px-4 pt-4">
-      <div className="flex items-center justify-between gap-2">
-        <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">{title}</CardTitle>
-        <button
-          onClick={onToggle}
-          className="shrink-0 flex items-center gap-1.5 transition-transform active:scale-90"
-          aria-label={verified ? "Unmark verified" : "Mark as verified"}
-        >
-          {verified ? (
-            <CheckCircle2 className="w-5 h-5 text-orange-500" />
-          ) : (
-            <>
-              <span className="text-xs font-semibold text-slate-500">Verify</span>
-              <Circle className="w-5 h-5 text-slate-400" />
-            </>
-          )}
-        </button>
-      </div>
-      {subtitle && (
-        <p className="text-xs text-slate-400 mt-0.5 normal-case tracking-normal font-normal">{subtitle}</p>
-      )}
-    </CardHeader>
+    <button
+      onClick={onToggle}
+      className="shrink-0 transition-transform active:scale-90"
+      aria-label={verified ? "Unmark verified" : "Mark as verified"}
+    >
+      {verified
+        ? <CheckCircle2 className="w-5 h-5 text-orange-500" />
+        : <Circle className="w-5 h-5 text-slate-300 hover:text-slate-400 transition-colors" />
+      }
+    </button>
   );
 }
 
 export default function ReportEditor({ report, isNewReport, onBack, onPreview, onRegenerate }: ReportEditorProps) {
   const [draft, setDraft] = useState<ServiceReport>(report);
-  const [isDirty, setIsDirty] = useState(false);
-  const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
   const [movingBullet, setMovingBullet] = useState<{ text: string; from: keyof GeneratedReport } | null>(null);
   const [photos, setPhotos] = useState<JobPhoto[]>([]);
   const [confirmRegen, setConfirmRegen] = useState(false);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [regenError, setRegenError] = useState<string | null>(null);
-  const [showNotes, setShowNotes] = useState(false);
   const [customerExpanded, setCustomerExpanded] = useState(false);
   const [equipmentExpanded, setEquipmentExpanded] = useState(false);
+  const [notesExpanded, setNotesExpanded] = useState(false);
 
-  // Keep a ref to the latest draft so handlePreview always saves fresh state
+  // Keep a ref to the latest draft so handlePreview always captures fresh state
   const latestDraft = useRef<ServiceReport>(draft);
   useEffect(() => { latestDraft.current = draft; }, [draft]);
 
-  const originalNotes = draft.job.voiceNotes.jobNotes.trim();
-  const isUngenerated =
-    !draft.report.customerSummary &&
-    !draft.report.workPerformed;
+  // Auto-save on every draft change
+  useEffect(() => {
+    saveReport(draft);
+  }, [draft]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setPhotos(getPhotosForReport(draft.id));
+  }, [draft.id]);
+
+  const isUngenerated = !draft.report.customerSummary && !draft.report.workPerformed;
 
   // Verification helpers
   const v = draft.verified ?? {};
@@ -98,9 +82,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
     return (draft.verified?.[key as keyof SectionVerified]) ?? false;
   }
 
-  // Called when tech manually taps the tick icon (toggles)
   function toggleVerify(key: keyof GeneratedReport) {
-    setIsDirty(true);
     setDraft((prev) => {
       const wasVerified = prev.verified?.[key as keyof SectionVerified] ?? false;
       const newVerified: SectionVerified = { ...prev.verified, [key]: !wasVerified };
@@ -112,11 +94,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
       };
     });
   }
-
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setPhotos(getPhotosForReport(draft.id));
-  }, [draft.id]);
 
   function handlePhotosChange(updated: JobPhoto[]) {
     setPhotos(updated);
@@ -130,15 +107,12 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
     setConfirmRegen(false);
     try {
       const newReport = await onRegenerate(draft.job);
-      const updated: ServiceReport = {
-        ...draft,
+      setDraft((prev) => ({
+        ...prev,
         report: newReport,
-        verified: {}, // clear all — new content needs re-reading
+        verified: {},
         updatedAt: new Date().toISOString(),
-      };
-      saveReport(updated);
-      setDraft(updated);
-      setIsDirty(false); // just saved
+      }));
     } catch (err) {
       setRegenError(err instanceof Error ? err.message : "Regeneration failed. Please try again.");
     } finally {
@@ -146,9 +120,8 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
     }
   }
 
-  // For customerSummary textarea — editing counts as verified
+  // Editing a textarea marks it verified automatically
   function updateField(key: keyof GeneratedReport, value: string) {
-    setIsDirty(true);
     setDraft((prev) => ({
       ...prev,
       report: { ...prev.report, [key]: value },
@@ -156,9 +129,8 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
     }));
   }
 
-  // For BulletEditor — marks section verified (save deferred to Save & Preview)
+  // BulletEditor edits — marks verified and checks if all done
   function updateFieldAndSave(key: keyof GeneratedReport, value: string) {
-    setIsDirty(true);
     setDraft((prev) => {
       const newVerified: SectionVerified = { ...prev.verified, [key]: true };
       const nowAllDone = SECTION_KEYS.every((k) => newVerified[k as keyof SectionVerified]);
@@ -172,21 +144,14 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
   }
 
   function updateJobField(field: keyof JobDetails, value: string) {
-    setIsDirty(true);
     setDraft((prev) => ({ ...prev, job: { ...prev.job, [field]: value } }));
   }
 
-  function handleBack() {
-    if (isDirty) {
-      setShowDiscardConfirm(true);
-    } else {
-      onBack();
-    }
-  }
-
-  function handleDiscard() {
-    setShowDiscardConfirm(false);
-    onBack();
+  function updateVoiceNote(field: keyof typeof draft.job.voiceNotes, value: string) {
+    setDraft((prev) => ({
+      ...prev,
+      job: { ...prev.job, voiceNotes: { ...prev.job.voiceNotes, [field]: value } },
+    }));
   }
 
   function handlePreview() {
@@ -198,11 +163,10 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
     };
     saveReport(completed);
     setDraft(completed);
-    setIsDirty(false);
     onPreview(completed);
   }
 
-  // ── Cross-section bullet move ────────────────────────────────────────────────
+  // Cross-section bullet move
   function handleStartMove(text: string, from: keyof GeneratedReport) {
     setMovingBullet({ text, from });
   }
@@ -211,16 +175,11 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
     if (!movingBullet) return;
     const { text, from } = movingBullet;
     setMovingBullet(null);
-    setIsDirty(true);
     setDraft((prev) => {
-      // Remove from source
       const sourceItems = prev.report[from]
         .split("\n")
         .filter((l) => l.replace(/^[•\-]\s*/, "").trim() !== text.trim());
-      // Append to target
-      const targetItems = prev.report[target]
-        .split("\n")
-        .filter(Boolean);
+      const targetItems = prev.report[target].split("\n").filter(Boolean);
       targetItems.push(`• ${text.trim()}`);
       return {
         ...prev,
@@ -235,12 +194,12 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-      <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-32 space-y-4">
+      <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-52 lg:pb-32 space-y-4">
 
         {/* Page title */}
         <div className="flex items-center gap-3">
           <button
-            onClick={handleBack}
+            onClick={onBack}
             className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 hover:bg-slate-50 active:bg-slate-100 transition-colors"
             aria-label="Back"
           >
@@ -249,7 +208,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex-1">Edit Report</h1>
           {!isUngenerated && (
             <span className={cn(
-              "text-xs font-bold px-2.5 py-1 rounded-full shrink-0",
+              "text-xs font-bold px-2.5 py-1 rounded-full shrink-0 tabular-nums",
               allVerified ? "bg-orange-500 text-white" : "bg-slate-200 text-slate-400"
             )}>
               {verifiedCount}/{SECTION_KEYS.length}
@@ -258,14 +217,181 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         </div>
         {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={3} />}
 
-        {/* Job Details card */}
+        {/* ── Ungenerated banner ─────────────────────────────────────────── */}
+        {isUngenerated && onRegenerate && !isRegenerating && (
+          <div className="bg-white rounded-2xl border border-dashed border-slate-200 shadow-card px-5 py-8 flex flex-col items-center gap-3 text-center">
+            <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center">
+              <Sparkles className="w-6 h-6 text-orange-400" />
+            </div>
+            <div>
+              <p className="text-sm font-bold text-slate-900">No report generated yet</p>
+              <p className="text-xs text-slate-400 mt-1">Tap below to generate the report from your saved notes.</p>
+            </div>
+            <button
+              onClick={handleRegenerate}
+              className="h-11 px-6 rounded-xl bg-orange-500 text-sm font-bold text-white active:bg-orange-600 transition-colors shadow-sm shadow-orange-200"
+            >
+              Generate Report
+            </button>
+          </div>
+        )}
+
+        {isRegenerating && (
+          <div className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 text-sm">
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+            {isUngenerated ? "Generating report…" : "Regenerating…"}
+          </div>
+        )}
+
+        {/* ── Report sections ────────────────────────────────────────────── */}
+        {!isUngenerated && (
+          <>
+            {/* Customer Summary */}
+            <Card className={cn(
+              "border shadow-card transition-colors",
+              isVerified("customerSummary") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
+            )}>
+              <CardHeader className="pb-2 px-4 pt-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Customer Summary</CardTitle>
+                    <p className="text-xs text-slate-400 mt-0.5 font-normal tracking-normal normal-case">Plain English — written for the customer</p>
+                  </div>
+                  <VerifyButton verified={isVerified("customerSummary")} onToggle={() => toggleVerify("customerSummary")} />
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <Textarea
+                  value={draft.report.customerSummary}
+                  onChange={(e) => updateField("customerSummary", e.target.value)}
+                  rows={3}
+                  enterKeyHint="done"
+                  className="text-base leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Observations */}
+            <Card className={cn(
+              "border shadow-card transition-colors",
+              isVerified("findings") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
+            )}>
+              <CardHeader className="pb-2 px-4 pt-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Observations</CardTitle>
+                    <p className="text-xs text-slate-400 mt-0.5 font-normal tracking-normal normal-case">What was noticed — not what was done</p>
+                  </div>
+                  <VerifyButton verified={isVerified("findings")} onToggle={() => toggleVerify("findings")} />
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <BulletEditor
+                  value={draft.report.findings}
+                  onChange={(v) => updateFieldAndSave("findings", v)}
+                  onMove={(text) => handleStartMove(text, "findings")}
+                  emptyState="No observations — tap + to add one"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Work Performed */}
+            <Card className={cn(
+              "border shadow-card transition-colors",
+              isVerified("workPerformed") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
+            )}>
+              <CardHeader className="pb-2 px-4 pt-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Work Performed</CardTitle>
+                    <p className="text-xs text-slate-400 mt-0.5 font-normal tracking-normal normal-case">Everything completed during the visit</p>
+                  </div>
+                  <VerifyButton verified={isVerified("workPerformed")} onToggle={() => toggleVerify("workPerformed")} />
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <BulletEditor
+                  value={draft.report.workPerformed}
+                  onChange={(v) => updateFieldAndSave("workPerformed", v)}
+                  onMove={(text) => handleStartMove(text, "workPerformed")}
+                  emptyState="No tasks added yet"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Recommendations */}
+            <Card className={cn(
+              "border shadow-card transition-colors",
+              isVerified("recommendations") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
+            )}>
+              <CardHeader className="pb-2 px-4 pt-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Recommendations</CardTitle>
+                    <p className="text-xs text-slate-400 mt-0.5 font-normal tracking-normal normal-case">Next steps for the customer</p>
+                  </div>
+                  <VerifyButton verified={isVerified("recommendations")} onToggle={() => toggleVerify("recommendations")} />
+                </div>
+              </CardHeader>
+              <CardContent className="px-4 pb-4">
+                <BulletEditor
+                  value={draft.report.recommendations}
+                  onChange={(v) => updateFieldAndSave("recommendations", v)}
+                  onMove={(text) => handleStartMove(text, "recommendations")}
+                  emptyState="No recommendations — tap + to add one"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Regenerate — below the content it affects */}
+            {onRegenerate && !isRegenerating && !confirmRegen && (
+              <button
+                onClick={() => setConfirmRegen(true)}
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-300 text-slate-400 text-sm hover:border-orange-300 hover:text-orange-500 transition-colors"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                Regenerate with AI
+              </button>
+            )}
+
+            {confirmRegen && (
+              <div className="bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3 space-y-3">
+                <p className="text-sm font-semibold text-amber-800">Regenerate this report?</p>
+                <p className="text-xs text-amber-700">Your current edits will be replaced with a fresh AI-generated version.</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setConfirmRegen(false)}
+                    className="flex-1 h-10 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-600 active:bg-slate-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleRegenerate}
+                    className="flex-1 h-10 rounded-xl bg-orange-500 text-sm font-semibold text-white active:bg-orange-600"
+                  >
+                    Regenerate
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {regenError && (
+              <div className="flex items-start gap-3 bg-red-50 border border-red-100 rounded-2xl px-4 py-3">
+                <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                <p className="text-xs text-red-700">{regenError}</p>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* ── Job Details ────────────────────────────────────────────────── */}
         <Card className="border border-slate-100 shadow-card">
           <CardHeader className="pb-2 px-4 pt-4">
             <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Job Details</CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4 space-y-3">
 
-            {/* ── Customer ── */}
+            {/* Customer */}
             <div className="rounded-xl border border-slate-100 overflow-hidden">
               <button
                 type="button"
@@ -310,7 +436,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               )}
             </div>
 
-            {/* ── Date / Next Service Due ── */}
+            {/* Date / Next Service */}
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="ed-date">Date</Label>
@@ -323,7 +449,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="ed-next-service">Next Service Due</Label>
+                <Label htmlFor="ed-next-service">Next Service</Label>
                 <Input
                   id="ed-next-service"
                   type="date"
@@ -334,7 +460,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               </div>
             </div>
 
-            {/* ── Service type ── */}
+            {/* Service type */}
             <div className="space-y-1.5">
               <Label htmlFor="ed-service">Service type</Label>
               <select
@@ -357,7 +483,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               )}
             </div>
 
-            {/* ── Equipment ── */}
+            {/* Equipment */}
             <div className="rounded-xl border border-slate-100 overflow-hidden">
               <button
                 type="button"
@@ -392,208 +518,49 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
           </CardContent>
         </Card>
 
-        {/* Job Notes */}
-        <Card className="border border-slate-100 shadow-card">
-          <CardHeader className="pb-2 px-4 pt-4">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Job Notes</CardTitle>
-              <button
-                onClick={() => setShowNotes((v) => !v)}
-                className="text-xs text-orange-500 font-semibold"
-              >
-                {showNotes ? "Hide" : "Show"}
-              </button>
-            </div>
-            {!showNotes && originalNotes && (
-              <p className="text-sm text-slate-500 mt-1 truncate normal-case tracking-normal font-normal">
-                {originalNotes.slice(0, 80)}{originalNotes.length > 80 ? "…" : ""}
-              </p>
-            )}
-            {!showNotes && !originalNotes && (
-              <p className="text-sm text-slate-400 mt-1 normal-case tracking-normal font-normal italic">
-                No notes recorded
-              </p>
-            )}
-          </CardHeader>
-          {showNotes && (
-            <CardContent className="px-4 pb-4">
-              <Textarea
-                value={draft.job.voiceNotes.jobNotes}
-                onChange={(e) => {
-                  setIsDirty(true);
-                  setDraft((prev) => ({
-                    ...prev,
-                    job: {
-                      ...prev.job,
-                      voiceNotes: { ...prev.job.voiceNotes, jobNotes: e.target.value },
-                    },
-                  }));
-                }}
-                rows={5}
-                placeholder="Add or edit your job notes here…"
-                enterKeyHint="done"
-                className="text-base leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
-              />
-            </CardContent>
-          )}
-        </Card>
-
-        {/* Regenerate — only shown once a report exists */}
-        {onRegenerate && !isUngenerated && !isRegenerating && !confirmRegen && (
-          <button
-            onClick={() => setConfirmRegen(true)}
-            className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-300 text-slate-500 text-sm hover:border-orange-300 hover:text-orange-500 transition-colors"
-          >
-            <RefreshCw className="w-3.5 h-3.5" />
-            Regenerate with AI
-          </button>
-        )}
-
-        {isRegenerating && (
-          <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 text-sm">
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            {isUngenerated ? "Generating report…" : "Regenerating…"}
-          </div>
-        )}
-
-        {confirmRegen && (
-          <div className="bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3 space-y-3">
-            <p className="text-sm font-semibold text-amber-800">Regenerate this report?</p>
-            <p className="text-xs text-amber-700">Your current edits will be replaced with a fresh AI-generated version.</p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setConfirmRegen(false)}
-                className="flex-1 h-10 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-600 active:bg-slate-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleRegenerate}
-                className="flex-1 h-10 rounded-xl bg-orange-500 text-sm font-semibold text-white active:bg-orange-600"
-              >
-                Regenerate
-              </button>
-            </div>
-          </div>
-        )}
-
-        {regenError && (
-          <div className="flex items-start gap-3 bg-red-50 border border-red-100 rounded-2xl px-4 py-3">
-            <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-            <p className="text-xs text-red-700">{regenError}</p>
-          </div>
-        )}
-
-        {/* Ungenerated banner */}
-        {isUngenerated && onRegenerate && !isRegenerating && (
-          <div className="bg-white rounded-2xl border border-dashed border-slate-200 shadow-card px-5 py-8 flex flex-col items-center gap-3 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center">
-              <Sparkles className="w-6 h-6 text-orange-400" />
-            </div>
-            <div>
-              <p className="text-sm font-bold text-slate-900">No report generated yet</p>
-              <p className="text-xs text-slate-400 mt-1">Tap below to generate the report from your saved notes.</p>
-            </div>
+        {/* ── Job Notes ──────────────────────────────────────────────────── */}
+        {(draft.job.voiceNotes.jobNotes || draft.job.voiceNotes.recommendations) && (
+          <Card className="border border-slate-100 shadow-card">
             <button
-              onClick={handleRegenerate}
-              className="h-11 px-6 rounded-xl bg-orange-500 text-sm font-bold text-white active:bg-orange-600 transition-colors shadow-sm shadow-orange-200"
+              type="button"
+              onClick={() => setNotesExpanded((v) => !v)}
+              className="w-full flex items-center justify-between px-4 py-3.5 text-left active:bg-slate-50 transition-colors"
             >
-              Generate Report
+              <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Original Job Notes</CardTitle>
+              <span className="text-xs font-semibold text-orange-500 shrink-0 ml-3">
+                {notesExpanded ? "Hide" : "Show"}
+              </span>
             </button>
-          </div>
+            {notesExpanded && (
+              <CardContent className="px-4 pb-4 pt-0 space-y-3">
+                {draft.job.voiceNotes.jobNotes && (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-slate-400">What happened</Label>
+                    <Textarea
+                      value={draft.job.voiceNotes.jobNotes}
+                      onChange={(e) => updateVoiceNote("jobNotes", e.target.value)}
+                      rows={4}
+                      className="text-sm leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
+                    />
+                  </div>
+                )}
+                {draft.job.voiceNotes.recommendations && (
+                  <div className="space-y-1.5">
+                    <Label className="text-xs text-slate-400">Recommendations noted</Label>
+                    <Textarea
+                      value={draft.job.voiceNotes.recommendations}
+                      onChange={(e) => updateVoiceNote("recommendations", e.target.value)}
+                      rows={3}
+                      className="text-sm leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
+                    />
+                  </div>
+                )}
+              </CardContent>
+            )}
+          </Card>
         )}
 
-        {/* ── Editable sections with verification ── */}
-        {!isUngenerated && (
-          <>
-            {/* Customer Summary */}
-            <Card className={cn(
-              "border shadow-card transition-colors",
-              isVerified("customerSummary") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
-            )}>
-              <SectionHeader
-                title="Customer Summary"
-                subtitle="Plain English, warm tone — written for the customer"
-                verified={isVerified("customerSummary")}
-                onToggle={() => toggleVerify("customerSummary")}
-              />
-              <CardContent className="px-4 pb-4">
-                <Textarea
-                  value={draft.report.customerSummary}
-                  onChange={(e) => updateField("customerSummary", e.target.value)}
-                  rows={3}
-                  enterKeyHint="done"
-                  className="text-base leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
-                />
-              </CardContent>
-            </Card>
-
-            {/* Observations */}
-            <Card className={cn(
-              "border shadow-card transition-colors",
-              isVerified("findings") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
-            )}>
-              <SectionHeader
-                title="Observations"
-                subtitle="Conditions noticed — not what was done about them"
-                verified={isVerified("findings")}
-                onToggle={() => toggleVerify("findings")}
-              />
-              <CardContent className="px-4 pb-4">
-                <BulletEditor
-                  value={draft.report.findings}
-                  onChange={(v) => updateFieldAndSave("findings", v)}
-                  onMove={(text) => handleStartMove(text, "findings")}
-                  emptyState="No observations — tap + to add one"
-                />
-              </CardContent>
-            </Card>
-
-            {/* Work Performed */}
-            <Card className={cn(
-              "border shadow-card transition-colors",
-              isVerified("workPerformed") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
-            )}>
-              <SectionHeader
-                title="Work Performed"
-                subtitle="Everything completed during the visit"
-                verified={isVerified("workPerformed")}
-                onToggle={() => toggleVerify("workPerformed")}
-              />
-              <CardContent className="px-4 pb-4">
-                <BulletEditor
-                  value={draft.report.workPerformed}
-                  onChange={(v) => updateFieldAndSave("workPerformed", v)}
-                  onMove={(text) => handleStartMove(text, "workPerformed")}
-                  emptyState="No tasks added yet"
-                />
-              </CardContent>
-            </Card>
-
-            {/* Recommendations */}
-            <Card className={cn(
-              "border shadow-card transition-colors",
-              isVerified("recommendations") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
-            )}>
-              <SectionHeader
-                title="Recommendations"
-                subtitle="Next steps and anything the customer should keep in mind"
-                verified={isVerified("recommendations")}
-                onToggle={() => toggleVerify("recommendations")}
-              />
-              <CardContent className="px-4 pb-4">
-                <BulletEditor
-                  value={draft.report.recommendations}
-                  onChange={(v) => updateFieldAndSave("recommendations", v)}
-                  onMove={(text) => handleStartMove(text, "recommendations")}
-                  emptyState="No recommendations — tap + to add one"
-                />
-              </CardContent>
-            </Card>
-          </>
-        )}
-
-        {/* Photos */}
+        {/* ── Photos ─────────────────────────────────────────────────────── */}
         <Card className="border border-slate-100 shadow-card">
           <CardHeader className="pb-2 px-4 pt-4">
             <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">
@@ -607,6 +574,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             <PhotoSection photos={photos} onChange={handlePhotosChange} />
           </CardContent>
         </Card>
+
       </main>
 
       {/* Move bullet bottom sheet */}
@@ -651,58 +619,15 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         </div>
       )}
 
-      {/* Discard changes bottom sheet */}
-      {showDiscardConfirm && (
-        <div
-          className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50"
-          onClick={() => setShowDiscardConfirm(false)}
-        >
-          <div
-            className="bg-white rounded-t-3xl px-4 pt-3 pb-10 w-full max-w-lg mx-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Handle */}
-            <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
-            <p className="text-base font-bold text-slate-900 text-center">Discard changes?</p>
-            <p className="text-sm text-slate-500 text-center mt-1 mb-6">Your edits won&apos;t be saved.</p>
-            <div className="space-y-3">
-              <button
-                onClick={handleDiscard}
-                className="w-full h-14 rounded-2xl bg-red-500 text-base font-bold text-white active:bg-red-600 transition-colors"
-              >
-                Discard
-              </button>
-              <button
-                onClick={() => setShowDiscardConfirm(false)}
-                className="w-full h-14 rounded-2xl bg-slate-100 text-base font-semibold text-slate-700 active:bg-slate-200 transition-colors"
-              >
-                Keep editing
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Sticky footer */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
+      {/* Sticky footer — Preview always available */}
+      <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer">
-          {!isUngenerated && (
-            <p className={cn(
-              "text-center text-xs mb-2 font-medium transition-colors",
-              allVerified ? "text-orange-500" : "text-slate-400"
-            )}>
-              {allVerified
-                ? "All sections verified — ready to export"
-                : `${verifiedCount} of ${SECTION_KEYS.length} sections verified`}
-            </p>
-          )}
           <button
             onClick={handlePreview}
-            disabled={!allVerified}
-            className="w-full h-14 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 transition-colors disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-md shadow-orange-200/50"
+            className="w-full h-14 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-md shadow-orange-200/50 transition-colors"
           >
+            Preview
             <Eye className="w-5 h-5" />
-            Save & Preview
           </button>
         </div>
       </div>

@@ -22,10 +22,7 @@ import {
   upsertCustomerFromJob,
 } from "@/lib/storage";
 
-type Screen = "dashboard" | "reports" | "customers" | "customer-select" | "customer-profile" | "new-report" | "editor" | "preview" | "settings";
-
-// Screens where the bottom nav is visible (no conflicting sticky footers)
-const BOTTOM_NAV_SCREENS: Screen[] = ["dashboard", "reports", "customers"];
+type Screen = "dashboard" | "reports" | "customers" | "customer-profile" | "new-report" | "editor" | "preview" | "settings";
 
 function getActiveSection(screen: Screen): ActiveSection {
   if (screen === "reports") return "reports";
@@ -36,21 +33,45 @@ function getActiveSection(screen: Screen): ActiveSection {
 
 export default function Home() {
   const [screen, setScreen] = useState<Screen>("dashboard");
+  const [navStack, setNavStack] = useState<Screen[]>([]);
   const [activeReport, setActiveReport] = useState<ServiceReport | null>(null);
   const [isNewReport, setIsNewReport] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [activeCustomer, setActiveCustomer] = useState<Customer | null>(null);
   const [reportsFilter, setReportsFilter] = useState<ReportsFilter>("all");
 
+  // ── Navigation helpers ────────────────────────────────────────────────────────
+
+  // Forward — records where we came from so back knows where to return.
+  function pushScreen(to: Screen) {
+    setNavStack(prev => [...prev, screen]);
+    setScreen(to);
+  }
+
+  // Back — returns to wherever we came from, or dashboard if the stack is empty.
+  function popScreen() {
+    const destination = navStack[navStack.length - 1] ?? "dashboard";
+    setNavStack(prev => prev.slice(0, -1));
+    setScreen(destination);
+  }
+
+  // Top-level — clears history. Used by nav tabs and "Done / Save" actions.
+  function goToScreen(to: Screen) {
+    setNavStack([]);
+    setScreen(to);
+  }
+
+  // ── Screen handlers ───────────────────────────────────────────────────────────
+
   function handleNewReport() {
     setActiveReport(null);
     setSelectedCustomer(null);
-    setScreen("customer-select");
+    pushScreen("new-report");
   }
 
   function handleOpenReports(filter: ReportsFilter = "all") {
     setReportsFilter(filter);
-    setScreen("reports");
+    goToScreen("reports");
   }
 
   function handleOpenReport(report: ServiceReport) {
@@ -61,7 +82,7 @@ export default function Home() {
     setIsNewReport(false);
     // Completed reports land on Preview (formatted view + download).
     // Drafts land in the Editor to continue working.
-    setScreen(report.status === "complete" ? "preview" : "editor");
+    pushScreen(report.status === "complete" ? "preview" : "editor");
   }
 
   // Shared helper: POST to /api/generate-report and return the GeneratedReport.
@@ -117,6 +138,8 @@ export default function Home() {
     clearDraft();
     setActiveReport(report);
     setIsNewReport(true);
+    // Replace the new-report screen with the editor — don't push so that back
+    // from the editor returns to wherever the user was before starting the form.
     setScreen("editor");
   }
 
@@ -126,7 +149,7 @@ export default function Home() {
 
   function handlePreview(report: ServiceReport) {
     setActiveReport(report);
-    setScreen("preview");
+    pushScreen("preview");
   }
 
   function handleSaveSettings(profile: BusinessProfile) {
@@ -135,31 +158,28 @@ export default function Home() {
     if (activeReport) {
       setActiveReport({ ...activeReport, business: profile });
     }
-    setScreen("dashboard");
+    goToScreen("dashboard");
   }
 
   return (
     <>
       <Sidebar
         activeSection={getActiveSection(screen)}
-        onDashboard={() => setScreen("dashboard")}
-        onNewReport={handleNewReport}
+        onDashboard={() => goToScreen("dashboard")}
         onReports={() => handleOpenReports("all")}
-        onCustomers={() => setScreen("customers")}
-        onSettings={() => setScreen("settings")}
+        onCustomers={() => goToScreen("customers")}
+        onSettings={() => goToScreen("settings")}
       />
 
-      {/* Bottom nav — mobile only, visible on top-level screens without sticky footer conflicts */}
-      {BOTTOM_NAV_SCREENS.includes(screen) && (
-        <BottomNav
-          activeSection={getActiveSection(screen)}
-          onDashboard={() => setScreen("dashboard")}
-          onReports={() => handleOpenReports("all")}
-          onNewReport={handleNewReport}
-          onCustomers={() => setScreen("customers")}
-          onSettings={() => setScreen("settings")}
-        />
-      )}
+      {/* Bottom nav — mobile only, always visible (sticky footers use .above-nav to float above it) */}
+      <BottomNav
+        activeSection={getActiveSection(screen)}
+        onDashboard={() => goToScreen("dashboard")}
+        onReports={() => handleOpenReports("all")}
+        onNewReport={handleNewReport}
+        onCustomers={() => goToScreen("customers")}
+        onSettings={() => goToScreen("settings")}
+      />
 
       {/* Content — offset right of sidebar on desktop */}
       <div className="lg:pl-60">
@@ -168,7 +188,7 @@ export default function Home() {
         <Dashboard
           onNewReport={handleNewReport}
           onOpenReport={handleOpenReport}
-          onSettings={() => setScreen("settings")}
+          onSettings={() => goToScreen("settings")}
           onReports={handleOpenReports}
         />
       )}
@@ -180,33 +200,18 @@ export default function Home() {
         />
       )}
 
-      {/* Customer picker for starting a new job — tapping a customer goes straight to the form */}
-      {screen === "customer-select" && (
-        <CustomerSelectScreen
-          onBack={() => setScreen("dashboard")}
-          onSelectCustomer={(customer) => {
-            setSelectedCustomer(customer);
-            setScreen("new-report");
-          }}
-          onNewCustomer={() => {
-            setSelectedCustomer(null);
-            setScreen("new-report");
-          }}
-        />
-      )}
-
       {/* Standalone customer management — accessed from the sidebar/bottom nav */}
       {screen === "customers" && (
         <CustomerSelectScreen
           standalone
-          onBack={() => setScreen("dashboard")}
+          onBack={() => goToScreen("dashboard")}
           onSelectCustomer={(customer) => {
             setActiveCustomer(customer);
-            setScreen("customer-profile");
+            pushScreen("customer-profile");
           }}
           onNewCustomer={() => {
             setSelectedCustomer(null);
-            setScreen("new-report");
+            pushScreen("new-report");
           }}
         />
       )}
@@ -214,10 +219,10 @@ export default function Home() {
       {screen === "customer-profile" && activeCustomer && (
         <CustomerProfile
           customer={activeCustomer}
-          onBack={() => setScreen("customers")}
+          onBack={popScreen}
           onStartJob={(customer) => {
             setSelectedCustomer(customer);
-            setScreen("new-report");
+            pushScreen("new-report");
           }}
           onOpenReport={handleOpenReport}
           onCustomerUpdated={(updated) => setActiveCustomer(updated)}
@@ -227,9 +232,9 @@ export default function Home() {
       {screen === "new-report" && (
         <NewReportForm
           initialCustomer={selectedCustomer}
-          onBack={() => { clearDraft(); setScreen("dashboard"); }}
+          onBack={() => { clearDraft(); popScreen(); }}
           onGenerate={handleGenerate}
-          onSaveForLater={() => setScreen("dashboard")}
+          onSaveForLater={() => goToScreen("dashboard")}
         />
       )}
 
@@ -237,7 +242,7 @@ export default function Home() {
         <ReportEditor
           report={activeReport}
           isNewReport={isNewReport}
-          onBack={() => setScreen("dashboard")}
+          onBack={popScreen}
           onPreview={handlePreview}
           onRegenerate={handleRegenerate}
         />
@@ -247,16 +252,16 @@ export default function Home() {
         <ReportPreview
           report={activeReport}
           isNewReport={isNewReport}
-          onBack={isNewReport ? () => setScreen("editor") : () => setScreen("dashboard")}
-          onEdit={() => setScreen("editor")}
-          onDone={() => setScreen("dashboard")}
+          onBack={popScreen}
+          onEdit={() => pushScreen("editor")}
+          onDone={() => goToScreen("dashboard")}
         />
       )}
 
       {screen === "settings" && (
         <BrandingSettings
           profile={getBusinessProfile()}
-          onBack={() => setScreen("dashboard")}
+          onBack={() => goToScreen("dashboard")}
           onSave={handleSaveSettings}
         />
       )}

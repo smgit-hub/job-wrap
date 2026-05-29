@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { ChevronLeft, CheckCircle2, Upload, X, Palette, LogOut } from "lucide-react";
+import { CheckCircle2, Upload, X, Palette, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -93,20 +93,11 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-      <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-32 space-y-5">
+      <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-52 lg:pb-32 space-y-5">
 
         {/* Page title */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={onBack}
-              className="lg:hidden w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 active:bg-slate-100 transition-colors"
-              aria-label="Back"
-            >
-              <ChevronLeft className="w-5 h-5 text-slate-600" />
-            </button>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Business Settings</h1>
-          </div>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Business Settings</h1>
           {saved && (
             <span className="text-sm text-green-600 flex items-center gap-1.5 font-semibold">
               <CheckCircle2 className="w-4 h-4" /> Saved
@@ -322,7 +313,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
       </main>
 
       {/* Sticky Save button */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
+      <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer">
           <button
             onClick={handleSave}

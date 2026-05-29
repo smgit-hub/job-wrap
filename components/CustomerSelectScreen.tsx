@@ -111,7 +111,7 @@ export default function CustomerSelectScreen({
     const isNew = mode === "new";
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-        <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-32 space-y-4">
+        <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-52 lg:pb-32 space-y-4">
 
           {/* Page title */}
           <div className="flex items-center gap-3">
@@ -231,7 +231,7 @@ export default function CustomerSelectScreen({
         </main>
 
         {/* Footer actions */}
-        <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
+        <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
           <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer space-y-2">
             {/* Standalone edit: Start job is the primary CTA */}
             {!isNew && standalone && (
@@ -267,14 +267,7 @@ export default function CustomerSelectScreen({
       <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 space-y-3">
 
         {/* Page title */}
-        <div className="flex items-center gap-3 pb-1">
-          <button
-            onClick={onBack}
-            className="lg:hidden w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 active:bg-slate-100 transition-colors"
-            aria-label="Back"
-          >
-            <ChevronLeft className="w-5 h-5 text-slate-600" />
-          </button>
+        <div className="pb-1">
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Customers</h1>
         </div>
 

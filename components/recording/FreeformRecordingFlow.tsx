@@ -119,7 +119,7 @@ export default function FreeformRecordingFlow({
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       {/* ── Header ── */}
       {/* ── Main ── */}
-      <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-28 flex flex-col gap-4">
+      <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-48 lg:pb-28 flex flex-col gap-4">
 
         {/* Page title */}
         <div className="flex items-center gap-3">
@@ -267,7 +267,7 @@ export default function FreeformRecordingFlow({
       )}
 
       {/* ── Sticky footer ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
+      <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer">
           <button
             onClick={handleDone}

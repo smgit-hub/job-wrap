@@ -123,6 +123,9 @@
     /* Remove iOS blue tap flash on buttons/links */
     -webkit-tap-highlight-color: transparent;
   }
+  button, [role="button"], label[for], select {
+    cursor: pointer;
+  }
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
@@ -178,6 +181,19 @@
   /* Sticky footer wrapper — adds safe area + consistent inner spacing */
   .sticky-footer {
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
+  }
+
+  /* Positions a fixed footer above the mobile bottom nav.
+     The nav's visible content height is ~58px (icon + label + inner padding);
+     safe-area is handled by the nav itself so we offset by both here.
+     Resets to bottom-0 on desktop where the nav is hidden. */
+  .above-nav {
+    bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+  }
+  @media (min-width: 1024px) {
+    .above-nav {
+      bottom: 0;
+    }
   }
 
   /* Screen-level fade-in — applied to top-level screen containers */

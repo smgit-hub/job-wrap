@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { ChevronLeft, CheckCircle2, Loader2, AlertCircle, Share2, Copy, Mail, Download, Save, Link } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ChevronLeft, CheckCircle2, Loader2, AlertCircle, Mail, Download, Link, Pencil } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 import type { ServiceReport, JobPhoto } from "@/types/report";
@@ -86,41 +86,63 @@ function BulletSection({ text }: { text: string }) {
   );
 }
 
+const TILE_CLASS = "flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-slate-100 active:bg-slate-200 transition-colors";
+
+function ActionTile({
+  icon,
+  label,
+  onClick,
+  disabled = false,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick: () => void;
+  disabled?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`${TILE_CLASS} disabled:opacity-50`}
+    >
+      {icon}
+      <span className="text-xs font-semibold text-slate-600 leading-none">{label}</span>
+    </button>
+  );
+}
+
+function EmailTile({ icon, label, href }: { icon: React.ReactNode; label: string; href: string }) {
+  return (
+    <a href={href} className={TILE_CLASS}>
+      {icon}
+      <span className="text-xs font-semibold text-slate-600 leading-none">{label}</span>
+    </a>
+  );
+}
+
 export default function ReportPreview({ report, isNewReport, onBack, onEdit, onDone }: ReportPreviewProps) {
   const { business, job, report: rpt } = report;
   const HEADER_COLOR = business.brandColor || "#0f172a";
 
   const [exportState, setExportState] = useState<ExportState>("idle");
   const [exportError, setExportError] = useState<string | null>(null);
-  const [canShare, setCanShare] = useState(false);
-  const [copied, setCopied] = useState(false);
   const [linkState, setLinkState] = useState<"idle" | "generating" | "copied" | "error">("idle");
   const [photos, setPhotos] = useState<JobPhoto[]>([]);
 
+  // Pre-compute mailto href — capped so the OS always opens the mail app
+  const emailHref = (() => {
+    const subject = encodeURIComponent(`Service Report – ${job.customerName || business.businessName}`);
+    const plainText = buildPlainText(report);
+    const body = encodeURIComponent(
+      plainText.length > 800 ? plainText.slice(0, 800) + "\n\n[full report attached as PDF]" : plainText
+    );
+    return `mailto:?subject=${subject}&body=${body}`;
+  })();
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCanShare(typeof navigator !== "undefined" && typeof navigator.share === "function");
     setPhotos(getPhotosForReport(report.id));
   }, [report.id]);
-
-  async function handleShare() {
-    if (!canShare) return;
-    try {
-      await navigator.share({ title: "Service Report", text: buildPlainText(report) });
-    } catch {
-      // User dismissed
-    }
-  }
-
-  async function handleCopyText() {
-    try {
-      await navigator.clipboard.writeText(buildPlainText(report));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      // Clipboard not available
-    }
-  }
 
   async function handleCopyLink() {
     if (linkState === "generating") return;
@@ -142,11 +164,6 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
     }
   }
 
-  function handleEmail() {
-    const subject = encodeURIComponent("Service Report");
-    const body = encodeURIComponent(buildPlainText(report));
-    window.open(`mailto:?subject=${subject}&body=${body}`);
-  }
 
   async function handleExportPdf() {
     if (exportState === "generating") return;
@@ -201,26 +218,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex-1">Service Report</h1>
-          <div className="flex items-center gap-2">
-            {!isNewReport && (
-              <button
-                onClick={onEdit}
-                className="h-9 px-4 rounded-xl text-sm font-semibold text-slate-600 bg-white shadow-sm hover:bg-slate-50 active:bg-slate-100 transition-colors"
-              >
-                Edit
-              </button>
-            )}
-            {canShare && (
-              <button
-                onClick={handleShare}
-                className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center hover:bg-slate-50 active:bg-slate-100 transition-colors"
-                aria-label="Share"
-              >
-                <Share2 className="w-4 h-4 text-slate-600" />
-              </button>
-            )}
-          </div>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Service Report</h1>
         </div>
         {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={4} />}
         {/* ── Report card ── */}
@@ -364,80 +362,77 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
       </main>
 
       {/* ── Sticky action bar ── */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 bg-white border-t border-slate-100">
-        <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer space-y-2.5">
-          {/* Secondary actions — 2×2 grid */}
-          <div className="grid grid-cols-2 gap-2">
-            {/* Copy Link */}
-            <button
-              onClick={handleCopyLink}
-              disabled={linkState === "generating"}
-              className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-slate-50 border border-slate-100 active:bg-slate-100 transition-colors disabled:opacity-50"
-            >
-              {linkState === "generating" ? (
-                <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
-              ) : linkState === "copied" ? (
-                <CheckCircle2 className="w-5 h-5 text-green-500" />
-              ) : linkState === "error" ? (
-                <AlertCircle className="w-5 h-5 text-red-400" />
-              ) : (
-                <Link className="w-5 h-5 text-slate-500" />
-              )}
-              <span className="text-xs font-semibold text-slate-600">
-                {linkState === "generating" ? "Creating…" : linkState === "copied" ? "Link Copied!" : linkState === "error" ? "Failed" : "Copy Link"}
-              </span>
-            </button>
+      <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
+        <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer space-y-2">
 
-            {/* Copy Text */}
-            <button
-              onClick={handleCopyText}
-              className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-slate-50 border border-slate-100 active:bg-slate-100 transition-colors"
-            >
-              {copied
-                ? <CheckCircle2 className="w-5 h-5 text-green-500" />
-                : <Copy className="w-5 h-5 text-slate-500" />
-              }
-              <span className="text-xs font-semibold text-slate-600">
-                {copied ? "Copied!" : "Copy Text"}
-              </span>
-            </button>
+          {isNewReport ? (
+            /* New report — PDF is primary, Email + Copy Link secondary, Done is quiet */
+            <>
+              <button
+                onClick={handleExportPdf}
+                disabled={exportState === "generating"}
+                className="w-full h-14 rounded-2xl text-base font-bold text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:opacity-60 transition-colors shadow-md shadow-orange-200/50 flex items-center justify-center gap-2"
+              >
+                {exportState === "generating" ? (
+                  <><Loader2 className="w-5 h-5 animate-spin" /> Building PDF…</>
+                ) : exportState === "done" ? (
+                  <><CheckCircle2 className="w-5 h-5" /> PDF Saved!</>
+                ) : (
+                  <><Download className="w-5 h-5" /> Download PDF</>
+                )}
+              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <EmailTile
+                  icon={<Mail className="w-5 h-5 text-slate-500" />}
+                  label="Email"
+                  href={emailHref}
+                />
+                <ActionTile
+                  icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : <Link className="w-5 h-5 text-slate-500" />}
+                  label={linkState === "generating" ? "Creating…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : "Copy Link"}
+                  onClick={handleCopyLink}
+                  disabled={linkState === "generating"}
+                />
+              </div>
+              <button
+                onClick={onDone}
+                className="w-full h-10 text-sm font-semibold text-slate-400 hover:text-slate-600 active:text-slate-800 transition-colors"
+              >
+                Back to dashboard
+              </button>
+            </>
+          ) : (
+            /* Existing report — sharing tiles grouped, Edit separate below */
+            <>
+              <div className="grid grid-cols-3 gap-2">
+                <EmailTile
+                  icon={<Mail className="w-5 h-5 text-slate-500" />}
+                  label="Email"
+                  href={emailHref}
+                />
+                <ActionTile
+                  icon={exportState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : exportState === "done" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Download className="w-5 h-5 text-slate-500" />}
+                  label={exportState === "generating" ? "Building…" : exportState === "done" ? "Saved!" : "PDF"}
+                  onClick={handleExportPdf}
+                  disabled={exportState === "generating"}
+                />
+                <ActionTile
+                  icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : <Link className="w-5 h-5 text-slate-500" />}
+                  label={linkState === "generating" ? "Creating…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : "Copy Link"}
+                  onClick={handleCopyLink}
+                  disabled={linkState === "generating"}
+                />
+              </div>
+              <button
+                onClick={onEdit}
+                className="w-full h-12 rounded-2xl text-sm font-semibold text-slate-700 border border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors flex items-center justify-center gap-2"
+              >
+                <Pencil className="w-4 h-4" />
+                Edit Report
+              </button>
+            </>
+          )}
 
-            {/* Email */}
-            <button
-              onClick={handleEmail}
-              className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-slate-50 border border-slate-100 active:bg-slate-100 transition-colors"
-            >
-              <Mail className="w-5 h-5 text-slate-500" />
-              <span className="text-xs font-semibold text-slate-600">Email</span>
-            </button>
-
-            {/* Print / PDF */}
-            <button
-              onClick={handleExportPdf}
-              disabled={exportState === "generating"}
-              className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-slate-50 border border-slate-100 active:bg-slate-100 transition-colors disabled:opacity-50"
-            >
-              {exportState === "generating" ? (
-                <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
-              ) : exportState === "done" ? (
-                <CheckCircle2 className="w-5 h-5 text-green-500" />
-              ) : (
-                <Download className="w-5 h-5 text-slate-500" />
-              )}
-              <span className="text-xs font-semibold text-slate-600">
-                {exportState === "generating" ? "Building…" : exportState === "done" ? "Downloaded!" : "Download PDF"}
-              </span>
-            </button>
-          </div>
-
-          {/* Primary CTA */}
-          <button
-            onClick={onDone}
-            className="w-full h-14 rounded-2xl text-base font-bold text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700 flex items-center justify-center gap-2 transition-colors shadow-md shadow-orange-200/50"
-          >
-            <Save className="w-5 h-5" />
-            {isNewReport ? "Save Job & Done" : "Done"}
-          </button>
         </div>
       </div>
 
