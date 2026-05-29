@@ -141,28 +141,24 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings }: Das
     const title = isCompleted ? "Completed" : "Drafts";
     return (
       <div className="min-h-screen bg-slate-100 animate-screen-enter">
-        {/* Folder header */}
-        <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
-          <div className="max-w-lg lg:max-w-4xl mx-auto px-4 py-3 flex items-center">
+        <main className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-10 lg:pt-8 pb-28 lg:pb-10 space-y-5">
+
+          {/* Page title */}
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setView("dashboard")}
-              className="w-9 h-9 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 active:bg-slate-200 transition-colors"
+              className="w-9 h-9 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 hover:bg-slate-50 active:bg-slate-100 transition-colors"
               aria-label="Back"
             >
               <ChevronLeft className="w-5 h-5 text-slate-600" />
             </button>
-            <div className="flex-1 flex items-center gap-2 ml-3">
-              <span className="font-bold text-slate-900">{title}</span>
-              <span className="bg-slate-900 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full leading-none">
-                {folderJobs.length}
-              </span>
-            </div>
+            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex-1">{title}</h1>
+            <span className="bg-slate-900 text-white text-[11px] font-bold px-2 py-1 rounded-full leading-none shrink-0">
+              {folderJobs.length}
+            </span>
           </div>
-        </header>
-
-        <main className="max-w-lg lg:max-w-4xl mx-auto px-4 py-5 pb-28 lg:pb-10">
           {folderJobs.length === 0 ? (
-            <div className="bg-white rounded-2xl p-10 text-center shadow-card mt-2">
+            <div className="bg-white rounded-2xl p-10 text-center shadow-card">
               <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
                 <FileText className="w-7 h-7 text-slate-300" />
               </div>
@@ -176,7 +172,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings }: Das
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 lg:gap-3 mt-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 lg:gap-3">
               {folderJobs.map((report) => (
                 <JobCard
                   key={report.id}
