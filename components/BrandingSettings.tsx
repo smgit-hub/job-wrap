@@ -307,9 +307,9 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
 
         <p className="text-center text-xs text-slate-400">Settings saved on this device</p>
 
-        {/* Sign out — mobile only (desktop uses sidebar) */}
+        {/* Sign out */}
         {user && (
-          <div className="lg:hidden pt-2 pb-4">
+          <div className="pt-2 pb-4">
             <button
               onClick={async () => { await signOut(); window.location.href = "/login"; }}
               className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-medium text-slate-400 border border-slate-200 hover:bg-slate-50 hover:text-slate-600 active:bg-slate-100 transition-colors"
