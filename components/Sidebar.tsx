@@ -1,32 +1,35 @@
 "use client";
 
-import { ClipboardCheck, Plus, LayoutDashboard, Users, Settings, LogOut } from "lucide-react";
+import { ClipboardCheck, Plus, LayoutDashboard, FileText, Users, Settings, LogOut } from "lucide-react";
 import { getBusinessProfile } from "@/lib/storage";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
 
-export type ActiveSection = "dashboard" | "customers" | "settings";
+export type ActiveSection = "dashboard" | "reports" | "customers" | "settings";
 
 interface SidebarProps {
   activeSection: ActiveSection;
   onDashboard: () => void;
   onNewReport: () => void;
+  onReports: () => void;
   onCustomers: () => void;
   onSettings: () => void;
 }
 
 const NAV_ITEMS = [
   { id: "dashboard" as ActiveSection, label: "Dashboard", icon: LayoutDashboard },
-  { id: "customers" as ActiveSection, label: "Customers",  icon: Users },
-  { id: "settings"  as ActiveSection, label: "Settings",   icon: Settings },
+  { id: "reports"   as ActiveSection, label: "Reports",   icon: FileText },
+  { id: "customers" as ActiveSection, label: "Customers", icon: Users },
+  { id: "settings"  as ActiveSection, label: "Settings",  icon: Settings },
 ] as const;
 
-export default function Sidebar({ activeSection, onDashboard, onNewReport, onCustomers, onSettings }: SidebarProps) {
+export default function Sidebar({ activeSection, onDashboard, onNewReport, onReports, onCustomers, onSettings }: SidebarProps) {
   const profile = getBusinessProfile();
   const { isConfigured, signOut } = useAuth();
 
   const handlers: Record<ActiveSection, () => void> = {
     dashboard: onDashboard,
+    reports:   onReports,
     customers: onCustomers,
     settings:  onSettings,
   };

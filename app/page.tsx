@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Dashboard from "@/components/Dashboard";
+import Reports from "@/components/Reports";
+import type { ReportsFilter } from "@/components/Reports";
 import NewReportForm from "@/components/NewReportForm";
 import ReportEditor from "@/components/ReportEditor";
 import ReportPreview from "@/components/ReportPreview";
@@ -20,9 +22,13 @@ import {
   upsertCustomerFromJob,
 } from "@/lib/storage";
 
-type Screen = "dashboard" | "customers" | "customer-select" | "customer-profile" | "new-report" | "editor" | "preview" | "settings";
+type Screen = "dashboard" | "reports" | "customers" | "customer-select" | "customer-profile" | "new-report" | "editor" | "preview" | "settings";
+
+// Screens where the bottom nav is visible (no conflicting sticky footers)
+const BOTTOM_NAV_SCREENS: Screen[] = ["dashboard", "reports", "customers"];
 
 function getActiveSection(screen: Screen): ActiveSection {
+  if (screen === "reports") return "reports";
   if (screen === "customers" || screen === "customer-profile") return "customers";
   if (screen === "settings") return "settings";
   return "dashboard";
@@ -34,11 +40,17 @@ export default function Home() {
   const [isNewReport, setIsNewReport] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [activeCustomer, setActiveCustomer] = useState<Customer | null>(null);
+  const [reportsFilter, setReportsFilter] = useState<ReportsFilter>("all");
 
   function handleNewReport() {
     setActiveReport(null);
     setSelectedCustomer(null);
     setScreen("customer-select");
+  }
+
+  function handleOpenReports(filter: ReportsFilter = "all") {
+    setReportsFilter(filter);
+    setScreen("reports");
   }
 
   function handleOpenReport(report: ServiceReport) {
@@ -132,15 +144,17 @@ export default function Home() {
         activeSection={getActiveSection(screen)}
         onDashboard={() => setScreen("dashboard")}
         onNewReport={handleNewReport}
+        onReports={() => handleOpenReports("all")}
         onCustomers={() => setScreen("customers")}
         onSettings={() => setScreen("settings")}
       />
 
-      {/* Bottom nav — mobile only, dashboard screen only (avoids sticky-footer conflicts) */}
-      {screen === "dashboard" && (
+      {/* Bottom nav — mobile only, visible on top-level screens without sticky footer conflicts */}
+      {BOTTOM_NAV_SCREENS.includes(screen) && (
         <BottomNav
           activeSection={getActiveSection(screen)}
           onDashboard={() => setScreen("dashboard")}
+          onReports={() => handleOpenReports("all")}
           onNewReport={handleNewReport}
           onCustomers={() => setScreen("customers")}
           onSettings={() => setScreen("settings")}
@@ -155,6 +169,14 @@ export default function Home() {
           onNewReport={handleNewReport}
           onOpenReport={handleOpenReport}
           onSettings={() => setScreen("settings")}
+          onReports={handleOpenReports}
+        />
+      )}
+
+      {screen === "reports" && (
+        <Reports
+          initialFilter={reportsFilter}
+          onOpenReport={handleOpenReport}
         />
       )}
 
@@ -173,7 +195,7 @@ export default function Home() {
         />
       )}
 
-      {/* Standalone customer management — accessed from the dashboard Customers button or header icon */}
+      {/* Standalone customer management — accessed from the sidebar/bottom nav */}
       {screen === "customers" && (
         <CustomerSelectScreen
           standalone
