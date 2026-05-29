@@ -94,7 +94,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       {/* Header */}
-      <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
+      <header className="lg:hidden bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
         <div className="max-w-lg lg:max-w-2xl mx-auto px-4 py-3 flex items-center">
           <button
             onClick={onBack}
@@ -115,6 +115,16 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
       </header>
 
       <main className="flex-1 max-w-lg lg:max-w-2xl mx-auto w-full px-4 py-6 pb-32 space-y-5">
+
+        {/* Desktop page title */}
+        <div className="hidden lg:flex items-center justify-between">
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Business Settings</h1>
+          {saved && (
+            <span className="text-sm text-green-600 flex items-center gap-1.5 font-semibold">
+              <CheckCircle2 className="w-4 h-4" /> Saved
+            </span>
+          )}
+        </div>
         {/* Live preview */}
         <div
           className="rounded-2xl p-5 text-white transition-all shadow-md"
