@@ -198,54 +198,56 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
   // ── Main dashboard ─────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-100 animate-screen-enter">
-      {/* Dark header */}
-      <header className="bg-slate-900">
-        <div className="max-w-lg mx-auto px-4 flex items-center justify-between py-4">
+      {/* Header */}
+      <header className="bg-white border-b border-slate-100 sticky top-0 z-10 shrink-0">
+        <div className="max-w-lg mx-auto px-4 flex items-center justify-between py-3">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center">
-              <ClipboardCheck className="w-6 h-6 text-white" />
+            <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center">
+              <ClipboardCheck className="w-5 h-5 text-orange-500" />
             </div>
             <div>
-              <p className="text-base font-bold text-white leading-tight tracking-tight">JobWrap</p>
-              <p className="text-xs text-white/40 leading-tight">{profile.businessName}</p>
+              <p className="text-sm font-bold text-slate-900 leading-tight tracking-tight">JobWrap</p>
+              {profile.businessName && (
+                <p className="text-xs text-slate-400 leading-tight">{profile.businessName}</p>
+              )}
             </div>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
             <button
               onClick={onCustomers}
-              className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center active:bg-white/20 transition-colors"
+              className="w-9 h-9 rounded-xl flex items-center justify-center active:bg-slate-100 transition-colors"
               aria-label="Customers"
             >
-              <Users className="w-4 h-4 text-white/70" />
+              <Users className="w-4 h-4 text-slate-400" />
             </button>
             <button
               onClick={onSettings}
-              className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center active:bg-white/20 transition-colors"
+              className="w-9 h-9 rounded-xl flex items-center justify-center active:bg-slate-100 transition-colors"
               aria-label="Settings"
             >
-              <Settings className="w-4 h-4 text-white/70" />
+              <Settings className="w-4 h-4 text-slate-400" />
             </button>
             {user && (
               <button
                 onClick={async () => { await signOut(); window.location.href = "/login"; }}
-                className="w-9 h-9 rounded-xl bg-white/10 flex items-center justify-center active:bg-white/20 transition-colors ml-1"
+                className="w-9 h-9 rounded-xl flex items-center justify-center active:bg-slate-100 transition-colors"
                 aria-label="Sign out"
               >
-                <LogOut className="w-4 h-4 text-white/50" />
+                <LogOut className="w-4 h-4 text-slate-300" />
               </button>
             )}
           </div>
         </div>
       </header>
 
-      <main className="max-w-lg mx-auto px-4 py-6 space-y-5">
+      <main className="max-w-lg mx-auto px-4 pt-5 pb-6 space-y-5">
         {/* Greeting */}
         <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
             {firstName ? `${getGreeting()}, ${firstName}` : `${getGreeting()}!`}
           </h1>
           {!profile.businessName ? (
-            <p className="text-sm text-slate-500 mt-0.5">
+            <p className="text-sm text-slate-500 mt-1">
               To get started,{" "}
               <button onClick={onSettings} className="text-orange-500 font-semibold underline underline-offset-2">
                 fill in your business details
@@ -253,7 +255,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onCus
               {" "}in Settings.
             </p>
           ) : (
-            <p className="text-sm text-slate-500 mt-0.5">Ready to wrap up a job?</p>
+            <p className="text-sm text-slate-500 mt-1">Ready to wrap up a job?</p>
           )}
         </div>
 
