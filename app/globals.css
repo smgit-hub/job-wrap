@@ -183,6 +183,17 @@
     padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 12px);
   }
 
+  /* Bottom padding for sheets/modals that sit above the mobile bottom nav.
+     Adds nav height (58px) + safe-area inset so content is never hidden. */
+  .pb-above-nav {
+    padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px) + 1rem);
+  }
+  @media (min-width: 1024px) {
+    .pb-above-nav {
+      padding-bottom: 2.5rem;
+    }
+  }
+
   /* Positions a fixed footer above the mobile bottom nav.
      The nav's visible content height is ~58px (icon + label + inner padding);
      safe-area is handled by the nav itself so we offset by both here.

@@ -588,7 +588,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
           onClick={() => setMovingBullet(null)}
         >
           <div
-            className="bg-white rounded-t-3xl px-4 pt-3 pb-10 w-full max-w-lg mx-auto"
+            className="bg-white rounded-t-3xl px-4 pt-3 pb-above-nav w-full max-w-lg mx-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
