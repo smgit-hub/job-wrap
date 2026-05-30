@@ -89,9 +89,8 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
       <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full px-6 py-12">
         {/* Logo */}
         <div className="flex items-center gap-2.5 mb-10">
-          <div className="w-10 h-10 rounded-xl bg-slate-900 flex items-center justify-center">
-            <ClipboardCheck className="w-5 h-5 text-white" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icons/icon-192.png" alt="JobWrap" className="w-10 h-10 rounded-xl shrink-0 object-cover" />
           <span className="text-2xl font-bold text-slate-900">JobWrap</span>
         </div>
 
