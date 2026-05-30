@@ -536,25 +536,25 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
             </div>
 
             {/* Date / Next Service */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="min-w-0 overflow-hidden space-y-1.5">
+            <div className="flex gap-3">
+              <div className="flex-1 min-w-0 space-y-1.5">
                 <Label htmlFor="jobDate" className="text-slate-500">Job Date</Label>
-                <Input
+                <input
                   id="jobDate"
                   type="date"
                   value={job.jobDate}
                   onChange={(e) => setJob((prev) => ({ ...prev, jobDate: e.target.value }))}
-                  className="h-11 text-base bg-slate-50 border-slate-200"
+                  className="h-11 w-full max-w-full block rounded-xl border border-slate-200 bg-slate-50 px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-300"
                 />
               </div>
-              <div className="min-w-0 overflow-hidden space-y-1.5">
+              <div className="flex-1 min-w-0 space-y-1.5">
                 <Label htmlFor="jobNextService" className="text-slate-500">Next Service</Label>
-                <Input
+                <input
                   id="jobNextService"
                   type="date"
                   value={job.nextServiceDate ?? ""}
                   onChange={(e) => setJob((prev) => ({ ...prev, nextServiceDate: e.target.value }))}
-                  className="h-11 text-base bg-slate-50 border-slate-200"
+                  className="h-11 w-full max-w-full block rounded-xl border border-slate-200 bg-slate-50 px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-300"
                 />
               </div>
             </div>
