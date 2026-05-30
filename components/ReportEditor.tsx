@@ -439,25 +439,25 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             </div>
 
             {/* Date / Next Service */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
+            <div className="flex">
+              <div className="w-1/2 pr-1.5 min-w-0 overflow-hidden space-y-1.5">
                 <Label htmlFor="ed-date">Date</Label>
-                <Input
+                <input
                   id="ed-date"
                   type="date"
                   value={draft.job.jobDate}
                   onChange={(e) => updateJobField("jobDate", e.target.value)}
-                  className="h-11 text-base"
+                  className="h-11 w-full max-w-full block rounded-xl border border-slate-200 bg-slate-50 px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-300"
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="w-1/2 pl-1.5 min-w-0 overflow-hidden space-y-1.5">
                 <Label htmlFor="ed-next-service">Next Service</Label>
-                <Input
+                <input
                   id="ed-next-service"
                   type="date"
                   value={draft.job.nextServiceDate ?? ""}
                   onChange={(e) => updateJobField("nextServiceDate", e.target.value)}
-                  className="h-11 text-base"
+                  className="h-11 w-full max-w-full block rounded-xl border border-slate-200 bg-slate-50 px-3 text-base text-slate-900 focus:outline-none focus:ring-2 focus:ring-orange-300"
                 />
               </div>
             </div>
