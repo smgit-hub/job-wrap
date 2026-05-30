@@ -194,6 +194,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
   }
 
   return (
+    <>
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-52 lg:pb-32 space-y-4">
 
@@ -580,6 +581,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         </Card>
 
       </main>
+    </div>
 
       {/* Move bullet bottom sheet */}
       {movingBullet && (
@@ -635,6 +637,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 }

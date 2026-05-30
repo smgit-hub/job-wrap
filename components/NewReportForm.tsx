@@ -312,6 +312,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
 
   // ── Step: Customer Setup ─────────────────────────────────────────────────────
   return (
+    <>
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-52 lg:pb-32 space-y-5">
 
@@ -559,6 +560,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
           </div>
         </div>
       </main>
+    </div>
 
       {/* Discard changes bottom sheet */}
       {showDiscardConfirm && (
@@ -616,6 +618,6 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 }
