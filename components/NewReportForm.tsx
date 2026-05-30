@@ -536,8 +536,8 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
             </div>
 
             {/* Date / Next Service */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="space-y-1.5">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="min-w-0 overflow-hidden space-y-1.5">
                 <Label htmlFor="jobDate" className="text-slate-500">Job Date</Label>
                 <Input
                   id="jobDate"
@@ -547,7 +547,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                   className="h-11 text-base bg-slate-50 border-slate-200"
                 />
               </div>
-              <div className="space-y-1.5">
+              <div className="min-w-0 overflow-hidden space-y-1.5">
                 <Label htmlFor="jobNextService" className="text-slate-500">Next Service</Label>
                 <Input
                   id="jobNextService"
