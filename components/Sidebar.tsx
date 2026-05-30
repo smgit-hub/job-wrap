@@ -46,7 +46,7 @@ export default function Sidebar({ activeSection, onDashboard, onReports, onCusto
           <img
             src="/icons/icon-192.png"
             alt="JobWrap"
-            className="w-8 h-8 rounded-xl shrink-0 object-cover"
+            className="w-10 h-10 rounded-xl shrink-0 object-cover"
           />
           <div className="min-w-0">
             <p className="text-sm font-bold text-slate-900 leading-tight">JobWrap</p>
