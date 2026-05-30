@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardCheck, LayoutDashboard, FileText, Users, Settings, LogOut } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Settings, LogOut } from "lucide-react";
 import { getBusinessProfile } from "@/lib/storage";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
@@ -42,9 +42,12 @@ export default function Sidebar({ activeSection, onDashboard, onReports, onCusto
           onClick={onDashboard}
           className="flex items-center gap-2.5 w-full text-left rounded-xl px-1 py-1 -mx-1 hover:bg-slate-50 active:bg-slate-100 transition-colors"
         >
-          <div className="w-9 h-9 rounded-xl bg-orange-50 flex items-center justify-center shrink-0">
-            <ClipboardCheck className="w-5 h-5 text-orange-500" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/icons/icon-192.png"
+            alt="JobWrap"
+            className="w-9 h-9 rounded-xl shrink-0 object-cover"
+          />
           <div className="min-w-0">
             <p className="text-sm font-bold text-slate-900 leading-tight">JobWrap</p>
             {profile.businessName && (
