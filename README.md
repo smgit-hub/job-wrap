@@ -286,6 +286,47 @@ types/
 
 ---
 
+## Security
+
+### Environment variables
+
+- **Never commit `.env.local`** — it is gitignored via `.env*`. Use `.env.local.example` as the reference template.
+- `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, and `GOOGLE_GENERATIVE_AI_API_KEY` are **server-only** — they have no `NEXT_PUBLIC_` prefix and are never sent to the browser.
+- `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are intentionally public — they are the project URL and the Supabase *anon* key (scoped to Row Level Security policies).
+- **Never set `BYPASS_AUTH=true` in production** — the middleware will throw a runtime error if you do.
+
+### Supabase RLS
+
+Row Level Security is enabled on all tables (`profiles`, `business_settings`, `reports`). Users can only read and write their own rows via `auth.uid() = user_id`. The `shared_reports` table is intentionally public-read (the token is the credential).
+
+See `supabase/migrations/` for the full policy definitions.
+
+### Deployment checklist
+
+Before deploying to production:
+
+- [ ] Rotate any API keys that were ever in `.env.local` during development
+- [ ] Confirm `BYPASS_AUTH` is **not** set in the production environment
+- [ ] Run `supabase/migrations/` in order against your production Supabase project
+- [ ] Verify RLS policies are enabled in Supabase Dashboard → Table Editor → RLS
+- [ ] Add rate limiting to `/api/generate-report`, `/api/export-pdf`, and `/api/share-report` (e.g. [Upstash Rate Limit](https://upstash.com/docs/redis/sdks/ratelimit-ts/overview))
+- [ ] Add a `Content-Security-Policy` header in `next.config.ts` (there is a TODO comment there)
+- [ ] Remove or gate sample data seeding (`lib/storage.ts → seedSampleData`) for real production installs
+
+### Dependency audit notes
+
+- `npm audit` reports 2 moderate vulnerabilities in `postcss < 8.5.10` via `next@16.2.6`. This is a transitive build-time dependency bundled inside Next.js itself; `npm audit fix --force` would downgrade Next.js to v9 (a breaking change). This is a known issue tracked in the Next.js repository — watch for a patched Next.js release and upgrade when available. The vulnerability (XSS via `</style>` in CSS stringify output) affects build output, not runtime request handling.
+
+### Known limitations / TODOs
+
+- **No rate limiting** on API routes — must be added before public launch (TODO comments in each route)
+- **Shared report links never expire** — no `expires_at` column yet; tokens are permanent until the row is deleted
+- **`/api/export-pdf` and `/api/generate-report` have no auth check** — any caller can generate a PDF or call the AI; session validation is a TODO
+- **Photos stored as base64 in localStorage** — suitable for prototype; should migrate to IndexedDB or Supabase Storage for production
+- **No Content-Security-Policy** — a TODO comment exists in `next.config.ts`
+
+---
+
 ## Mock data
 
 On first load, three sample HVAC reports are seeded into localStorage:
@@ -295,3 +336,46 @@ On first load, three sample HVAC reports are seeded into localStorage:
 - **James & Rachel Torres** — New Ductless Mini-Split Installation (complete)
 
 Business profile defaults to **Apex Climate Services** (customisable in Settings).
+
+---
+
+## Launch Checklist
+
+### Pre-launch
+- [ ] `npm run build` passes clean
+- [ ] `npx tsc --noEmit` passes clean
+- [ ] `npm run lint` passes clean
+- [ ] `.env.local` populated with real keys (never committed)
+- [ ] Supabase RLS verified on all tables
+- [ ] Auth flows tested (login, signup, logout, session recovery)
+- [ ] AI report generation tested end-to-end
+- [ ] PDF export tested on mobile
+- [ ] Email/Share tested on iOS and Android
+- [ ] PWA install tested (Add to Home Screen)
+- [ ] Mobile QA on iPhone Safari and Android Chrome
+- [ ] AppGild license gate snippet inserted and tested
+- [ ] PWA icons created: `public/icons/icon-192.png`, `public/icons/icon-512.png`, `public/apple-touch-icon.png`
+
+### Known Limitations
+- Photos stored as base64 in localStorage (5 MB browser quota — migrate to Supabase Storage for production)
+- No rate limiting on API routes (add Upstash before public launch)
+- Share links do not expire (add `expires_at` column to `shared_reports` table)
+- `/api/export-pdf` has no auth check (add session validation before public launch)
+- Speech recognition requires Chrome or Safari (Firefox not supported)
+- PDF export requires server-side rendering — offline use not supported
+
+### Future Improvements
+- Migrate photo storage from localStorage to Supabase Storage
+- Add rate limiting to all API routes (Upstash recommended)
+- Add share link expiry and revocation
+- Add push notifications for upcoming service reminders
+- Add customer email field to report sharing flow
+- Multi-technician / team support
+
+### Deployment Notes
+- Set all environment variables in your hosting provider (Vercel / AppGild)
+- Ensure `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` are server-only (no `NEXT_PUBLIC_` prefix)
+- Supabase anon key (`NEXT_PUBLIC_SUPABASE_ANON_KEY`) is safe to expose — it is public by design
+- Never expose `SUPABASE_SERVICE_ROLE_KEY` to the client
+- Run database migrations in order before first deploy
+- Test Supabase RLS policies after each schema change

@@ -329,7 +329,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
 
         {/* ── Customer section ────────────────────────────────────────────── */}
         <div className="space-y-2">
-          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Customer</h2>
+          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Customer</h2>
 
           {!detailsExpanded ? (
             /* Collapsed — autocomplete search for unlinked, summary card when linked */
@@ -488,7 +488,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
 
         {/* ── This Job section ────────────────────────────────────────────── */}
         <div className="space-y-2">
-          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">This Job</h2>
+          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">This Job</h2>
 
           <div className="bg-white rounded-2xl shadow-card px-4 py-4 space-y-4">
             {/* Service type */}
@@ -510,6 +510,8 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
               </select>
               {job.serviceType === "other" && (
                 <Input
+                  id="customServiceType"
+                  aria-label="Custom service type description"
                   placeholder="e.g. Boiler service, HRV maintenance, Gas fireplace"
                   value={job.customServiceType ?? ""}
                   onChange={(e) => setJob((prev) => ({ ...prev, customServiceType: e.target.value }))}

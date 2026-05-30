@@ -6,6 +6,11 @@
 // TODO(offline): there is currently no offline detection or SW-based caching.
 // Consider adding a basic service worker (Next.js PWA plugin or custom SW) that
 // caches the app shell so the app is usable when the device has no network.
+//
+// TODO(pwa-icons): create public/icons/icon-192.png and public/icons/icon-512.png
+// before deploying. The manifest.json references these paths. Use a square PNG
+// with a transparent background at exactly 192×192 and 512×512 pixels.
+// Also place a public/apple-touch-icon.png (180×180px) for iOS home screen icon.
 
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
@@ -24,6 +29,19 @@ export const metadata: Metadata = {
   description:
     "Turn rough job notes into polished customer-ready service reports. Built for HVAC technicians.",
   manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "JobWrap",
+  },
+  // TODO(pwa-icons): replace /apple-touch-icon.png with the real 180×180px icon file
+  icons: {
+    apple: "/apple-touch-icon.png",
+  },
+  other: {
+    // Allow PWA install prompt on Android Chrome
+    "mobile-web-app-capable": "yes",
+  },
 };
 
 export const viewport: Viewport = {
@@ -32,6 +50,10 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   themeColor: "#ffffff",
+  // Prevents content from being obscured by the virtual keyboard on mobile
+  interactiveWidget: "resizes-content",
+  // Ensures content respects the iPhone notch / home indicator
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

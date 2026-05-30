@@ -20,6 +20,7 @@ import {
   clearDraft,
   generateId,
   upsertCustomerFromJob,
+  purgeExpiredDeletedReports,
 } from "@/lib/storage";
 
 type Screen = "dashboard" | "reports" | "customers" | "customer-profile" | "new-report" | "editor" | "preview" | "settings";
@@ -32,6 +33,27 @@ function getActiveSection(screen: Screen): ActiveSection {
 }
 
 export default function Home() {
+  // ── TODO: AppGild license gate ──────────────────────────────────────────────
+  // INSERT the AppGild license verification snippet HERE, before any app content
+  // is rendered. AppGild wraps this component (or returns a paywall/unlock screen
+  // instead) if the user has not purchased or activated a license.
+  //
+  // Steps:
+  //   1. Install the AppGild SDK: npm install @appgild/react  (or the equivalent package)
+  //   2. Add your AppGild product key to .env.local:
+  //        NEXT_PUBLIC_APPGILD_KEY=your-product-key
+  //   3. Replace this comment block with the AppGild gate, e.g.:
+  //        import { AppGildGate } from "@appgild/react";
+  //        // ... inside Home():
+  //        return <AppGildGate productKey={process.env.NEXT_PUBLIC_APPGILD_KEY!}>
+  //                 {/* existing JSX */}
+  //               </AppGildGate>;
+  //   4. Test in both licensed and unlicensed states before releasing.
+  // ── end AppGild TODO ────────────────────────────────────────────────────────
+
+  // Purge reports that have been in trash for more than 7 days
+  useState(() => { purgeExpiredDeletedReports(); });
+
   const [screen, setScreen] = useState<Screen>("dashboard");
   const [navStack, setNavStack] = useState<Screen[]>([]);
   const [activeReport, setActiveReport] = useState<ServiceReport | null>(null);

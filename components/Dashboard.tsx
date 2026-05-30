@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Plus, FileText, ChevronRight, CheckCircle2, Clock, Calendar } from "lucide-react";
 import type { ServiceReport, BusinessProfile } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
@@ -60,31 +60,40 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
     }, 50);
   }, []);
 
-  const sorted = [...reports].sort(
-    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  const sorted = useMemo(
+    () => [...reports].sort(
+      (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    ),
+    [reports]
   );
 
-  const complete = sorted.filter((r) => r.status === "complete");
-  const drafts   = sorted.filter((r) => r.status === "draft");
-  const recent   = sorted.slice(0, RECENT_LIMIT);
+  const complete = useMemo(() => sorted.filter((r) => r.status === "complete"), [sorted]);
+  const drafts   = useMemo(() => sorted.filter((r) => r.status === "draft"), [sorted]);
+  const recent   = useMemo(() => sorted.slice(0, RECENT_LIMIT), [sorted]);
 
   // Jobs completed this calendar month
-  const now = new Date();
-  const thisMonthCount = complete.filter((r) => {
-    const d = new Date(r.updatedAt);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  }).length;
+  const thisMonthCount = useMemo(() => {
+    const now = new Date();
+    return complete.filter((r) => {
+      const d = new Date(r.updatedAt);
+      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+    }).length;
+  }, [complete]);
 
   // Upcoming / overdue services — nextServiceDate within 30 days or past due
-  const upcoming = sorted
-    .filter((r) => {
-      if (!r.job.nextServiceDate) return false;
-      return daysUntil(r.job.nextServiceDate) <= 30;
-    })
-    .sort((a, b) =>
-      new Date(a.job.nextServiceDate!).getTime() - new Date(b.job.nextServiceDate!).getTime()
-    )
-    .slice(0, 4);
+  const upcoming = useMemo(
+    () =>
+      sorted
+        .filter((r) => {
+          if (!r.job.nextServiceDate) return false;
+          return daysUntil(r.job.nextServiceDate) <= 30;
+        })
+        .sort((a, b) =>
+          new Date(a.job.nextServiceDate!).getTime() - new Date(b.job.nextServiceDate!).getTime()
+        )
+        .slice(0, 4),
+    [sorted]
+  );
 
   function handleDelete(e: React.MouseEvent, id: string) {
     e.stopPropagation();
@@ -166,7 +175,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
         {/* Upcoming services — only shown when nextServiceDate data exists */}
         {upcoming.length > 0 && (
           <div>
-            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">
+            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
               Upcoming Services
             </h2>
             <div className="space-y-2">
@@ -211,7 +220,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
         {/* Recent jobs */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
               Recent Jobs
             </h2>
             {sorted.length > 0 && (

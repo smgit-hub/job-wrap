@@ -18,7 +18,7 @@ interface CustomerSelectScreenProps {
 type Mode = "list" | "edit" | "new";
 
 export default function CustomerSelectScreen({
-  onBack,
+  onBack: _onBack, // eslint-disable-line @typescript-eslint/no-unused-vars -- reserved for future back-button in non-standalone mode
   onSelectCustomer,
   onNewCustomer,
   standalone = false,
@@ -264,7 +264,7 @@ export default function CustomerSelectScreen({
   // ── List mode ──────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
-      <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 space-y-3">
+      <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-28 lg:pb-8 space-y-3">
 
         {/* Page title */}
         <div className="pb-1">
@@ -280,6 +280,7 @@ export default function CustomerSelectScreen({
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search customers…"
+              aria-label="Search customers"
               autoFocus
               className="w-full h-12 pl-10 pr-4 rounded-2xl bg-white border border-slate-200 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent"
             />

@@ -10,11 +10,17 @@ export async function proxy(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  // Passthrough: Supabase not configured, or auth bypass enabled for local dev
+  // Passthrough: auth bypass enabled for local dev only.
+  // SAFETY: throw at runtime if someone accidentally sets BYPASS_AUTH=true in
+  // production — this is a misconfiguration that would expose all routes.
   if (process.env.BYPASS_AUTH === "true") {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("[proxy] BYPASS_AUTH=true — all auth checks skipped. Never set this in production.");
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "[proxy] BYPASS_AUTH=true is not allowed in production. " +
+        "Remove it from your environment variables and redeploy."
+      );
     }
+    console.warn("[proxy] BYPASS_AUTH=true — all auth checks skipped. Dev only.");
     return NextResponse.next();
   }
   if (!url || !key) {

@@ -6,6 +6,12 @@
 // TODO(security): this endpoint has no authentication check — any caller can
 // generate a PDF using arbitrary report data. Before public launch, validate
 // that the report belongs to the authenticated user (via Supabase session).
+//
+// TODO(rate-limiting): add rate limiting (e.g. Upstash) before public launch.
+
+// Maximum accepted request body size (10 MB) to prevent OOM on the server.
+// A typical report + 6 base64 JPEG photos is well under 5 MB.
+const MAX_BODY_BYTES = 10 * 1024 * 1024;
 
 import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
@@ -51,6 +57,12 @@ function isValidReportPayload(body: unknown): body is { report: ServiceReport; p
 }
 
 export async function POST(request: Request) {
+  // Guard against oversized bodies before parsing JSON
+  const contentLength = request.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > MAX_BODY_BYTES) {
+    return Response.json({ error: "Request body too large" }, { status: 413 });
+  }
+
   let parsedBody: unknown;
   try {
     parsedBody = await request.json();

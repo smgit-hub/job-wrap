@@ -154,7 +154,9 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
         return;
       }
       // Fallback: open mail app with just the subject (no attachment)
-      setEmailState("idle");
+      // Show error state briefly so the user knows PDF attachment failed
+      setEmailState("error");
+      setTimeout(() => setEmailState("idle"), 2500);
       const a = document.createElement("a");
       a.href = `mailto:?subject=${encodeURIComponent(subject)}`;
       document.body.appendChild(a);

@@ -64,13 +64,27 @@ export function clearDraft(): void {
   if (typeof window !== "undefined") localStorage.removeItem(DRAFT_KEY);
 }
 
-// Saved reports
-export function getReports(): ServiceReport[] {
+const TRASH_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+function getAllReports(): ServiceReport[] {
   return safeGet<ServiceReport[]>(REPORTS_KEY, []);
 }
 
+// Saved reports — excludes soft-deleted
+export function getReports(): ServiceReport[] {
+  return getAllReports().filter((r) => !r.deletedAt);
+}
+
+// Soft-deleted reports still within the 7-day window
+export function getDeletedReports(): ServiceReport[] {
+  const now = Date.now();
+  return getAllReports().filter(
+    (r) => r.deletedAt && now - new Date(r.deletedAt).getTime() < TRASH_TTL_MS
+  );
+}
+
 export function saveReport(report: ServiceReport): void {
-  const existing = getReports();
+  const existing = getAllReports();
   const idx = existing.findIndex((r) => r.id === report.id);
   if (idx >= 0) {
     existing[idx] = report;
@@ -80,9 +94,40 @@ export function saveReport(report: ServiceReport): void {
   safeSet(REPORTS_KEY, existing);
 }
 
+// Soft delete — moves to trash, recoverable for 7 days
 export function deleteReport(id: string): void {
-  const updated = getReports().filter((r) => r.id !== id);
-  safeSet(REPORTS_KEY, updated);
+  const all = getAllReports();
+  const idx = all.findIndex((r) => r.id === id);
+  if (idx >= 0) {
+    all[idx] = { ...all[idx], deletedAt: new Date().toISOString() };
+    safeSet(REPORTS_KEY, all);
+  }
+}
+
+// Restore from trash — clears deletedAt, original status preserved
+export function restoreReport(id: string): void {
+  const all = getAllReports();
+  const idx = all.findIndex((r) => r.id === id);
+  if (idx >= 0) {
+    all[idx] = { ...all[idx], deletedAt: undefined };
+    safeSet(REPORTS_KEY, all);
+  }
+}
+
+// Permanent delete — cannot be undone
+export function purgeReport(id: string): void {
+  safeSet(REPORTS_KEY, getAllReports().filter((r) => r.id !== id));
+}
+
+// Called on app load — permanently removes reports that have been in trash > 7 days
+export function purgeExpiredDeletedReports(): void {
+  const now = Date.now();
+  safeSet(
+    REPORTS_KEY,
+    getAllReports().filter(
+      (r) => !r.deletedAt || now - new Date(r.deletedAt).getTime() < TRASH_TTL_MS
+    )
+  );
 }
 
 // Business profile

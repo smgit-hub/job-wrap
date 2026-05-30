@@ -220,7 +220,7 @@ export default function CustomerProfile({
         {/* Service history */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Service History</h2>
+            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Service History</h2>
             {reports.length > 0 && (
               <span className="bg-slate-900 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full leading-none">
                 {reports.length}
@@ -282,7 +282,7 @@ export default function CustomerProfile({
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer">
           <button
             onClick={() => onStartJob(customer)}
-            className="w-full h-14 rounded-2xl bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold text-base flex items-center justify-center gap-2 transition-all shadow-md shadow-orange-200"
+            className="w-full h-14 rounded-2xl bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold text-base flex items-center justify-center gap-2 transition-colors shadow-md shadow-orange-200/50"
           >
             <Plus className="w-5 h-5" />
             Start New Job

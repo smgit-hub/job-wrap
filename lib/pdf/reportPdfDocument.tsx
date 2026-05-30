@@ -7,6 +7,7 @@ import React from "react";
 import { Document, Page, View, Text, Image, StyleSheet, Font } from "@react-pdf/renderer";
 import type { ServiceReport, JobPhoto } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
+import { safeBrandColor } from "@/lib/utils";
 
 // Disable automatic hyphenation globally — prevents model numbers like
 // "MXZ-AP50VGD outdoor" being broken as "out-door" across lines.
@@ -279,7 +280,7 @@ function Divider() {
 
 export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocumentProps) {
   const { business, job, report: rpt } = report;
-  const brandColor = business.brandColor || "#0f172a";
+  const brandColor = safeBrandColor(business.brandColor);
   const equipmentStr = job.equipment?.trim() ?? "";
 
   const footerItems = [

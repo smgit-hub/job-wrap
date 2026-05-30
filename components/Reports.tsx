@@ -1,13 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { FileText } from "lucide-react";
+import { useEffect, useState, useMemo } from "react";
+import { FileText, Trash2, RotateCcw } from "lucide-react";
 import type { ServiceReport } from "@/types/report";
-import { getReports, deleteReport } from "@/lib/storage";
-import { JobCard } from "@/components/JobCard";
+import { getReports, getDeletedReports, deleteReport, restoreReport, purgeReport } from "@/lib/storage";
+import { JobCard, formatJobDate } from "@/components/JobCard";
+import { SERVICE_TYPE_LABELS } from "@/types/report";
 import { cn } from "@/lib/utils";
 
-export type ReportsFilter = "all" | "complete" | "draft";
+export type ReportsFilter = "all" | "complete" | "draft" | "deleted";
 
 interface ReportsProps {
   initialFilter?: ReportsFilter;
@@ -18,15 +19,93 @@ const FILTERS: { id: ReportsFilter; label: string }[] = [
   { id: "all",      label: "All" },
   { id: "complete", label: "Completed" },
   { id: "draft",    label: "Drafts" },
+  { id: "deleted",  label: "Deleted" },
 ];
+
+function daysRemaining(deletedAt: string): number {
+  const ms = 7 * 24 * 60 * 60 * 1000 - (Date.now() - new Date(deletedAt).getTime());
+  return Math.max(1, Math.ceil(ms / (24 * 60 * 60 * 1000)));
+}
+
+function DeletedCard({
+  report,
+  onRestore,
+  onPurge,
+}: {
+  report: ServiceReport;
+  onRestore: (id: string) => void;
+  onPurge: (id: string) => void;
+}) {
+  const [armed, setArmed] = useState(false);
+
+  useEffect(() => {
+    if (!armed) return;
+    const t = setTimeout(() => setArmed(false), 3000);
+    return () => clearTimeout(t);
+  }, [armed]);
+
+  const days = daysRemaining(report.deletedAt!);
+
+  return (
+    <div className="bg-white rounded-2xl shadow-card overflow-hidden border border-slate-100 opacity-75">
+      <div className="flex items-center gap-3 px-4 pt-4 pb-3">
+        <div className="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center shrink-0">
+          <Trash2 className="w-5 h-5 text-slate-400" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-slate-600 truncate leading-snug">
+            {report.job.customerName || "Unknown customer"}
+          </p>
+          <p className="text-xs text-slate-400 truncate mt-0.5">
+            {SERVICE_TYPE_LABELS[report.job.serviceType]}
+            {report.job.serviceAddress ? ` · ${report.job.serviceAddress}` : ""}
+          </p>
+          <p className="text-xs text-slate-400 mt-0.5">
+            {formatJobDate(report.job.jobDate)} · {days} day{days !== 1 ? "s" : ""} until permanent deletion
+          </p>
+        </div>
+      </div>
+      <div className="flex gap-2 px-4 pb-4">
+        <button
+          onClick={() => onRestore(report.id)}
+          className="flex-1 h-10 rounded-xl bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white text-sm font-semibold flex items-center justify-center gap-1.5 transition-colors"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Restore
+        </button>
+        <button
+          onClick={() => armed ? onPurge(report.id) : setArmed(true)}
+          className={cn(
+            "h-10 rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 transition-colors",
+            armed
+              ? "px-3 bg-red-500 text-white active:bg-red-600"
+              : "w-10 text-slate-300 hover:text-red-400 hover:bg-red-50 active:bg-red-100"
+          )}
+          aria-label={armed ? "Confirm permanent delete" : "Permanently delete"}
+        >
+          <Trash2 className="w-3.5 h-3.5 shrink-0" />
+          {armed && <span>Delete forever?</span>}
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default function Reports({ initialFilter = "all", onOpenReport }: ReportsProps) {
   const [reports, setReports] = useState<ServiceReport[]>([]);
+  const [deleted, setDeleted] = useState<ServiceReport[]>([]);
   const [filter, setFilter] = useState<ReportsFilter>(initialFilter);
+
+  function reload() {
+    setReports(getReports());
+    setDeleted(getDeletedReports().sort(
+      (a, b) => new Date(b.deletedAt!).getTime() - new Date(a.deletedAt!).getTime()
+    ));
+  }
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setReports(getReports());
+    reload();
   }, []);
 
   // Keep filter in sync if the parent navigates with a different initialFilter
@@ -35,25 +114,42 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
     setFilter(initialFilter);
   }, [initialFilter]);
 
-  const sorted = [...reports].sort(
-    (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+  const sorted = useMemo(
+    () => [...reports].sort(
+      (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
+    ),
+    [reports]
   );
 
-  const complete = sorted.filter((r) => r.status === "complete");
-  const drafts   = sorted.filter((r) => r.status === "draft");
+  const complete = useMemo(() => sorted.filter((r) => r.status === "complete"), [sorted]);
+  const drafts   = useMemo(() => sorted.filter((r) => r.status === "draft"), [sorted]);
 
-  const counts: Record<ReportsFilter, number> = {
+  const counts: Record<ReportsFilter, number> = useMemo(() => ({
     all:      sorted.length,
     complete: complete.length,
     draft:    drafts.length,
-  };
+    deleted:  deleted.length,
+  }), [sorted, complete, drafts, deleted]);
 
-  const visible = filter === "all" ? sorted : filter === "complete" ? complete : drafts;
+  const visible = useMemo(
+    () => filter === "complete" ? complete : filter === "draft" ? drafts : sorted,
+    [filter, complete, drafts, sorted]
+  );
 
   function handleDelete(e: React.MouseEvent, id: string) {
     e.stopPropagation();
     deleteReport(id);
-    setReports((prev) => prev.filter((r) => r.id !== id));
+    reload();
+  }
+
+  function handleRestore(id: string) {
+    restoreReport(id);
+    reload();
+  }
+
+  function handlePurge(id: string) {
+    purgeReport(id);
+    reload();
   }
 
   return (
@@ -63,7 +159,7 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Reports</h1>
 
         {/* Filter tabs */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {FILTERS.map(({ id, label }) => (
             <button
               key={id}
@@ -71,50 +167,79 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
               className={cn(
                 "flex items-center gap-1.5 px-4 h-9 rounded-xl text-sm font-semibold transition-colors",
                 filter === id
-                  ? "bg-slate-900 text-white"
+                  ? id === "deleted" ? "bg-red-500 text-white" : "bg-slate-900 text-white"
                   : "bg-white text-slate-500 shadow-card hover:bg-slate-50"
               )}
             >
               {label}
-              <span className={cn(
-                "text-[11px] font-bold leading-none px-1.5 py-0.5 rounded-full",
-                filter === id ? "bg-white/20 text-white" : "bg-slate-100 text-slate-400"
-              )}>
-                {counts[id]}
-              </span>
+              {counts[id] > 0 && (
+                <span className={cn(
+                  "text-[11px] font-bold leading-none px-1.5 py-0.5 rounded-full",
+                  filter === id ? "bg-white/20 text-white" : id === "deleted" ? "bg-red-100 text-red-500" : "bg-slate-100 text-slate-400"
+                )}>
+                  {counts[id]}
+                </span>
+              )}
             </button>
           ))}
         </div>
 
-        {/* Report list */}
-        {visible.length === 0 ? (
-          <div className="bg-white rounded-2xl p-10 text-center shadow-card">
-            <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-              <FileText className="w-7 h-7 text-slate-300" />
+        {/* Deleted view */}
+        {filter === "deleted" ? (
+          deleted.length === 0 ? (
+            <div className="bg-white rounded-2xl p-10 text-center shadow-card">
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                <Trash2 className="w-7 h-7 text-slate-300" />
+              </div>
+              <p className="text-slate-800 text-sm font-semibold">Trash is empty</p>
+              <p className="text-slate-400 text-sm mt-1">Deleted reports appear here for 7 days before being permanently removed.</p>
             </div>
-            <p className="text-slate-800 text-sm font-semibold">
-              {filter === "complete" ? "No completed jobs yet" : filter === "draft" ? "No drafts" : "No reports yet"}
-            </p>
-            <p className="text-slate-400 text-sm mt-1 leading-relaxed">
-              {filter === "complete"
-                ? "Finished jobs will appear here."
-                : filter === "draft"
-                  ? "Jobs saved as draft will appear here."
-                  : "Tap New Report to write up your first job."}
-            </p>
-          </div>
+          ) : (
+            <>
+              <p className="text-xs text-slate-400">Deleted reports are permanently removed after 7 days.</p>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 lg:gap-3">
+                {deleted.map((report) => (
+                  <DeletedCard
+                    key={report.id}
+                    report={report}
+                    onRestore={handleRestore}
+                    onPurge={handlePurge}
+                  />
+                ))}
+              </div>
+            </>
+          )
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 lg:gap-3">
-            {visible.map((report) => (
-              <JobCard
-                key={report.id}
-                report={report}
-                onOpen={onOpenReport}
-                onDelete={handleDelete}
-                showStatus={filter === "all"}
-              />
-            ))}
-          </div>
+          /* Normal report list */
+          visible.length === 0 ? (
+            <div className="bg-white rounded-2xl p-10 text-center shadow-card">
+              <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
+                <FileText className="w-7 h-7 text-slate-300" />
+              </div>
+              <p className="text-slate-800 text-sm font-semibold">
+                {filter === "complete" ? "No completed jobs yet" : filter === "draft" ? "No drafts" : "No reports yet"}
+              </p>
+              <p className="text-slate-400 text-sm mt-1 leading-relaxed">
+                {filter === "complete"
+                  ? "Finished jobs will appear here."
+                  : filter === "draft"
+                    ? "Jobs saved as draft will appear here."
+                    : "Tap New Report to write up your first job."}
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 lg:gap-3">
+              {visible.map((report) => (
+                <JobCard
+                  key={report.id}
+                  report={report}
+                  onOpen={onOpenReport}
+                  onDelete={handleDelete}
+                  showStatus={filter === "all"}
+                />
+              ))}
+            </div>
+          )
         )}
 
       </main>

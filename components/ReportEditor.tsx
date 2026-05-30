@@ -262,6 +262,8 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               </CardHeader>
               <CardContent className="px-4 pb-4">
                 <Textarea
+                  id="ed-summary"
+                  aria-label="Customer summary"
                   value={draft.report.customerSummary}
                   onChange={(e) => updateField("customerSummary", e.target.value)}
                   rows={3}
@@ -475,6 +477,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               </select>
               {draft.job.serviceType === "other" && (
                 <Input
+                  aria-label="Custom service type description"
                   value={draft.job.customServiceType ?? ""}
                   onChange={(e) => updateJobField("customServiceType", e.target.value)}
                   placeholder="e.g. Plumbing, Electrical…"
@@ -506,6 +509,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                 <div className="px-3 pb-3 pt-2">
                   <Input
                     id="ed-equipment"
+                    aria-label="Equipment / system description"
                     value={draft.job.equipment ?? ""}
                     onChange={(e) => updateJobField("equipment", e.target.value)}
                     placeholder="e.g. Daikin FTXM50W 6kW, installed 2018"
@@ -535,8 +539,9 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               <CardContent className="px-4 pb-4 pt-0 space-y-3">
                 {draft.job.voiceNotes.jobNotes && (
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-slate-400">What happened</Label>
+                    <Label htmlFor="notes-job" className="text-xs text-slate-400">What happened</Label>
                     <Textarea
+                      id="notes-job"
                       value={draft.job.voiceNotes.jobNotes}
                       onChange={(e) => updateVoiceNote("jobNotes", e.target.value)}
                       rows={4}
@@ -546,8 +551,9 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                 )}
                 {draft.job.voiceNotes.recommendations && (
                   <div className="space-y-1.5">
-                    <Label className="text-xs text-slate-400">Recommendations noted</Label>
+                    <Label htmlFor="notes-recs" className="text-xs text-slate-400">Recommendations noted</Label>
                     <Textarea
+                      id="notes-recs"
                       value={draft.job.voiceNotes.recommendations}
                       onChange={(e) => updateVoiceNote("recommendations", e.target.value)}
                       rows={3}

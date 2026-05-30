@@ -10,10 +10,15 @@ import type { ServiceReport, JobPhoto } from "@/types/report";
 // anon RLS policy (004_shared_reports.sql). Once auth is wired end-to-end, consider
 // restricting INSERT to authenticated users only and storing user_id on the row
 // so orphaned rows can be cleaned up later.
+//
+// TODO(security): shared report links never expire. Before public launch, add an
+// `expires_at` column (e.g. 30 days from creation) and a SELECT policy check:
+//   USING (expires_at IS NULL OR expires_at > NOW())
+// Also add a DELETE endpoint so users can revoke a share link they created.
 
 function generateToken(): string {
-  // 12 hex chars = 48 bits of entropy — sufficient for non-secret share links
-  const bytes = new Uint8Array(6);
+  // 32 hex chars = 128 bits of entropy — unguessable, short enough for URLs
+  const bytes = new Uint8Array(16);
   crypto.getRandomValues(bytes);
   return Array.from(bytes)
     .map((b) => b.toString(16).padStart(2, "0"))
@@ -47,11 +52,18 @@ function isValidReport(r: unknown): r is ServiceReport {
 
 // TODO(security): validate photo array more strictly — currently accepts any
 // unknown[] from the client. Consider verifying that each photo.dataUrl is a
-// valid base64 JPEG data URL and that the total payload size is reasonable.
-// The API route itself has no body size limit — add one in next.config.ts
-// (bodyParser.sizeLimit) or at the reverse-proxy layer.
+// valid base64 JPEG data URL that starts with "data:image/".
+
+// Maximum accepted request body (10 MB) — a report + 6 base64 photos is ~5 MB.
+const MAX_BODY_BYTES = 10 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
+  // Guard against oversized bodies before parsing
+  const contentLength = request.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: "Request body too large" }, { status: 413 });
+  }
+
   const supabase = await getSupabaseServerClient();
   if (!supabase) {
     return NextResponse.json(

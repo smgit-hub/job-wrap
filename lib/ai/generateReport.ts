@@ -25,7 +25,11 @@ export type { GenerateReportInput };
 type ProviderFn = (parts: PromptParts) => Promise<GeneratedReport>;
 
 function run(name: string, fn: ProviderFn, parts: PromptParts): Promise<GeneratedReport> {
-  console.log(`[generate-report] Using provider: ${name}`);
+  // Server-side only — safe to log provider name for debugging.
+  // This never reaches the client.
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`[generate-report] Using provider: ${name}`);
+  }
   return fn(parts);
 }
 
@@ -50,6 +54,11 @@ function applyFallbacks(report: GeneratedReport): GeneratedReport {
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
+//
+// IMPORTANT: AI output must always be reviewed and edited by the technician
+// before a report is sent to a customer. The ReportEditor verification flow
+// (section tick-boxes) is the designed enforcement point. Do not auto-send
+// AI-generated reports without technician sign-off.
 
 export async function generateReport(input: GenerateReportInput): Promise<GeneratedReport> {
   const provider = process.env.AI_PROVIDER;

@@ -85,12 +85,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Image must be under 5 MB" }, { status: 413 });
   }
 
-  // TODO(security): reject files whose MIME type is not in VALID_MIMES before
-  // reading the buffer. Currently normaliseMime falls back to image/jpeg, so an
-  // invalid type still proceeds. Add an early return here once confirmed safe:
-  //   if (!VALID_MIMES.includes(file.type as SupportedMime)) {
-  //     return NextResponse.json({ error: "Unsupported image type" }, { status: 415 });
-  //   }
+  // Reject non-image MIME types before reading the buffer.
+  // HEIC/HEIF are common on iOS but not supported by current providers — they
+  // are excluded here so callers get a clear error rather than a silent empty string.
+  // TODO(future): add HEIC → JPEG server-side conversion to support iOS photos.
+  if (!VALID_MIMES.includes(file.type as SupportedMime)) {
+    return NextResponse.json({ error: "Unsupported image type. Use JPEG, PNG, GIF, or WebP." }, { status: 415 });
+  }
 
   const base64 = Buffer.from(await file.arrayBuffer()).toString("base64");
   const mime = normaliseMime(file.type);

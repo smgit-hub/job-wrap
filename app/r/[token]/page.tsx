@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type { ServiceReport, JobPhoto } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
+import { safeBrandColor } from "@/lib/utils";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -92,7 +93,7 @@ export default async function SharedReportPage({
   const report = data.report_data as unknown as ServiceReport;
   const photos = (data.photos ?? []) as JobPhoto[];
   const { business, job, report: rpt } = report;
-  const headerColor = business.brandColor || "#0f172a";
+  const headerColor = safeBrandColor(business.brandColor);
 
   return (
     <div className="min-h-screen bg-slate-100 py-6 px-4">

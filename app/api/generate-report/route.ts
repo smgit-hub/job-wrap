@@ -4,6 +4,9 @@
 //
 // TODO (future): add rate limiting (e.g. Upstash) before public deployment.
 // TODO (future): once Supabase Auth is wired to this route, validate session token.
+//
+// Maximum accepted request body (32 KB) — well above any realistic job notes payload.
+const MAX_BODY_BYTES = 32 * 1024;
 
 export const runtime = "nodejs";
 
@@ -31,6 +34,12 @@ function str(v: unknown, fallback = ""): string {
 }
 
 export async function POST(request: Request) {
+  // Guard against oversized bodies before parsing
+  const contentLength = request.headers.get("content-length");
+  if (contentLength && parseInt(contentLength, 10) > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: "Request body too large" }, { status: 413 });
+  }
+
   let body: Record<string, unknown>;
   try {
     body = (await request.json()) as Record<string, unknown>;

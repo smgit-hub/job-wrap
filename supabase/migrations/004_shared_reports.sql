@@ -33,7 +33,21 @@ CREATE POLICY "shared_reports: select public"
   ON shared_reports FOR SELECT
   USING (true);
 
--- The server-side API route inserts using the anon key
+-- The server-side API route inserts using the anon key.
+-- TODO(security): once the share-report API route is updated to pass the user's
+-- JWT, tighten this to: WITH CHECK (auth.uid() IS NOT NULL)
+-- to prevent completely anonymous inserts.
 CREATE POLICY "shared_reports: insert anon"
   ON shared_reports FOR INSERT
   WITH CHECK (true);
+
+-- TODO(security): no UPDATE or DELETE policies exist — rows can only be inserted,
+-- never edited or removed by any client. Add a DELETE policy once user-owned
+-- rows (user_id column) exist so technicians can revoke share links:
+--   CREATE POLICY "shared_reports: delete own"
+--     ON shared_reports FOR DELETE
+--     USING (auth.uid()::text = user_id);
+
+-- TODO(security): add an `expires_at TIMESTAMPTZ` column and tighten the SELECT
+-- policy to exclude expired rows:
+--   USING (expires_at IS NULL OR expires_at > NOW())

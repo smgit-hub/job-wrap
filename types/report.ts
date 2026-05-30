@@ -96,6 +96,7 @@ export interface ServiceReport {
   status: ReportStatus;
   createdAt: string;
   updatedAt: string;
+  deletedAt?: string;   // set on soft-delete; unset on restore; purged after 7 days
   business: BusinessProfile;
   job: JobDetails;
   report: GeneratedReport;

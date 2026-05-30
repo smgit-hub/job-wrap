@@ -49,6 +49,7 @@ async function compressLogo(file: File): Promise<string> {
   });
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- onBack reserved for future back-button support
 export default function BrandingSettings({ profile, onBack, onSave }: BrandingSettingsProps) {
   const [form, setForm] = useState<BusinessProfile>(profile);
   const [saved, setSaved] = useState(false);
