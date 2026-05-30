@@ -13,7 +13,7 @@ import { saveReport } from "@/lib/storage";
 import { getPhotosForReport, savePhotosForReport } from "@/lib/photoStorage";
 import PhotoSection from "@/components/PhotoSection";
 import BulletEditor from "@/components/BulletEditor";
-import { cn } from "@/lib/utils";
+import { cn, isoToDisplay, displayToIso } from "@/lib/utils";
 
 interface ReportEditorProps {
   report: ServiceReport;
@@ -444,9 +444,14 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                 <Label htmlFor="ed-date">Date</Label>
                 <Input
                   id="ed-date"
-                  type="date"
-                  value={draft.job.jobDate}
-                  onChange={(e) => updateJobField("jobDate", e.target.value)}
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="DD/MM/YYYY"
+                  value={isoToDisplay(draft.job.jobDate)}
+                  onChange={(e) => {
+                    const iso = displayToIso(e.target.value);
+                    if (iso) updateJobField("jobDate", iso);
+                  }}
                   className="h-11 text-base"
                 />
               </div>
@@ -454,9 +459,14 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                 <Label htmlFor="ed-next-service">Next Service</Label>
                 <Input
                   id="ed-next-service"
-                  type="date"
-                  value={draft.job.nextServiceDate ?? ""}
-                  onChange={(e) => updateJobField("nextServiceDate", e.target.value)}
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="DD/MM/YYYY"
+                  value={isoToDisplay(draft.job.nextServiceDate ?? "")}
+                  onChange={(e) => {
+                    const iso = displayToIso(e.target.value);
+                    updateJobField("nextServiceDate", iso);
+                  }}
                   className="h-11 text-base"
                 />
               </div>

@@ -12,7 +12,7 @@ import FreeformRecordingFlow from "@/components/recording/FreeformRecordingFlow"
 import type { JobDetails, VoiceNotes, ServiceType, Customer, ServiceReport } from "@/types/report";
 import { EMPTY_VOICE_NOTES, EMPTY_REPORT, SERVICE_TYPE_LABELS } from "@/types/report";
 import { saveDraft, getDraft, saveReport, clearDraft, generateId, getBusinessProfile, saveCustomer, getCustomers } from "@/lib/storage";
-import { cn } from "@/lib/utils";
+import { cn, isoToDisplay, displayToIso } from "@/lib/utils";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 
 interface NewReportFormProps {
@@ -541,9 +541,14 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                 <Label htmlFor="jobDate" className="text-slate-500">Job Date</Label>
                 <Input
                   id="jobDate"
-                  type="date"
-                  value={job.jobDate}
-                  onChange={(e) => setJob((prev) => ({ ...prev, jobDate: e.target.value }))}
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="DD/MM/YYYY"
+                  value={isoToDisplay(job.jobDate)}
+                  onChange={(e) => {
+                    const iso = displayToIso(e.target.value);
+                    if (iso) setJob((prev) => ({ ...prev, jobDate: iso }));
+                  }}
                   className="h-11 text-base bg-slate-50 border-slate-200"
                 />
               </div>
@@ -551,9 +556,14 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                 <Label htmlFor="jobNextService" className="text-slate-500">Next Service</Label>
                 <Input
                   id="jobNextService"
-                  type="date"
-                  value={job.nextServiceDate ?? ""}
-                  onChange={(e) => setJob((prev) => ({ ...prev, nextServiceDate: e.target.value }))}
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="DD/MM/YYYY"
+                  value={isoToDisplay(job.nextServiceDate ?? "")}
+                  onChange={(e) => {
+                    const iso = displayToIso(e.target.value);
+                    setJob((prev) => ({ ...prev, nextServiceDate: iso || undefined }));
+                  }}
                   className="h-11 text-base bg-slate-50 border-slate-200"
                 />
               </div>
