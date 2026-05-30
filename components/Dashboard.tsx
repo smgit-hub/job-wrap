@@ -51,13 +51,10 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setProfile(getBusinessProfile());
-    seedSampleData();
-    migrateCustomersFromReports();
-    // seedSampleData is async (dynamic import) — reload reports after a tick
-    // so the dashboard renders with the samples on first launch
-    setTimeout(() => {
+    seedSampleData().then(() => {
+      migrateCustomersFromReports();
       setReports(getReports());
-    }, 50);
+    });
   }, []);
 
   const sorted = useMemo(

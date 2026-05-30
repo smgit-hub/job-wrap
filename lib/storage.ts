@@ -176,7 +176,7 @@ export function clearCustomers(): void {
 
 // One-time sample data seed — only runs on the very first launch.
 // Skipped if the user already has real reports or has previously dismissed the samples.
-export function seedSampleData(): void {
+export async function seedSampleData(): Promise<void> {
   if (typeof window === "undefined") return;
   if (localStorage.getItem(SEEDED_KEY)) return; // already seeded once
   if (getReports().length > 0) {
@@ -185,15 +185,14 @@ export function seedSampleData(): void {
     return;
   }
   // Lazy import to avoid bundling sample data in every page load
-  import("@/lib/sampleData").then(({ SAMPLE_REPORTS, SAMPLE_CUSTOMERS, SAMPLE_BUSINESS }) => {
-    SAMPLE_REPORTS.forEach((r) => saveReport(r));
-    SAMPLE_CUSTOMERS.forEach((c) => saveCustomer(c));
-    // Only seed business profile if the user hasn't configured one yet
-    if (!getBusinessProfile().businessName) {
-      saveBusinessProfile(SAMPLE_BUSINESS);
-    }
-    localStorage.setItem(SEEDED_KEY, "1");
-  });
+  const { SAMPLE_REPORTS, SAMPLE_CUSTOMERS, SAMPLE_BUSINESS } = await import("@/lib/sampleData");
+  SAMPLE_REPORTS.forEach((r) => saveReport(r));
+  SAMPLE_CUSTOMERS.forEach((c) => saveCustomer(c));
+  // Only seed business profile if the user hasn't configured one yet
+  if (!getBusinessProfile().businessName) {
+    saveBusinessProfile(SAMPLE_BUSINESS);
+  }
+  localStorage.setItem(SEEDED_KEY, "1");
 }
 
 // One-time migration: seed customer records from all existing saved reports.
