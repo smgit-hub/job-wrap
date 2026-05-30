@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ClipboardCheck } from "lucide-react";
 
 export const metadata = {
   title: "Privacy Policy — JobWrap",
@@ -11,9 +10,8 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-slate-100">
       <header className="bg-white border-b border-slate-100">
         <div className="max-w-lg mx-auto px-4 py-4 flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-xl bg-slate-900 flex items-center justify-center">
-            <ClipboardCheck className="w-4 h-4 text-white" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icons/icon-192.png" alt="JobWrap" className="w-9 h-9 rounded-xl shrink-0 object-cover" />
           <span className="font-bold text-slate-900">JobWrap</span>
         </div>
       </header>
