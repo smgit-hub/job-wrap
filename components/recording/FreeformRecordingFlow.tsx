@@ -116,6 +116,7 @@ export default function FreeformRecordingFlow({
     : notes;
 
   return (
+    <>
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       {/* ── Header ── */}
       {/* ── Main ── */}
@@ -237,11 +238,12 @@ export default function FreeformRecordingFlow({
           />
         </div>
       </main>
+    </div>
 
       {/* ── Discard confirmation ── */}
       {confirmBack && (
         <div className="fixed inset-0 z-30 bg-black/40 flex items-end justify-center">
-          <div className="w-full max-w-lg bg-white rounded-t-2xl px-5 pt-5 pb-8 space-y-4">
+          <div className="w-full max-w-lg bg-white rounded-t-2xl px-5 pt-5 pb-above-nav space-y-4">
             <p className="text-base font-bold text-slate-900">
               Discard these notes?
             </p>
@@ -284,6 +286,6 @@ export default function FreeformRecordingFlow({
           </button>
         </div>
       </div>
-    </div>
+    </>
   );
 }
