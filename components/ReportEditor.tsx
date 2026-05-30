@@ -14,6 +14,7 @@ import { getPhotosForReport, savePhotosForReport } from "@/lib/photoStorage";
 import PhotoSection from "@/components/PhotoSection";
 import BulletEditor from "@/components/BulletEditor";
 import { cn } from "@/lib/utils";
+import DatePicker from "@/components/ui/DatePicker";
 
 interface ReportEditorProps {
   report: ServiceReport;
@@ -442,26 +443,19 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="ed-date">Date</Label>
-                <Input
+                <DatePicker
                   id="ed-date"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="YYYY-MM-DD"
                   value={draft.job.jobDate}
-                  onChange={(e) => updateJobField("jobDate", e.target.value)}
-                  className="h-11 text-base"
+                  onChange={(iso) => updateJobField("jobDate", iso)}
                 />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="ed-next-service">Next Service</Label>
-                <Input
+                <DatePicker
                   id="ed-next-service"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="YYYY-MM-DD"
                   value={draft.job.nextServiceDate ?? ""}
-                  onChange={(e) => updateJobField("nextServiceDate", e.target.value)}
-                  className="h-11 text-base"
+                  onChange={(iso) => updateJobField("nextServiceDate", iso)}
+                  placeholder="Optional"
                 />
               </div>
             </div>

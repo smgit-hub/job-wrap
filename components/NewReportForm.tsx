@@ -13,6 +13,7 @@ import type { JobDetails, VoiceNotes, ServiceType, Customer, ServiceReport } fro
 import { EMPTY_VOICE_NOTES, EMPTY_REPORT, SERVICE_TYPE_LABELS } from "@/types/report";
 import { saveDraft, getDraft, saveReport, clearDraft, generateId, getBusinessProfile, saveCustomer, getCustomers } from "@/lib/storage";
 import { cn } from "@/lib/utils";
+import DatePicker from "@/components/ui/DatePicker";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 
 interface NewReportFormProps {
@@ -539,26 +540,19 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1.5">
                 <Label htmlFor="jobDate" className="text-slate-500">Job Date</Label>
-                <Input
+                <DatePicker
                   id="jobDate"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="YYYY-MM-DD"
                   value={job.jobDate}
-                  onChange={(e) => setJob((prev) => ({ ...prev, jobDate: e.target.value }))}
-                  className="h-11 text-base bg-slate-50 border-slate-200"
+                  onChange={(iso) => setJob((prev) => ({ ...prev, jobDate: iso }))}
                 />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="jobNextService" className="text-slate-500">Next Service</Label>
-                <Input
+                <DatePicker
                   id="jobNextService"
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="YYYY-MM-DD"
                   value={job.nextServiceDate ?? ""}
-                  onChange={(e) => setJob((prev) => ({ ...prev, nextServiceDate: e.target.value }))}
-                  className="h-11 text-base bg-slate-50 border-slate-200"
+                  onChange={(iso) => setJob((prev) => ({ ...prev, nextServiceDate: iso }))}
+                  placeholder="Optional"
                 />
               </div>
             </div>
