@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import FreeformRecordingFlow from "@/components/recording/FreeformRecordingFlow";
 import type { JobDetails, VoiceNotes, ServiceType, Customer, ServiceReport } from "@/types/report";
 import { EMPTY_VOICE_NOTES, EMPTY_REPORT, SERVICE_TYPE_LABELS } from "@/types/report";
-import { saveDraft, getDraft, saveReport, clearDraft, generateId, getBusinessProfile, saveCustomer, getCustomers } from "@/lib/storage";
+import { saveDraft, getDraft, saveReport, clearDraft, generateId, getBusinessProfile, saveCustomer, deleteCustomer, getCustomers } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import DatePicker from "@/components/ui/DatePicker";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
@@ -62,6 +62,8 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
   const [detailsExpanded, setDetailsExpanded] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
   const [showDiscardConfirm, setShowDiscardConfirm] = useState(false);
+  // Track the ID of a customer created during this session so we can remove it on discard
+  const [newlyCreatedCustomerId, setNewlyCreatedCustomerId] = useState<string | null>(null);
 
   // Stable initial values for dirty-checking — computed once on mount
   const initialJob = useMemo(
@@ -178,6 +180,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
   function handleRecordingComplete(finalNotes: VoiceNotes) {
     const updatedJob = { ...job, voiceNotes: finalNotes };
     setJob(updatedJob);
+    setNewlyCreatedCustomerId(null); // Customer is now committed — don't delete on any future discard
     setFormStep("generating");
     window.scrollTo({ top: 0 });
     void doGenerate(updatedJob);
@@ -207,6 +210,12 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
   }
 
   function handleDiscard() {
+    // If we created a brand-new customer during this session, remove it
+    if (newlyCreatedCustomerId) {
+      deleteCustomer(newlyCreatedCustomerId);
+      setNewlyCreatedCustomerId(null);
+    }
+    clearDraft();
     setShowDiscardConfirm(false);
     onBack();
   }
@@ -228,11 +237,9 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
     if (linkedCustomer) {
       saveCustomer({ ...linkedCustomer, ...shared });
     } else {
-      saveCustomer({
-        id: `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-        createdAt: now,
-        ...shared,
-      });
+      const newId = `cust_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`;
+      saveCustomer({ id: newId, createdAt: now, ...shared });
+      setNewlyCreatedCustomerId(newId);
     }
 
     setJob((prev) => ({
