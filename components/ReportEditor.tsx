@@ -13,7 +13,7 @@ import { saveReport } from "@/lib/storage";
 import { getPhotosForReport, savePhotosForReport } from "@/lib/photoStorage";
 import PhotoSection from "@/components/PhotoSection";
 import BulletEditor from "@/components/BulletEditor";
-import { cn, isoToDisplay, displayToIso } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface ReportEditorProps {
   report: ServiceReport;
@@ -446,12 +446,9 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                   id="ed-date"
                   type="text"
                   inputMode="numeric"
-                  placeholder="DD/MM/YYYY"
-                  value={isoToDisplay(draft.job.jobDate)}
-                  onChange={(e) => {
-                    const iso = displayToIso(e.target.value);
-                    if (iso) updateJobField("jobDate", iso);
-                  }}
+                  placeholder="YYYY-MM-DD"
+                  value={draft.job.jobDate}
+                  onChange={(e) => updateJobField("jobDate", e.target.value)}
                   className="h-11 text-base"
                 />
               </div>
@@ -461,12 +458,9 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                   id="ed-next-service"
                   type="text"
                   inputMode="numeric"
-                  placeholder="DD/MM/YYYY"
-                  value={isoToDisplay(draft.job.nextServiceDate ?? "")}
-                  onChange={(e) => {
-                    const iso = displayToIso(e.target.value);
-                    updateJobField("nextServiceDate", iso);
-                  }}
+                  placeholder="YYYY-MM-DD"
+                  value={draft.job.nextServiceDate ?? ""}
+                  onChange={(e) => updateJobField("nextServiceDate", e.target.value)}
                   className="h-11 text-base"
                 />
               </div>
