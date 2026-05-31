@@ -61,7 +61,7 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
         <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full px-6 py-12">
           <div className="flex items-center gap-2.5 mb-10">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/icons/icon-192.png?v=2" alt="JobWrap" className="w-10 h-10 rounded-xl shrink-0 object-cover" />
+            <img src="/icons/icon-192.png?v=2" alt="JobWrap" className="w-10 h-10 shrink-0 object-cover" />
             <span className="text-2xl font-bold text-slate-900">JobWrap</span>
           </div>
 
@@ -90,7 +90,7 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
         {/* Logo */}
         <div className="flex items-center gap-2.5 mb-10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icons/icon-192.png?v=2" alt="JobWrap" className="w-10 h-10 rounded-xl shrink-0 object-cover" />
+          <img src="/icons/icon-192.png?v=2" alt="JobWrap" className="w-10 h-10 shrink-0 object-cover" />
           <span className="text-2xl font-bold text-slate-900">JobWrap</span>
         </div>
 

@@ -42,7 +42,7 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
         {/* Logo */}
         <div className="flex items-center gap-2.5 mb-10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icons/icon-192.png?v=2" alt="JobWrap" className="w-10 h-10 rounded-xl shrink-0 object-cover" />
+          <img src="/icons/icon-192.png?v=2" alt="JobWrap" className="w-10 h-10 shrink-0 object-cover" />
           <span className="text-2xl font-bold text-slate-900">JobWrap</span>
         </div>
 
