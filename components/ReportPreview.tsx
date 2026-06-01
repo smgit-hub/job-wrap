@@ -365,27 +365,27 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
         <div className="lg:pl-60">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer space-y-2">
 
-          {/* PDF is always the primary action */}
-          <button
-            onClick={handleExportPdf}
-            disabled={exportState === "generating"}
-            className="w-full h-14 rounded-2xl text-base font-bold text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:opacity-60 transition-colors shadow-md shadow-orange-200/50 flex items-center justify-center gap-2"
-          >
-            {exportState === "generating" ? (
-              <><Loader2 className="w-5 h-5 animate-spin" /> Building PDF…</>
-            ) : exportState === "done" ? (
-              <><CheckCircle2 className="w-5 h-5" /> PDF Saved!</>
-            ) : (
-              <><Download className="w-5 h-5" /> Download PDF</>
-            )}
-          </button>
-          <div className="grid grid-cols-2 gap-2">
+          {/* 3-across action row: Email | PDF (primary) | Share */}
+          <div className="grid grid-cols-3 gap-2">
             <ActionTile
               icon={emailState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : <Mail className="w-5 h-5 text-slate-500" />}
               label={emailState === "generating" ? "Preparing…" : "Send to Customer"}
               onClick={handleEmail}
               disabled={emailState === "generating"}
             />
+            <button
+              onClick={handleExportPdf}
+              disabled={exportState === "generating"}
+              className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:opacity-60 transition-colors shadow-md shadow-orange-200/50"
+            >
+              {exportState === "generating" ? (
+                <><Loader2 className="w-5 h-5 text-white animate-spin" /><span className="text-xs font-semibold text-white leading-none">Building…</span></>
+              ) : exportState === "done" ? (
+                <><CheckCircle2 className="w-5 h-5 text-white" /><span className="text-xs font-semibold text-white leading-none">PDF Saved!</span></>
+              ) : (
+                <><Download className="w-5 h-5 text-white" /><span className="text-xs font-semibold text-white leading-none">Download PDF</span></>
+              )}
+            </button>
             <ActionTile
               icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : canNativeShare ? <Share2 className="w-5 h-5 text-slate-500" /> : <Link className="w-5 h-5 text-slate-500" />}
               label={linkState === "generating" ? "Getting Link…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : "Share Link"}
