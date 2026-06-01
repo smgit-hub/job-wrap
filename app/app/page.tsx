@@ -24,6 +24,7 @@ import {
   purgeExpiredDeletedReports,
 } from "@/lib/storage";
 import { dbSaveReport, syncFromSupabase, migrateLocalStorageToSupabase } from "@/lib/db";
+import { getReports } from "@/lib/storage";
 
 type Screen = "dashboard" | "reports" | "customers" | "customer-profile" | "new-report" | "editor" | "preview" | "settings";
 
@@ -58,20 +59,19 @@ export default function Home() {
   // Purge reports that have been in trash for more than 7 days
   useState(() => { purgeExpiredDeletedReports(); });
 
-  // Incremented after the background sync completes, used as a key on screen
-  // components so they silently remount with fresh cloud data. Starts at 0 so
-  // screens render immediately from localStorage — no waiting for the network.
+  // True once the startup sync has completed. Used to gate rendering when
+  // localStorage is empty (fresh login) so we never flash zeros at the user.
+  // If localStorage already has data, we show it immediately and sync silently.
+  const [syncDone, setSyncDone] = useState(false);
   const [syncVersion, setSyncVersion] = useState(0);
 
   // On mount: migrate any existing localStorage data to Supabase,
   // then sync the latest cloud data back into the localStorage cache.
-  // Screens are already visible by the time this resolves — the increment
-  // triggers a silent remount to pick up any new data from the server.
   useEffect(() => {
     migrateLocalStorageToSupabase()
       .then(() => syncFromSupabase())
-      .then(() => setSyncVersion(v => v + 1))
-      .catch((err) => { console.warn("[page] startup sync failed:", err); });
+      .then(() => { setSyncDone(true); setSyncVersion(v => v + 1); })
+      .catch((err) => { console.warn("[page] startup sync failed:", err); setSyncDone(true); });
   }, []);
 
   const [screen, setScreen] = useState<Screen>("dashboard");
@@ -207,9 +207,11 @@ export default function Home() {
     goToScreen("dashboard");
   }
 
-  // Hold until auth state is known — prevents the dashboard flashing
-  // briefly before the session is confirmed on login.
-  if (authLoading) {
+  // Show spinner while auth resolves, or while syncing if localStorage is empty.
+  // Returning users see data instantly from localStorage; fresh logins wait for
+  // the sync so they never see a flash of zeros.
+  const hasLocalData = getReports().length > 0;
+  if (authLoading || (!hasLocalData && !syncDone)) {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
