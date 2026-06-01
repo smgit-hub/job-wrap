@@ -24,7 +24,6 @@ import {
   purgeExpiredDeletedReports,
 } from "@/lib/storage";
 import { dbSaveReport, syncFromSupabase, migrateLocalStorageToSupabase } from "@/lib/db";
-import { getReports } from "@/lib/storage";
 
 type Screen = "dashboard" | "reports" | "customers" | "customer-profile" | "new-report" | "editor" | "preview" | "settings";
 
@@ -207,11 +206,8 @@ export default function Home() {
     goToScreen("dashboard");
   }
 
-  // Show spinner while auth resolves, or while syncing if localStorage is empty.
-  // Returning users see data instantly from localStorage; fresh logins wait for
-  // the sync so they never see a flash of zeros.
-  const hasLocalData = getReports().length > 0;
-  if (authLoading || (!hasLocalData && !syncDone)) {
+  // Show spinner until auth resolves and the initial sync completes.
+  if (authLoading || !syncDone) {
     return (
       <div className="min-h-screen bg-slate-100 flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
