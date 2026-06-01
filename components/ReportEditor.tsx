@@ -156,6 +156,20 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         </div>
         {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={3} />}
 
+        {/* ── Generating spinner (first-time generation from draft) ─────── */}
+        {isUngenerated && isRegenerating && (
+          <div className="flex flex-col items-center gap-5 text-center py-16">
+            <div className="w-20 h-20 rounded-3xl bg-orange-50 flex items-center justify-center">
+              <Sparkles className="w-10 h-10 text-orange-400 animate-pulse" />
+            </div>
+            <div className="space-y-1">
+              <p className="font-bold text-slate-900 text-lg">Generating Report…</p>
+              <p className="text-sm text-slate-500">This usually takes 10–20 seconds.</p>
+            </div>
+            <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
+          </div>
+        )}
+
         {/* ── Ungenerated banner ─────────────────────────────────────────── */}
         {isUngenerated && onRegenerate && !isRegenerating && (
           <div className="bg-white rounded-2xl border border-dashed border-slate-200 shadow-card px-5 py-8 flex flex-col items-center gap-3 text-center">
