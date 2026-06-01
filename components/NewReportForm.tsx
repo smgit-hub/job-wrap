@@ -437,7 +437,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
 
               <div className="space-y-1.5">
                 <Label htmlFor="cf-address" className="flex items-center gap-1.5 text-slate-500">
-                  <MapPin className="w-3.5 h-3.5" />Address
+                  <MapPin className="w-3.5 h-3.5" />Address <span className="text-slate-400 font-normal">(optional)</span>
                 </Label>
                 <Input
                   id="cf-address"
@@ -451,7 +451,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
                   <Label htmlFor="cf-phone" className="flex items-center gap-1.5 text-slate-500">
-                    <Phone className="w-3.5 h-3.5" />Phone
+                    <Phone className="w-3.5 h-3.5" />Phone <span className="text-slate-400 font-normal">(optional)</span>
                   </Label>
                   <Input
                     id="cf-phone"
@@ -465,7 +465,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                 </div>
                 <div className="space-y-1.5">
                   <Label htmlFor="cf-email" className="flex items-center gap-1.5 text-slate-500">
-                    <Mail className="w-3.5 h-3.5" />Email
+                    <Mail className="w-3.5 h-3.5" />Email <span className="text-slate-400 font-normal">(optional)</span>
                   </Label>
                   <Input
                     id="cf-email"
@@ -481,7 +481,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
 
               <div className="space-y-1.5">
                 <Label htmlFor="cf-siteNotes" className="flex items-center gap-1.5 text-slate-500">
-                  <StickyNote className="w-3.5 h-3.5" />Site Notes
+                  <StickyNote className="w-3.5 h-3.5" />Site Notes <span className="text-slate-400 font-normal">(optional)</span>
                 </Label>
                 <Input
                   id="cf-siteNotes"

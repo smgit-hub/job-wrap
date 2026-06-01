@@ -145,7 +145,7 @@ export default function CustomerSelectScreen({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="edit-address">Address</Label>
+            <Label htmlFor="edit-address">Address <span className="text-slate-400 font-normal">(optional)</span></Label>
             <Input
               id="edit-address"
               value={editForm.address}
@@ -159,7 +159,7 @@ export default function CustomerSelectScreen({
             <div className="space-y-1.5">
               <Label htmlFor="edit-phone" className="flex items-center gap-1.5">
                 <Phone className="w-3.5 h-3.5 text-slate-500" />
-                Phone
+                Phone <span className="text-slate-400 font-normal">(optional)</span>
               </Label>
               <Input
                 id="edit-phone"
@@ -174,7 +174,7 @@ export default function CustomerSelectScreen({
             <div className="space-y-1.5">
               <Label htmlFor="edit-email" className="flex items-center gap-1.5">
                 <Mail className="w-3.5 h-3.5 text-slate-500" />
-                Email
+                Email <span className="text-slate-400 font-normal">(optional)</span>
               </Label>
               <Input
                 id="edit-email"
