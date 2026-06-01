@@ -401,7 +401,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                     className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-orange-500 active:text-orange-700 transition-colors"
                   >
                     <ChevronDown className="w-3.5 h-3.5" />
-                    Add optional address, equipment &amp; notes
+                    Add address &amp; contact details
                   </button>
                 </>
               )}
