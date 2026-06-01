@@ -362,75 +362,40 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
       <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer space-y-2">
 
-          {isNewReport ? (
-            /* New report — PDF is primary, Email + Copy Link secondary, Done is quiet */
-            <>
-              <button
-                onClick={handleExportPdf}
-                disabled={exportState === "generating"}
-                className="w-full h-14 rounded-2xl text-base font-bold text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:opacity-60 transition-colors shadow-md shadow-orange-200/50 flex items-center justify-center gap-2"
-              >
-                {exportState === "generating" ? (
-                  <><Loader2 className="w-5 h-5 animate-spin" /> Building PDF…</>
-                ) : exportState === "done" ? (
-                  <><CheckCircle2 className="w-5 h-5" /> PDF Saved!</>
-                ) : (
-                  <><Download className="w-5 h-5" /> Download PDF</>
-                )}
-              </button>
-              <div className="grid grid-cols-2 gap-2">
-                <ActionTile
-                  icon={emailState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : <Mail className="w-5 h-5 text-slate-500" />}
-                  label={emailState === "generating" ? "Preparing…" : "Send to Customer"}
-                  onClick={handleEmail}
-                  disabled={emailState === "generating"}
-                />
-                <ActionTile
-                  icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : canNativeShare ? <Share2 className="w-5 h-5 text-slate-500" /> : <Link className="w-5 h-5 text-slate-500" />}
-                  label={linkState === "generating" ? "Getting Link…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : "Share Link"}
-                  onClick={handleShareOrCopy}
-                  disabled={linkState === "generating"}
-                />
-              </div>
-              <button
-                onClick={onDone}
-                className="w-full h-10 text-sm font-semibold text-slate-500 hover:text-slate-600 active:text-slate-800 transition-colors"
-              >
-                Back to dashboard
-              </button>
-            </>
-          ) : (
-            /* Existing report — sharing tiles grouped, Edit separate below */
-            <>
-              <div className="grid grid-cols-3 gap-2">
-                <ActionTile
-                  icon={emailState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : <Mail className="w-5 h-5 text-slate-500" />}
-                  label={emailState === "generating" ? "Preparing…" : "Send to Customer"}
-                  onClick={handleEmail}
-                  disabled={emailState === "generating"}
-                />
-                <ActionTile
-                  icon={exportState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : exportState === "done" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : <Download className="w-5 h-5 text-slate-500" />}
-                  label={exportState === "generating" ? "Building…" : exportState === "done" ? "Saved!" : "PDF"}
-                  onClick={handleExportPdf}
-                  disabled={exportState === "generating"}
-                />
-                <ActionTile
-                  icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : canNativeShare ? <Share2 className="w-5 h-5 text-slate-500" /> : <Link className="w-5 h-5 text-slate-500" />}
-                  label={linkState === "generating" ? "Getting Link…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : "Share Link"}
-                  onClick={handleShareOrCopy}
-                  disabled={linkState === "generating"}
-                />
-              </div>
-              <button
-                onClick={onEdit}
-                className="w-full h-12 rounded-2xl text-sm font-semibold text-slate-700 border border-slate-200 bg-white hover:bg-slate-50 active:bg-slate-100 transition-colors flex items-center justify-center gap-2"
-              >
-                <Pencil className="w-4 h-4" />
-                Edit Report
-              </button>
-            </>
-          )}
+          {/* PDF is always the primary action */}
+          <button
+            onClick={handleExportPdf}
+            disabled={exportState === "generating"}
+            className="w-full h-14 rounded-2xl text-base font-bold text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:opacity-60 transition-colors shadow-md shadow-orange-200/50 flex items-center justify-center gap-2"
+          >
+            {exportState === "generating" ? (
+              <><Loader2 className="w-5 h-5 animate-spin" /> Building PDF…</>
+            ) : exportState === "done" ? (
+              <><CheckCircle2 className="w-5 h-5" /> PDF Saved!</>
+            ) : (
+              <><Download className="w-5 h-5" /> Download PDF</>
+            )}
+          </button>
+          <div className="grid grid-cols-2 gap-2">
+            <ActionTile
+              icon={emailState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : <Mail className="w-5 h-5 text-slate-500" />}
+              label={emailState === "generating" ? "Preparing…" : "Send to Customer"}
+              onClick={handleEmail}
+              disabled={emailState === "generating"}
+            />
+            <ActionTile
+              icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : canNativeShare ? <Share2 className="w-5 h-5 text-slate-500" /> : <Link className="w-5 h-5 text-slate-500" />}
+              label={linkState === "generating" ? "Getting Link…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : "Share Link"}
+              onClick={handleShareOrCopy}
+              disabled={linkState === "generating"}
+            />
+          </div>
+          <button
+            onClick={isNewReport ? onDone : onEdit}
+            className="w-full h-10 text-sm font-semibold text-slate-500 hover:text-slate-600 active:text-slate-800 transition-colors flex items-center justify-center gap-1.5"
+          >
+            {isNewReport ? "Back to dashboard" : <><Pencil className="w-3.5 h-3.5" /> Edit Report</>}
+          </button>
 
         </div>
       </div>
