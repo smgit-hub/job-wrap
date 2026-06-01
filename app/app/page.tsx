@@ -53,7 +53,7 @@ export default function Home() {
   //   4. Test in both licensed and unlicensed states before releasing.
   // ── end AppGild TODO ────────────────────────────────────────────────────────
 
-  const { isDemo, signOut } = useAuth();
+  const { isDemo, signOut, loading: authLoading } = useAuth();
 
   // Purge reports that have been in trash for more than 7 days
   useState(() => { purgeExpiredDeletedReports(); });
@@ -205,6 +205,16 @@ export default function Home() {
       setActiveReport({ ...activeReport, business: profile });
     }
     goToScreen("dashboard");
+  }
+
+  // Hold until auth state is known — prevents the dashboard flashing
+  // briefly before the session is confirmed on login.
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
   }
 
   return (
