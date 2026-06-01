@@ -3,10 +3,6 @@
 // Returns a binary PDF stream generated server-side via @react-pdf/renderer.
 // Running in Node.js runtime — @react-pdf/renderer is in serverExternalPackages.
 //
-// TODO(security): this endpoint has no authentication check — any caller can
-// generate a PDF using arbitrary report data. Before public launch, validate
-// that the report belongs to the authenticated user (via Supabase session).
-//
 // TODO(rate-limiting): add rate limiting (e.g. Upstash) before public launch.
 
 // Maximum accepted request body size (10 MB) to prevent OOM on the server.
@@ -17,6 +13,7 @@ import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
 import type { DocumentProps } from "@react-pdf/renderer";
 import ReportPdfDocument from "@/lib/pdf/reportPdfDocument";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type { ServiceReport, JobPhoto } from "@/types/report";
 
 function generateFilename(customerName: string, jobDate: string): string {
@@ -57,6 +54,15 @@ function isValidReportPayload(body: unknown): body is { report: ServiceReport; p
 }
 
 export async function POST(request: Request) {
+  // Auth check — must be a signed-in user
+  const supabase = await getSupabaseServerClient();
+  if (supabase) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return Response.json({ error: "Unauthorised" }, { status: 401 });
+    }
+  }
+
   // Guard against oversized bodies before parsing JSON
   const contentLength = request.headers.get("content-length");
   if (contentLength && parseInt(contentLength, 10) > MAX_BODY_BYTES) {

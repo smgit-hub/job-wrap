@@ -3,7 +3,6 @@
 // API keys are never exposed to the client.
 //
 // TODO (future): add rate limiting (e.g. Upstash) before public deployment.
-// TODO (future): once Supabase Auth is wired to this route, validate session token.
 //
 // Maximum accepted request body (32 KB) — well above any realistic job notes payload.
 const MAX_BODY_BYTES = 32 * 1024;
@@ -12,6 +11,7 @@ export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
 import { generateReport } from "@/lib/ai/generateReport";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type { ServiceType } from "@/types/report";
 
 const VALID_SERVICE_TYPES = new Set<ServiceType>([
@@ -34,6 +34,15 @@ function str(v: unknown, fallback = ""): string {
 }
 
 export async function POST(request: Request) {
+  // Auth check — must be a signed-in user
+  const supabase = await getSupabaseServerClient();
+  if (supabase) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+    }
+  }
+
   // Guard against oversized bodies before parsing
   const contentLength = request.headers.get("content-length");
   if (contentLength && parseInt(contentLength, 10) > MAX_BODY_BYTES) {

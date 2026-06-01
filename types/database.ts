@@ -101,6 +101,8 @@ export type SharedReportRow = {
   token: string;
   report_data: Record<string, unknown>; // ServiceReport JSON
   photos: unknown[];                    // JobPhoto[]
+  user_id: string | null;              // who created the link
+  expires_at: string | null;           // ISO timestamp — null = never expires
   created_at: string;
 };
 

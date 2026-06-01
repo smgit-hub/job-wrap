@@ -2,19 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import type { ServiceReport, JobPhoto } from "@/types/report";
 
-// TODO(security): add rate limiting (e.g. Upstash) before public launch.
-// Without rate limiting, any authenticated user can create unlimited share links
-// which would fill the shared_reports table. Suggested limit: 20 shares/user/hour.
+// TODO(rate-limiting): add rate limiting (e.g. Upstash) before public launch.
+// Suggested limit: 20 shares/user/hour.
 
-// TODO(security): shared_reports currently allows unauthenticated INSERT via the
-// anon RLS policy (004_shared_reports.sql). Once auth is wired end-to-end, consider
-// restricting INSERT to authenticated users only and storing user_id on the row
-// so orphaned rows can be cleaned up later.
-//
-// TODO(security): shared report links never expire. Before public launch, add an
-// `expires_at` column (e.g. 30 days from creation) and a SELECT policy check:
-//   USING (expires_at IS NULL OR expires_at > NOW())
-// Also add a DELETE endpoint so users can revoke a share link they created.
+// Share links expire after 90 days.
+const SHARE_LINK_TTL_DAYS = 90;
 
 function generateToken(): string {
   // 32 hex chars = 128 bits of entropy — unguessable, short enough for URLs
@@ -50,10 +42,6 @@ function isValidReport(r: unknown): r is ServiceReport {
   );
 }
 
-// TODO(security): validate photo array more strictly — currently accepts any
-// unknown[] from the client. Consider verifying that each photo.dataUrl is a
-// valid base64 JPEG data URL that starts with "data:image/".
-
 // Maximum accepted request body (10 MB) — a report + 6 base64 photos is ~5 MB.
 const MAX_BODY_BYTES = 10 * 1024 * 1024;
 
@@ -70,6 +58,12 @@ export async function POST(request: NextRequest) {
       { error: "Sharing requires Supabase — check your environment variables." },
       { status: 503 }
     );
+  }
+
+  // Auth check — must be a signed-in user
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   }
 
   let report: ServiceReport;
@@ -89,11 +83,14 @@ export async function POST(request: NextRequest) {
   }
 
   const token = generateToken();
+  const expiresAt = new Date(Date.now() + SHARE_LINK_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
 
   const { error } = await supabase.from("shared_reports").insert({
     token,
     report_data: report as unknown as Record<string, unknown>,
     photos: photos as unknown[],
+    user_id: user.id,
+    expires_at: expiresAt,
   });
 
   if (error) {
