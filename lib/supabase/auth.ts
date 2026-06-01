@@ -57,6 +57,14 @@ export async function signUp(
   };
 }
 
+export async function resendConfirmation(email: string): Promise<{ error: AuthError | null }> {
+  const client = getSupabaseBrowserClient();
+  if (!client) return { error: null };
+
+  const { error } = await client.auth.resend({ type: "signup", email });
+  return { error };
+}
+
 export async function signOut(): Promise<{ error: AuthError | null }> {
   const client = getSupabaseBrowserClient();
   if (!client) return { error: null };

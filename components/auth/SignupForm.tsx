@@ -2,11 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signUp } from "@/lib/supabase/auth";
+import { signUp, resendConfirmation } from "@/lib/supabase/auth";
 
 interface SignupFormProps {
   onSuccess: () => void;
@@ -21,6 +21,15 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [verifyPending, setVerifyPending] = useState(false);
+  const [resendState, setResendState] = useState<"idle" | "sending" | "sent">("idle");
+
+  async function handleResend() {
+    if (resendState !== "idle") return;
+    setResendState("sending");
+    await resendConfirmation(email);
+    setResendState("sent");
+    setTimeout(() => setResendState("idle"), 4000);
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -65,12 +74,38 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
             <span className="text-2xl font-bold text-slate-900">JobWrap</span>
           </div>
 
-          <div className="bg-white border border-slate-100 rounded-2xl p-6 text-center shadow-card">
-            <p className="text-lg font-bold text-slate-900 mb-2">Check your email</p>
-            <p className="text-sm text-slate-500">
-              We sent a confirmation link to <strong>{email}</strong>. Click it to activate your
-              account, then sign in.
-            </p>
+          <div className="bg-white border border-slate-100 rounded-2xl p-6 shadow-card space-y-5">
+            <div className="flex flex-col items-center gap-3 text-center">
+              <div className="w-14 h-14 rounded-2xl bg-orange-50 flex items-center justify-center">
+                <Mail className="w-7 h-7 text-orange-500" />
+              </div>
+              <div>
+                <p className="text-lg font-bold text-slate-900">Check your email</p>
+                <p className="text-sm text-slate-500 mt-1">
+                  We sent a confirmation link to
+                </p>
+                <p className="text-sm font-semibold text-slate-800 mt-0.5">{email}</p>
+              </div>
+              <p className="text-xs text-slate-400 leading-relaxed">
+                Tap the link in the email to activate your account, then come back here to sign in. Check your spam folder if you don&apos;t see it.
+              </p>
+            </div>
+
+            <a
+              href={`mailto:${email}`}
+              className="w-full h-12 rounded-xl bg-orange-500 text-white text-sm font-semibold flex items-center justify-center gap-2 active:bg-orange-600 transition-colors"
+            >
+              <Mail className="w-4 h-4" />
+              Open Mail app
+            </a>
+
+            <button
+              onClick={handleResend}
+              disabled={resendState !== "idle"}
+              className="w-full h-12 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold active:bg-slate-200 transition-colors disabled:opacity-60"
+            >
+              {resendState === "sending" ? "Sending…" : resendState === "sent" ? "Email sent ✓" : "Resend email"}
+            </button>
           </div>
 
           <button
