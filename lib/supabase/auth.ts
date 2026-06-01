@@ -57,6 +57,16 @@ export async function signUp(
   };
 }
 
+export async function resetPassword(email: string): Promise<{ error: AuthError | null }> {
+  const client = getSupabaseBrowserClient();
+  if (!client) return { error: null };
+
+  const { error } = await client.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/login`,
+  });
+  return { error };
+}
+
 export async function resendConfirmation(email: string): Promise<{ error: AuthError | null }> {
   const client = getSupabaseBrowserClient();
   if (!client) return { error: null };
