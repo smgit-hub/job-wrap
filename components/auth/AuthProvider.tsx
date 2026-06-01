@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useRef, useState, useCallback } f
 import type { User, Session } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { signOut as authSignOut } from "@/lib/supabase/auth";
-import { clearDemoSession } from "@/lib/db";
+import { clearDemoSession, markDemoSessionActive, wasDemoSessionActive } from "@/lib/db";
 
 interface AuthContextValue {
   user: User | null;
@@ -61,10 +61,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     // Subscribe to auth state changes (login, logout, token refresh)
     const { data: { subscription } } = client.auth.onAuthStateChange((_event, newSession) => {
       const newUser = newSession?.user ?? null;
-      // If a real (non-demo) user just signed in and the previous session was
-      // demo, clear localStorage so demo data can't migrate into their account.
-      if (newUser && newUser.email !== DEMO_EMAIL && userRef.current?.email === DEMO_EMAIL) {
-        clearDemoSession();
+      if (newUser) {
+        if (newUser.email === DEMO_EMAIL) {
+          // Demo just signed in — mark localStorage so we can detect it after
+          // a page reload when userRef has been reset.
+          markDemoSessionActive();
+        } else if (wasDemoSessionActive()) {
+          // Real user signing in after a demo session (survives page reloads).
+          // Clear demo localStorage before migration can run.
+          clearDemoSession();
+        }
       }
       userRef.current = newUser;
       setSession(newSession);

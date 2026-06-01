@@ -267,6 +267,20 @@ export { getStoredPhotos };
 // Called when a demo user clicks "Create free account". Wipes all localStorage
 // so their demo-session data doesn't get migrated into their new real account.
 
+const DEMO_FLAG_KEY = "jobwrap_demo_active";
+
+/** Call when the demo session starts so we can detect it across page reloads. */
+export function markDemoSessionActive(): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(DEMO_FLAG_KEY, "1");
+}
+
+/** Returns true if the last active session was a demo session. */
+export function wasDemoSessionActive(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem(DEMO_FLAG_KEY) === "1";
+}
+
 export function clearDemoSession(): void {
   if (typeof window === "undefined") return;
   const keys = [
@@ -278,6 +292,7 @@ export function clearDemoSession(): void {
     "jobwrap_seeded_v3",
     "jobwrap_migrated_v1",
     "jobwrap_last_sync",
+    DEMO_FLAG_KEY,
   ];
   keys.forEach((k) => localStorage.removeItem(k));
 }
