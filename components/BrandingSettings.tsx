@@ -150,7 +150,10 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         {/* ── Account ─────────────────────────────────────────────────────── */}
         {isConfigured && (
           <>
-            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Account</h2>
+            <div className="flex items-center gap-3 pt-2">
+              <h2 className="text-xl font-bold text-slate-900 shrink-0">Account</h2>
+              <div className="flex-1 h-px bg-slate-200" />
+            </div>
 
             {/* Change Password */}
             <Card className="border border-slate-100 shadow-card">
@@ -249,7 +252,10 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         )}
 
         {/* ── Business ─────────────────────────────────────────────────────── */}
-        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Business</h2>
+        <div className="flex items-center gap-3 pt-2">
+          <h2 className="text-xl font-bold text-slate-900 shrink-0">Business</h2>
+          <div className="flex-1 h-px bg-slate-200" />
+        </div>
 
         {/* Live preview */}
         <div
