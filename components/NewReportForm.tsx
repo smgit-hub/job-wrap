@@ -601,8 +601,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
       )}
 
       {/* Sticky footer */}
-      <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
-        <div className="lg:pl-60">
+      <div className="fixed left-0 lg:left-60 right-0 z-20 bg-white border-t border-slate-100 above-nav">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer">
           <button
             onClick={handleSetupContinue}
@@ -624,7 +623,6 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
             <BookmarkCheck className="w-4 h-4" />
             Save for later
           </button>
-        </div>
         </div>
       </div>
     </>

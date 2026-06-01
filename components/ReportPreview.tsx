@@ -359,8 +359,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
       </main>
 
       {/* ── Sticky action bar ── */}
-      <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
-        <div className="lg:pl-60">
+      <div className="fixed left-0 lg:left-60 right-0 z-20 bg-white border-t border-slate-100 above-nav">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer space-y-2">
 
           {/* PDF is always the primary action */}
@@ -398,7 +397,6 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             {isNewReport ? "Back to dashboard" : <><Pencil className="w-3.5 h-3.5" /> Edit Report</>}
           </button>
 
-        </div>
         </div>
       </div>
 
