@@ -363,7 +363,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
               ) : (
                 /* Unlinked — name input with autocomplete dropdown */
                 <>
-                  <div className="relative">
+                  <div className="relative flex gap-2">
                     <Input
                       id="cf-name"
                       value={customerForm.name}
@@ -373,8 +373,22 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                       placeholder="Customer name"
                       autoFocus
                       autoComplete="off"
-                      className="h-11 text-base bg-slate-50 border-slate-200"
+                      className="h-11 text-base bg-slate-50 border-slate-200 flex-1"
                     />
+                    <button
+                      type="button"
+                      onClick={handleSetupContinue}
+                      disabled={!customerForm.name.trim()}
+                      aria-label="Continue"
+                      className={cn(
+                        "h-11 w-11 rounded-xl flex items-center justify-center shrink-0 transition-all",
+                        customerForm.name.trim()
+                          ? "bg-orange-500 text-white shadow-md shadow-orange-200 active:bg-orange-600"
+                          : "bg-slate-200 text-slate-400 cursor-not-allowed"
+                      )}
+                    >
+                      <ArrowRight className="w-5 h-5" />
+                    </button>
                     {showSuggestions && suggestions.length > 0 && (
                       <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-lg border border-slate-100 z-20 overflow-hidden">
                         {suggestions.map((c) => (
