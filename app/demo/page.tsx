@@ -31,7 +31,8 @@ export default function DemoPage() {
     // Not signed in — sign in as demo
     const client = getSupabaseBrowserClient();
     if (!client) {
-      setError("Demo unavailable — please try again later.");
+      // Use a microtask to avoid synchronous setState inside an effect
+      Promise.resolve().then(() => setError("Demo unavailable — please try again later."));
       return;
     }
 

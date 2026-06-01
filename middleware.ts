@@ -2,11 +2,11 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 
-// Auth proxy — only active when Supabase credentials are configured.
+// Auth middleware — only active when Supabase credentials are configured.
 // Without NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY the app
 // runs in localStorage-only mode and no redirect occurs.
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -16,11 +16,11 @@ export async function proxy(request: NextRequest) {
   if (process.env.BYPASS_AUTH === "true") {
     if (process.env.NODE_ENV === "production") {
       throw new Error(
-        "[proxy] BYPASS_AUTH=true is not allowed in production. " +
+        "[middleware] BYPASS_AUTH=true is not allowed in production. " +
         "Remove it from your environment variables and redeploy."
       );
     }
-    console.warn("[proxy] BYPASS_AUTH=true — all auth checks skipped. Dev only.");
+    console.warn("[middleware] BYPASS_AUTH=true — all auth checks skipped. Dev only.");
     return NextResponse.next();
   }
   if (!url || !key) {

@@ -6,6 +6,7 @@
 export const runtime = "nodejs";
 
 import { NextResponse } from "next/server";
+import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 const PROMPT = `You are reading a photograph of an HVAC equipment nameplate or data plate.
 Extract all visible information: brand/manufacturer, model number, serial number, capacity/tonnage, refrigerant type, voltage, and any other relevant specs.
@@ -70,6 +71,15 @@ async function withOpenAI(base64: string, mime: string): Promise<string> {
 // ── Route handler ─────────────────────────────────────────────────────────────
 
 export async function POST(request: Request) {
+  // Auth check — must be a signed-in user
+  const supabase = await getSupabaseServerClient();
+  if (supabase) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+    }
+  }
+
   let formData: FormData;
   try {
     formData = await request.formData();

@@ -17,7 +17,6 @@ import {
   purgeReport as lsPurgeReport,
   getCustomers as lsGetCustomers,
   saveCustomer as lsSaveCustomer,
-  deleteCustomer as lsDeleteCustomer,
   getBusinessProfile as lsGetBusinessProfile,
   saveBusinessProfile as lsSaveBusinessProfile,
 } from "@/lib/storage";
@@ -253,7 +252,7 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
     return;
   }
 
-  console.log(`[migration] Migrating ${reports.length} reports and ${customers.length} customers to Supabase…`);
+  if (process.env.NODE_ENV !== "production") console.log(`[migration] Migrating ${reports.length} reports and ${customers.length} customers to Supabase…`);
 
   // Import bulk migration helpers lazily to avoid bundling them everywhere
   const { migrateReportsToDb } = await import("@/lib/supabase/queries/reports");
@@ -268,7 +267,7 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
   // to Supabase Storage the next time each report is opened and re-saved.
 
   localStorage.setItem(MIGRATION_KEY, "1");
-  console.log("[migration] Migration complete.");
+  if (process.env.NODE_ENV !== "production") console.log("[migration] Migration complete.");
 }
 
 // Re-export getStoredPhotos for use in components that need to check stored state

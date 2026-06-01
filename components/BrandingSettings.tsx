@@ -59,7 +59,6 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
   const logoInputRef = useRef<HTMLInputElement>(null);
   const { isConfigured, signOut } = useAuth();
   // ── Account: Change Password ─────────────────────────────────────────────
-  const [pwCurrent, setPwCurrent] = useState("");
   const [pwNew, setPwNew] = useState("");
   const [pwConfirm, setPwConfirm] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -76,7 +75,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
     const { error } = await client.auth.updateUser({ password: pwNew });
     if (error) { setPwState("error"); setPwError(error.message); return; }
     setPwState("saved");
-    setPwCurrent(""); setPwNew(""); setPwConfirm("");
+    setPwNew(""); setPwConfirm("");
     setTimeout(() => setPwState("idle"), 3000);
   }
 
