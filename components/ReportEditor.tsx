@@ -10,6 +10,7 @@ import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 import type { ServiceReport, GeneratedReport, JobPhoto, JobDetails } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
 import { saveReport } from "@/lib/storage";
+import { dbSaveReport } from "@/lib/db";
 import { getPhotosForReport, savePhotosForReport } from "@/lib/photoStorage";
 import PhotoSection from "@/components/PhotoSection";
 import BulletEditor from "@/components/BulletEditor";
@@ -39,9 +40,11 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
   const latestDraft = useRef<ServiceReport>(draft);
   useEffect(() => { latestDraft.current = draft; }, [draft]);
 
-  // Auto-save on every draft change
+  // Auto-save on every draft change — localStorage instantly, Supabase async
   useEffect(() => {
     saveReport(draft);
+    void dbSaveReport(draft, photos);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draft]);
 
   useEffect(() => {
@@ -53,7 +56,8 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
 
   function handlePhotosChange(updated: JobPhoto[]) {
     setPhotos(updated);
-    savePhotosForReport(draft.id, updated);
+    savePhotosForReport(draft.id, updated);   // localStorage cache
+    void dbSaveReport(draft, updated);         // Supabase — uploads new photos
   }
 
   async function handleRegenerate() {

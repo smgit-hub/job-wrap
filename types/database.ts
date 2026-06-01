@@ -28,27 +28,50 @@ export type BusinessSettingsRow = {
   technician_name: string;
   phone: string;
   email: string;
-  license_number: string;
-  brand_color: string;  // hex, e.g. "#0ea5e9"
+  license_number: string;   // legacy single licence field — kept for backwards compat
+  licence1_label: string;
+  licence1_number: string;
+  licence2_label: string;
+  licence2_number: string;
+  brand_color: string;      // hex, e.g. "#0ea5e9"
   logo_url: string | null;
+  tagline: string;
+  website: string;
   created_at: string;
   updated_at: string;
 };
 
-// report_data contains the full GeneratedReport JSON plus JobDetails.
-// Keeping it as JSONB gives flexibility for future schema evolution across
-// service verticals without requiring a migration for every new field.
+// report_data stores the full ServiceReport JSON as a self-contained snapshot.
+// Indexed columns (customer_name, service_type, job_date, etc.) allow fast
+// filtering/search without parsing JSONB on every query.
 export type ReportRow = {
-  id: string;           // UUID
-  user_id: string;      // FK → profiles(id)
+  id: string;                    // UUID (Supabase-generated)
+  local_id: string | null;       // app-side rpt_xxx ID — set during migration
+  user_id: string;               // FK → profiles(id)
   status: "draft" | "complete";
   customer_name: string;
   service_address: string;
-  service_type: string; // ServiceType — kept as string for future vertical expansion
+  service_type: string;          // ServiceType — string for future verticals
   equipment_type: string;
-  job_date: string;     // ISO date (YYYY-MM-DD)
+  job_date: string;              // ISO date (YYYY-MM-DD)
+  next_service_date: string | null;
   rough_notes: string;
-  report_data: Record<string, unknown>; // GeneratedReport JSON
+  report_data: Record<string, unknown>; // full ServiceReport JSON
+  deleted_at: string | null;     // set on soft-delete, null = active
+  created_at: string;
+  updated_at: string;
+};
+
+export type CustomerRow = {
+  id: string;           // UUID
+  local_id: string | null; // app-side cust_xxx ID — set during migration
+  user_id: string;      // FK → profiles(id)
+  name: string;
+  address: string;
+  site_notes: string;
+  phone: string | null;
+  email: string | null;
+  equipment: string | null;
   created_at: string;
   updated_at: string;
 };
@@ -68,6 +91,9 @@ export type BusinessSettingsUpdate = Partial<
 
 export type ReportInsert = Omit<ReportRow, "id" | "created_at" | "updated_at">;
 export type ReportUpdate = Partial<Omit<ReportRow, "id" | "user_id" | "created_at">>;
+
+export type CustomerInsert = Omit<CustomerRow, "id" | "created_at" | "updated_at">;
+export type CustomerUpdate = Partial<Omit<CustomerRow, "id" | "user_id" | "created_at">>;
 
 // Stored by the share-report API route. Token is the URL slug — no auth needed.
 export type SharedReportRow = {
@@ -101,6 +127,12 @@ export interface Database {
         Row: ReportRow;
         Insert: ReportInsert;
         Update: ReportUpdate;
+        Relationships: [];
+      };
+      customers: {
+        Row: CustomerRow;
+        Insert: CustomerInsert;
+        Update: CustomerUpdate;
         Relationships: [];
       };
       shared_reports: {

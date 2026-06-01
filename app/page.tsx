@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Dashboard from "@/components/Dashboard";
 import Reports from "@/components/Reports";
 import type { ReportsFilter } from "@/components/Reports";
@@ -22,6 +22,7 @@ import {
   upsertCustomerFromJob,
   purgeExpiredDeletedReports,
 } from "@/lib/storage";
+import { dbSaveReport, syncFromSupabase, migrateLocalStorageToSupabase } from "@/lib/db";
 
 type Screen = "dashboard" | "reports" | "customers" | "customer-profile" | "new-report" | "editor" | "preview" | "settings";
 
@@ -53,6 +54,14 @@ export default function Home() {
 
   // Purge reports that have been in trash for more than 7 days
   useState(() => { purgeExpiredDeletedReports(); });
+
+  // On mount: migrate any existing localStorage data to Supabase,
+  // then sync the latest cloud data back into the localStorage cache.
+  useEffect(() => {
+    migrateLocalStorageToSupabase()
+      .then(() => syncFromSupabase())
+      .catch((err) => console.warn("[page] startup sync failed:", err));
+  }, []);
 
   const [screen, setScreen] = useState<Screen>("dashboard");
   const [navStack, setNavStack] = useState<Screen[]>([]);
@@ -156,7 +165,8 @@ export default function Home() {
     };
 
     upsertCustomerFromJob(job);
-    saveReport(report);
+    saveReport(report);          // localStorage — instant, synchronous
+    void dbSaveReport(report);   // Supabase — async, fire-and-forget
     clearDraft();
     setActiveReport(report);
     setIsNewReport(true);

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Customer } from "@/types/report";
 import { getCustomers, saveCustomer, deleteCustomer, migrateCustomersFromReports } from "@/lib/storage";
+import { dbSaveCustomer, dbDeleteCustomer } from "@/lib/db";
 
 interface CustomerSelectScreenProps {
   onBack: () => void;
@@ -58,7 +59,7 @@ export default function CustomerSelectScreen({
 
   function handleSaveEdit() {
     if (!editingCustomer || !editForm.name.trim()) return;
-    saveCustomer({
+    const updated: Customer = {
       ...editingCustomer,
       name: editForm.name.trim(),
       address: editForm.address.trim(),
@@ -66,7 +67,9 @@ export default function CustomerSelectScreen({
       phone: editForm.phone.trim() || undefined,
       email: editForm.email.trim() || undefined,
       updatedAt: new Date().toISOString(),
-    });
+    };
+    saveCustomer(updated);
+    void dbSaveCustomer(updated);
     reload();
     setSaved(true);
     setTimeout(() => {
@@ -78,6 +81,7 @@ export default function CustomerSelectScreen({
   function handleDelete() {
     if (!editingCustomer) return;
     deleteCustomer(editingCustomer.id);
+    void dbDeleteCustomer(editingCustomer.id);
     reload();
     setMode("list");
   }
@@ -95,6 +99,7 @@ export default function CustomerSelectScreen({
       updatedAt: new Date().toISOString(),
     };
     saveCustomer(updated);
+    void dbSaveCustomer(updated);
     onSelectCustomer(updated);
   }
 

@@ -28,14 +28,15 @@ export function toBusinessSettingsInsert(
     technician_name: profile.technicianName,
     phone: profile.phone,
     email: profile.email,
-    // TODO(schema): add licence1_label, licence1_number, licence2_label, licence2_number columns.
-    // For now, serialise both into the existing license_number column.
-    license_number: [
-      profile.licence1Label && profile.licence1Number ? `${profile.licence1Label}: ${profile.licence1Number}` : "",
-      profile.licence2Label && profile.licence2Number ? `${profile.licence2Label}: ${profile.licence2Number}` : "",
-    ].filter(Boolean).join(" · ") || "",
+    license_number: "",  // legacy — kept for backwards compat
+    licence1_label: profile.licence1Label ?? "",
+    licence1_number: profile.licence1Number ?? "",
+    licence2_label: profile.licence2Label ?? "",
+    licence2_number: profile.licence2Number ?? "",
     brand_color: profile.brandColor,
     logo_url: profile.logoUrl ?? null,
+    tagline: profile.tagline ?? "",
+    website: profile.website ?? "",
   };
 }
 
@@ -45,13 +46,14 @@ export function toBusinessProfile(row: BusinessSettingsRow): BusinessProfile {
     technicianName: row.technician_name,
     phone: row.phone,
     email: row.email,
-    // TODO(schema): read from dedicated columns once DB migration is applied.
-    licence1Label: row.license_number ? "Licence" : "",
-    licence1Number: row.license_number ?? "",
-    licence2Label: "",
-    licence2Number: "",
+    licence1Label: row.licence1_label || (row.license_number ? "Licence" : ""),
+    licence1Number: row.licence1_number || row.license_number || "",
+    licence2Label: row.licence2_label ?? "",
+    licence2Number: row.licence2_number ?? "",
     brandColor: row.brand_color,
     logoUrl: row.logo_url ?? undefined,
+    tagline: row.tagline || undefined,
+    website: row.website || undefined,
   };
 }
 
