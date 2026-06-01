@@ -56,7 +56,8 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
   const [saved, setSaved] = useState(false);
   const [logoLoading, setLogoLoading] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
-  const { isConfigured, signOut } = useAuth();
+  const { isConfigured, signOut, user } = useAuth();
+  const isDemo = user?.email === "demo@jobwrap.app";
   const [showClearConfirm, setShowClearConfirm] = useState(false);
 
   function handleClearAllData() {
@@ -467,13 +468,15 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
               <LogOut className="w-4 h-4" />
               Sign out
             </button>
-            <button
-              onClick={() => setShowClearConfirm(true)}
-              className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-medium text-red-400 border border-red-100 hover:bg-red-50 active:bg-red-100 transition-colors"
-            >
-              <Trash2 className="w-4 h-4" />
-              Clear all data
-            </button>
+            {!isDemo && (
+              <button
+                onClick={() => setShowClearConfirm(true)}
+                className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-medium text-red-400 border border-red-100 hover:bg-red-50 active:bg-red-100 transition-colors"
+              >
+                <Trash2 className="w-4 h-4" />
+                Clear all data
+              </button>
+            )}
           </div>
         )}
 
