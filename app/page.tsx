@@ -216,7 +216,7 @@ export default function Home() {
             onClick={() => signOut().then(() => { window.location.href = "/login"; })}
             className="text-xs font-bold text-white bg-white/20 rounded-lg px-3 py-1.5 active:bg-white/30 transition-colors shrink-0"
           >
-            Create free account →
+            Create account →
           </button>
         </div>
       )}
@@ -233,7 +233,7 @@ export default function Home() {
           >
             <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-5" />
             <div className="text-center space-y-2 mb-6">
-              <p className="text-lg font-bold text-slate-900">Create your free account</p>
+              <p className="text-lg font-bold text-slate-900">Create your account</p>
               <p className="text-sm text-slate-500">Sign up to start creating and saving your own reports.</p>
             </div>
             <div className="space-y-3">
