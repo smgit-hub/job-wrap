@@ -1,22 +1,8 @@
-"use client";
-
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/components/auth/AuthProvider";
+// Middleware handles auth-aware routing — authenticated users never reach /,
+// unauthenticated users are redirected to /login. This redirect is a fallback
+// for cases where middleware is not active (e.g. no Supabase credentials).
+import { redirect } from "next/navigation";
 
 export default function RootPage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (loading) return;
-    if (user) {
-      router.replace("/app");
-    } else {
-      router.replace("/login");
-    }
-  }, [user, loading, router]);
-
-  // Blank while redirecting
-  return null;
+  redirect("/app");
 }
