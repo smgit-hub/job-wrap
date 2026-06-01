@@ -58,17 +58,20 @@ export default function Home() {
   // Purge reports that have been in trash for more than 7 days
   useState(() => { purgeExpiredDeletedReports(); });
 
-  // Flips to true once the startup sync has written data into localStorage,
-  // used as a key on screen components so they remount with fresh data.
-  const [syncReady, setSyncReady] = useState(false);
+  // Incremented after the background sync completes, used as a key on screen
+  // components so they silently remount with fresh cloud data. Starts at 0 so
+  // screens render immediately from localStorage — no waiting for the network.
+  const [syncVersion, setSyncVersion] = useState(0);
 
   // On mount: migrate any existing localStorage data to Supabase,
   // then sync the latest cloud data back into the localStorage cache.
+  // Screens are already visible by the time this resolves — the increment
+  // triggers a silent remount to pick up any new data from the server.
   useEffect(() => {
     migrateLocalStorageToSupabase()
       .then(() => syncFromSupabase())
-      .then(() => setSyncReady(true))
-      .catch((err) => { console.warn("[page] startup sync failed:", err); setSyncReady(true); });
+      .then(() => setSyncVersion(v => v + 1))
+      .catch((err) => { console.warn("[page] startup sync failed:", err); });
   }, []);
 
   const [screen, setScreen] = useState<Screen>("dashboard");
@@ -277,7 +280,7 @@ export default function Home() {
 
       {screen === "dashboard" && (
         <Dashboard
-          key={syncReady ? "ready" : "loading"}
+          key={syncVersion}
           onNewReport={handleNewReport}
           onOpenReport={handleOpenReport}
           onSettings={() => goToScreen("settings")}
@@ -287,7 +290,7 @@ export default function Home() {
 
       {screen === "reports" && (
         <Reports
-          key={syncReady ? "ready" : "loading"}
+          key={syncVersion}
           initialFilter={reportsFilter}
           onOpenReport={handleOpenReport}
         />
