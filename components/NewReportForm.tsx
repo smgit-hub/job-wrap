@@ -401,7 +401,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                     className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-orange-500 active:text-orange-700 transition-colors"
                   >
                     <ChevronDown className="w-3.5 h-3.5" />
-                    Add address &amp; contact details
+                    Add address &amp; contact details <span className="text-slate-400 font-normal">(optional)</span>
                   </button>
                 </>
               )}
@@ -533,7 +533,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
             {/* Equipment */}
             <div className="space-y-1.5">
               <Label htmlFor="equipment" className="flex items-center gap-1.5 text-slate-500">
-                <Wrench className="w-3.5 h-3.5" />Equipment / System
+                <Wrench className="w-3.5 h-3.5" />Equipment / System <span className="text-slate-400 font-normal">(optional)</span>
               </Label>
               <Input
                 id="equipment"
@@ -555,7 +555,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                 />
               </div>
               <div className="space-y-1.5">
-                <Label htmlFor="jobNextService" className="text-slate-500">Next Service</Label>
+                <Label htmlFor="jobNextService" className="text-slate-500">Next Service <span className="text-slate-400 font-normal">(optional)</span></Label>
                 <DatePicker
                   id="jobNextService"
                   value={job.nextServiceDate ?? ""}
