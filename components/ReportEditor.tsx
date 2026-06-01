@@ -529,7 +529,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
       )}
 
       {/* Sticky footer */}
-      <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
+      <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav lg:pl-60">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer">
           {readOnly ? (
             <button
