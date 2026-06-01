@@ -246,7 +246,7 @@ export default function CustomerSelectScreen({
                 disabled={!editForm.name.trim()}
                 className="w-full h-14 rounded-2xl text-base font-bold text-white bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:bg-slate-300 transition-colors shadow-md shadow-orange-200/50 flex items-center justify-center gap-2"
               >
-                Start job for {editForm.name.trim() || "customer"}
+                New report for {editForm.name.trim() || "customer"}
                 <ArrowRight className="w-5 h-5" />
               </button>
             )}

@@ -288,7 +288,7 @@ export default function CustomerProfile({
             className="w-full h-14 rounded-2xl bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-bold text-base flex items-center justify-center gap-2 transition-colors shadow-md shadow-orange-200/50"
           >
             <Plus className="w-5 h-5" />
-            Start New Job
+            New Report
           </button>
         </div>
         </div>
