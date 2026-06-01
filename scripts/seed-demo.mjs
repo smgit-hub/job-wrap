@@ -128,7 +128,7 @@ const REPORTS = [
         jobDate: "2026-05-20",
         nextServiceDate: "2027-05-20",
         equipment: "Daikin FTXM50W/RXM50W reverse-cycle split, 6kW, installed 2021",
-        voiceNotes: { jobNotes: "", recommendations: "" },
+        voiceNotes: { jobNotes: "" },
       },
       business: BUSINESS,
       report: {
@@ -162,7 +162,7 @@ const REPORTS = [
         serviceType: "hvac-repair",
         jobDate: "2026-05-14",
         equipment: "Brivis Buffalo 18kW ducted gas heater, installed 2012",
-        voiceNotes: { jobNotes: "", recommendations: "" },
+        voiceNotes: { jobNotes: "" },
       },
       business: BUSINESS,
       report: {
@@ -197,7 +197,7 @@ const REPORTS = [
         jobDate: "2026-05-28",
         nextServiceDate: "2026-10-01",
         equipment: "Mitsubishi MXZ-3E54VA multi-split, 3x indoor heads — living room, master bedroom, home office — installed 2018",
-        voiceNotes: { jobNotes: "", recommendations: "" },
+        voiceNotes: { jobNotes: "" },
       },
       business: BUSINESS,
       report: {
@@ -231,7 +231,7 @@ const REPORTS = [
         serviceType: "hvac-emergency",
         jobDate: "2026-05-10",
         equipment: "Carrier 10-ton rooftop package unit, serving ground floor retail, installed 2019",
-        voiceNotes: { jobNotes: "", recommendations: "" },
+        voiceNotes: { jobNotes: "" },
       },
       business: BUSINESS,
       report: {
@@ -266,7 +266,7 @@ const REPORTS = [
         jobDate: "2026-05-05",
         nextServiceDate: "2027-05-05",
         equipment: "Daikin FTXM71W/RXM71W reverse-cycle split, 7.1kW",
-        voiceNotes: { jobNotes: "", recommendations: "" },
+        voiceNotes: { jobNotes: "" },
       },
       business: BUSINESS,
       report: {
@@ -306,7 +306,6 @@ const REPORTS = [
         voiceNotes: {
           jobNotes:
             "LG VRF unit fault code CH38 showing on two indoor heads in the open-plan area. Found low refrigerant charge on the A-circuit — slow leak at a flare fitting behind the ceiling. Re-flared the joint, pressure tested, held vacuum, topped up with R410A. Both heads back online and running at correct temps. Checked B-circuit pressures while on site — all good. Recommend a follow-up check in 3 months to confirm no further refrigerant loss from the A-circuit.",
-          recommendations: "",
         },
       },
       business: BUSINESS,
@@ -342,7 +341,6 @@ const REPORTS = [
         voiceNotes: {
           jobNotes:
             "Annual service on Fiona's Panasonic 5kW split. Filters were really dirty — hadn't been cleaned since install. Washed filters, cleaned evaporator coil, had some light mould on the coil so hit it with coil cleaner. Condensate drain was starting to block up, flushed it out. Refrigerant pressures looked good. Unit running well after service. Recommend customer cleans filters every 6 weeks going forward. Book next annual service May 2027.",
-          recommendations: "",
         },
       },
       business: BUSINESS,

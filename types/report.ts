@@ -34,17 +34,14 @@ export interface Customer {
 }
 
 // ── Structured voice capture ─────────────────────────────────────────────────
-// Two focused recordings — job notes (what happened) + recommendations (what's next).
-// jobNotes feeds both Findings and Work Performed via AI extraction.
-// recommendations is optional — code returns fallback if empty, AI never decides.
+// Single recording — technician narrates everything that happened on site.
+// The AI extracts findings, work performed, and recommendations from jobNotes.
 export interface VoiceNotes {
-  jobNotes: string;         // "What happened today?" — findings + work in one narrative
-  recommendations: string;  // "Anything they need next?" — optional, separate recording
+  jobNotes: string; // Full narrative of the job
 }
 
 export const EMPTY_VOICE_NOTES: VoiceNotes = {
   jobNotes: "",
-  recommendations: "",
 };
 
 export interface BusinessProfile {

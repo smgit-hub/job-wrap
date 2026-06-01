@@ -65,7 +65,7 @@ export function rowToReport(row: ReportRow): ServiceReport {
       serviceAddress: row.service_address,
       serviceType: row.service_type as ServiceReport["job"]["serviceType"],
       jobDate: row.job_date,
-      voiceNotes: { jobNotes: row.rough_notes, recommendations: "" },
+      voiceNotes: { jobNotes: row.rough_notes },
     },
     report: data.report ?? {
       customerSummary: "",

@@ -442,7 +442,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         </Card>
 
         {/* ── Job Notes ──────────────────────────────────────────────────── */}
-        {(draft.job.voiceNotes.jobNotes || draft.job.voiceNotes.recommendations) && (
+        {draft.job.voiceNotes.jobNotes && (
           <Card className="border border-slate-100 shadow-card">
             <button
               type="button"
@@ -455,31 +455,14 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               </span>
             </button>
             {notesExpanded && (
-              <CardContent className="px-4 pb-4 pt-0 space-y-3">
-                {draft.job.voiceNotes.jobNotes && (
-                  <div className="space-y-1.5">
-                    <Label htmlFor="notes-job" className="text-xs text-slate-500">What happened</Label>
-                    <Textarea
-                      id="notes-job"
-                      value={draft.job.voiceNotes.jobNotes}
-                      onChange={(e) => updateVoiceNote("jobNotes", e.target.value)}
-                      rows={4}
-                      className="text-sm leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
-                    />
-                  </div>
-                )}
-                {draft.job.voiceNotes.recommendations && (
-                  <div className="space-y-1.5">
-                    <Label htmlFor="notes-recs" className="text-xs text-slate-500">Recommendations noted</Label>
-                    <Textarea
-                      id="notes-recs"
-                      value={draft.job.voiceNotes.recommendations}
-                      onChange={(e) => updateVoiceNote("recommendations", e.target.value)}
-                      rows={3}
-                      className="text-sm leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
-                    />
-                  </div>
-                )}
+              <CardContent className="px-4 pb-4 pt-0">
+                <Textarea
+                  id="notes-job"
+                  value={draft.job.voiceNotes.jobNotes}
+                  onChange={(e) => updateVoiceNote("jobNotes", e.target.value)}
+                  rows={4}
+                  className="text-sm leading-relaxed resize-none w-full border-slate-200 focus:border-orange-300"
+                />
               </CardContent>
             )}
           </Card>

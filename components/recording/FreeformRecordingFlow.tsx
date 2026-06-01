@@ -93,7 +93,7 @@ export default function FreeformRecordingFlow({
       speech.stopListening();
       return;
     }
-    onComplete({ jobNotes: notes.trim(), recommendations: "" });
+    onComplete({ jobNotes: notes.trim() });
   }
 
   function handleBack() {
