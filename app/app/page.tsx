@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Mic } from "lucide-react";
 import Dashboard from "@/components/Dashboard";
 import Reports from "@/components/Reports";
 import type { ReportsFilter } from "@/components/Reports";
@@ -208,46 +207,14 @@ export default function Home() {
     goToScreen("dashboard");
   }
 
-  // While auth is resolving or data is syncing, show a skeleton that mirrors
-  // the real dashboard layout — no spinner, no flash of zeros.
+  // Show spinner while auth resolves, or while syncing if localStorage is empty.
+  // Returning users see data instantly from localStorage; fresh logins wait for
+  // the sync so they never see a flash of zeros.
   const hasLocalData = getReports().length > 0;
   if (authLoading || (!hasLocalData && !syncDone)) {
     return (
-      <div className={`lg:pl-60${isDemo ? " pt-10" : ""}`}>
-        <div className="min-h-screen bg-slate-100 animate-pulse">
-          <main className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-10 lg:pt-8 pb-28 lg:pb-8 space-y-5">
-            {/* Greeting */}
-            <div className="space-y-2">
-              <div className="h-8 w-48 bg-slate-200 rounded-xl" />
-              <div className="h-4 w-36 bg-slate-200 rounded-lg" />
-            </div>
-            {/* New Report CTA — keep real and tappable */}
-            <button
-              onClick={handleNewReport}
-              className="w-full bg-orange-500 text-white rounded-2xl px-5 py-4 flex items-center gap-4 shadow-lg shadow-orange-200"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
-                <Mic className="w-7 h-7 text-white" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-xl font-extrabold leading-tight">New Report</p>
-                <p className="text-sm text-orange-100 font-medium mt-0.5">Just talk. We handle the rest.</p>
-              </div>
-            </button>
-            {/* Folder cards */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl p-4 bg-white shadow-card h-20" />
-              <div className="rounded-2xl p-4 bg-white shadow-card h-20" />
-            </div>
-            {/* Recent jobs */}
-            <div className="space-y-3">
-              <div className="h-3 w-24 bg-slate-200 rounded-lg" />
-              <div className="rounded-2xl bg-white shadow-card h-20" />
-              <div className="rounded-2xl bg-white shadow-card h-20" />
-              <div className="rounded-2xl bg-white shadow-card h-20" />
-            </div>
-          </main>
-        </div>
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
