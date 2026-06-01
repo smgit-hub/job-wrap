@@ -128,7 +128,7 @@ const REPORTS = [
         jobDate: "2026-05-20",
         nextServiceDate: "2027-05-20",
         equipment: "Daikin FTXM50W/RXM50W reverse-cycle split, 6kW, installed 2021",
-        voiceNotes: { jobNotes: "" },
+        voiceNotes: { jobNotes: "Annual maintenance on Rachel Kim's Daikin 6kW split in Mount Waverley. Filters were heavily loaded — about 12 months of dust. Washed and dried the filters, cleaned the evaporator coil, light dust only no biological growth. Cleaned the condenser coil, cleared some grass clippings and garden debris from the fins. Checked refrigerant pressures on suction and discharge — all within spec. Tested run capacitors, all good. Flushed the condensate drain. Tested heating and cooling, correct temps confirmed. Next annual service due May 2027." },
       },
       business: BUSINESS,
       report: {
@@ -162,7 +162,7 @@ const REPORTS = [
         serviceType: "hvac-repair",
         jobDate: "2026-05-14",
         equipment: "Brivis Buffalo 18kW ducted gas heater, installed 2012",
-        voiceNotes: { jobNotes: "" },
+        voiceNotes: { jobNotes: "Marcus Webb — Brivis Buffalo 18kW ducted gas heater not lighting. System going into lockout on every call for heat. Ignitor sparking fine so isolated it to the thermocouple — failed to hold flame after ignition. Also found the burner manifold ports partially blocked with carbon and oxidation deposits. Replaced the thermocouple, removed and cleaned all burner ports, reinstalled everything. Unit lighting and holding flame correctly now. Ran a full heating cycle, heat confirmed at all registers. Worth noting the heater is 14 years old — parts are getting harder to source, recommend they start budgeting for a replacement in the next couple of years." },
       },
       business: BUSINESS,
       report: {
@@ -197,7 +197,7 @@ const REPORTS = [
         jobDate: "2026-05-28",
         nextServiceDate: "2026-10-01",
         equipment: "Mitsubishi MXZ-3E54VA multi-split, 3x indoor heads — living room, master bedroom, home office — installed 2018",
-        voiceNotes: { jobNotes: "" },
+        voiceNotes: { jobNotes: "Pre-season service on Sarah O'Brien's Mitsubishi multi-split — three zones, living room, master bedroom, home office. All three filters heavily loaded, about 12 months of use, washed and dried all of them. Cleaned the evaporator coils on all three heads, light dust only. Checked refrigerant pressures on all three circuits — living room and home office fine, but master bedroom circuit was undercharged, suction pressure below spec. Recharged master bedroom with approximately 150g R32. Found a partial blockage in the living room condensate tray, cleared that out. Tested all three zones heating and cooling, all operating correctly. Recommend leak detection within 6 months to find the source of that R32 loss. Next service due October 2026 before summer." },
       },
       business: BUSINESS,
       report: {
@@ -231,7 +231,7 @@ const REPORTS = [
         serviceType: "hvac-emergency",
         jobDate: "2026-05-10",
         equipment: "Carrier 10-ton rooftop package unit, serving ground floor retail, installed 2019",
-        voiceNotes: { jobNotes: "" },
+        voiceNotes: { jobNotes: "Emergency call for Tom Nguyen at 88 Collins St — Carrier 10-ton rooftop unit running but no cooling. Gauged up and both pressures were critically low, confirmed refrigerant loss. Found a cracked Schrader valve core on the high-side service port — that was the leak. Also noticed the valve cover was missing and there are signs of possible tampering. Replaced the Schrader valve core with a compatible unit. Pressure tested to 400 psi, held 30 minutes no drop. Deep vacuum, held vacuum confirmed. Recharged with R410A to correct operating pressures. Supply air coming out at 12 degrees, airflow confirmed at all diffusers. Unit fully operational on departure. Recommend they get a locked cage or security cover over the rooftop service ports and notify building security." },
       },
       business: BUSINESS,
       report: {
@@ -266,7 +266,7 @@ const REPORTS = [
         jobDate: "2026-05-05",
         nextServiceDate: "2027-05-05",
         equipment: "Daikin FTXM71W/RXM71W reverse-cycle split, 7.1kW",
-        voiceNotes: { jobNotes: "" },
+        voiceNotes: { jobNotes: "New installation for Linda Chen in Doncaster — Daikin 7.1kW reverse-cycle split, indoor unit on the feature wall in the main living area, outdoor unit on a new concrete pad on the north side. Ran and insulated the lineset through the wall cavity, sealed the penetration. Wired the outdoor unit to a dedicated 20A isolator, ran the interconnecting cable. Pressure tested to 600 psi for 30 minutes — passed. Deep vacuum — passed. Commissioned the system, cooling confirmed at 14 degrees supply air. Walked Linda through the remote, timer and sleep mode. She's happy with it. Remind her to register the warranty with Daikin within 30 days and first filter clean is due in about 3 months. Annual service from May 2027." },
       },
       business: BUSINESS,
       report: {
