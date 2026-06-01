@@ -8,7 +8,7 @@ export default function LoginPage() {
 
   return (
     <LoginForm
-      onSuccess={() => router.replace("/")}
+      onSuccess={() => router.replace("/app")}
       onSignUp={() => router.push("/signup")}
     />
   );
