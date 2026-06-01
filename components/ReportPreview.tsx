@@ -384,7 +384,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
               <div className="grid grid-cols-2 gap-2">
                 <ActionTile
                   icon={emailState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : <Mail className="w-5 h-5 text-slate-500" />}
-                  label={emailState === "generating" ? "Preparing…" : "Email"}
+                  label={emailState === "generating" ? "Preparing…" : "Send to Customer"}
                   onClick={handleEmail}
                   disabled={emailState === "generating"}
                 />
@@ -408,7 +408,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
               <div className="grid grid-cols-3 gap-2">
                 <ActionTile
                   icon={emailState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : <Mail className="w-5 h-5 text-slate-500" />}
-                  label={emailState === "generating" ? "Preparing…" : "Email"}
+                  label={emailState === "generating" ? "Preparing…" : "Send to Customer"}
                   onClick={handleEmail}
                   disabled={emailState === "generating"}
                 />
