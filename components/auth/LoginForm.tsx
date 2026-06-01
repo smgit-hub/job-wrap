@@ -124,6 +124,16 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
     );
   }
 
+  // Replace the whole form with a spinner once signing in — prevents the login
+  // page flashing during the navigation to /app.
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col">
       <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full px-6 py-12">
