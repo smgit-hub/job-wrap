@@ -277,6 +277,7 @@ export default function CustomerProfile({
           )}
         </div>
       </main>
+    </div>
 
       {/* Start new job */}
       <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
@@ -292,7 +293,6 @@ export default function CustomerProfile({
         </div>
         </div>
       </div>
-    </div>
     </>
   );
 }

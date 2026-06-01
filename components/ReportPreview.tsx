@@ -358,6 +358,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
           </div>
         )}
       </main>
+    </div>
 
       {/* ── Sticky action bar ── */}
       <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
@@ -402,8 +403,6 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
         </div>
         </div>
       </div>
-
-    </div>
     </>
   );
 }
