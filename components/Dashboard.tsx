@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo } from "react";
 import { FileText, ChevronRight, CheckCircle2, Clock, Calendar, Mic, ArrowRight } from "lucide-react";
 import type { ServiceReport, BusinessProfile } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
-import { getReports, deleteReport, getBusinessProfile, migrateCustomersFromReports, seedSampleData, DEFAULT_BUSINESS } from "@/lib/storage";
+import { getReports, deleteReport, getBusinessProfile, migrateCustomersFromReports, DEFAULT_BUSINESS } from "@/lib/storage";
 import { JobCard } from "@/components/JobCard";
 import type { ReportsFilter } from "@/components/Reports";
 import { cn } from "@/lib/utils";
@@ -51,10 +51,8 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setProfile(getBusinessProfile());
-    seedSampleData().then(() => {
-      migrateCustomersFromReports();
-      setReports(getReports());
-    });
+    migrateCustomersFromReports();
+    setReports(getReports());
   }, []);
 
   const sorted = useMemo(
