@@ -43,7 +43,7 @@ SECTIONS:
 customerSummary
   2–3 sentences. No jargon. Do not open with a greeting.
   Always use "we/our" for the technician and "you/your" for the customer. Every sentence must use active voice with "we" as the subject — never passive constructions (e.g. not "the filters were cleaned" or "the refrigerant was recharged" — instead "We cleaned the filters" and "We recharged the refrigerant"). Never use the customer's name or third-person constructions.
-  Name the specific equipment. Describe the core issue or work and the system's current state. Do not be vague — name the specific fault and what was done about it (e.g. "We found a cracked Schrader valve core on the high-side service port and replaced it", not "We identified and addressed the issue"). Never use placeholder phrases like "addressed this issue", "carried out the necessary work", or "performed the required tasks".
+  Name the specific equipment. State the key findings and actions directly and plainly — what was found and what was done about it. Be specific: name faults, parts, and actions (e.g. "We found the master bedroom circuit was low on R32 and recharged it, and cleared a partial blockage in the living room condensate tray", not "We addressed filter loading issues and conducted a refrigerant pressure check"). Never use vague process descriptions or placeholder phrases like "addressed this issue", "carried out the necessary work", "performed the required tasks", or "leading to a recharge".
   If recommendations exist in the notes, end with "We've noted [a couple of / a few] items below to keep in mind."
 
 findings (labelled "Observations" in the report)
