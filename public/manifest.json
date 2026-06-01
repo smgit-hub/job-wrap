@@ -1,7 +1,7 @@
 {
   "name": "JobWrap — Service Reports in Seconds",
   "short_name": "JobWrap",
-  "description": "Turn rough job notes into polished customer-ready service reports. Built for HVAC technicians.",
+  "description": "Talk through the job. JobWrap writes the report. Built for HVAC technicians.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f1f5f9",

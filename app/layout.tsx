@@ -23,7 +23,7 @@ const font = Plus_Jakarta_Sans({
 export const metadata: Metadata = {
   title: "JobWrap — Service Reports in Seconds",
   description:
-    "Turn rough job notes into polished customer-ready service reports. Built for HVAC technicians.",
+    "Talk through the job. JobWrap writes the report. Built for HVAC technicians.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
