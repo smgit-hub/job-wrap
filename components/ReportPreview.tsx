@@ -219,7 +219,16 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Service Report</h1>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex-1">Service Report</h1>
+          {!isNewReport && (
+            <button
+              onClick={onEdit}
+              className="flex items-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-700 active:text-slate-900 transition-colors"
+            >
+              <Pencil className="w-4 h-4" />
+              Edit
+            </button>
+          )}
         </div>
         {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={4} />}
         {/* ── Report card ── */}
@@ -393,12 +402,14 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
               disabled={linkState === "generating"}
             />
           </div>
-          <button
-            onClick={isNewReport ? onDone : onEdit}
-            className="w-full h-10 text-sm font-semibold text-slate-500 hover:text-slate-600 active:text-slate-800 transition-colors flex items-center justify-center gap-1.5"
-          >
-            {isNewReport ? "Back to dashboard" : <><Pencil className="w-3.5 h-3.5" /> Edit Report</>}
-          </button>
+          {isNewReport && (
+            <button
+              onClick={onDone}
+              className="w-full h-10 text-sm font-semibold text-slate-500 hover:text-slate-600 active:text-slate-800 transition-colors flex items-center justify-center"
+            >
+              Back to dashboard
+            </button>
+          )}
 
         </div>
         </div>
