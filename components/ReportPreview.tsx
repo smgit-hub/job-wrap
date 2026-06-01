@@ -206,6 +206,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
   }
 
   return (
+    <>
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-72">
 
@@ -403,5 +404,6 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
       </div>
 
     </div>
+    </>
   );
 }
