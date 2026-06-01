@@ -82,6 +82,7 @@ export default function CustomerProfile({
   const displayName = form.name.trim() || customer.name;
 
   return (
+    <>
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-48 lg:pb-28 space-y-5">
 
@@ -292,5 +293,6 @@ export default function CustomerProfile({
         </div>
       </div>
     </div>
+    </>
   );
 }
