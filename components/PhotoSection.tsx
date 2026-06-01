@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { ImagePlus, X } from "lucide-react";
 import type { JobPhoto } from "@/types/report";
 import { compressImage } from "@/lib/photoStorage";
@@ -14,6 +14,7 @@ interface PhotoSectionProps {
 
 export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
   const galleryRef = useRef<HTMLInputElement>(null);
+  const [photoError, setPhotoError] = useState<string | null>(null);
 
   // 20 MB raw limit — compressImage will downscale anyway, but we refuse
   // clearly oversized files early to avoid hanging the UI on a 100 MB HEIC.
@@ -22,19 +23,26 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
 
   async function handleFiles(files: FileList | null) {
     if (!files || files.length === 0) return;
+    setPhotoError(null);
     const slots = MAX_PHOTOS - photos.length;
     if (slots <= 0) return;
     const toProcess = Array.from(files).slice(0, slots);
 
     const newPhotos: JobPhoto[] = [];
+    let skipped = 0;
     for (const file of toProcess) {
-      // Validate file type and size before attempting compression
-      if (!ALLOWED_TYPES.has(file.type) && !file.name.match(/\.(jpg|jpeg|png|gif|webp|heic|heif)$/i)) {
-        console.warn(`[PhotoSection] Skipping unsupported file type: ${file.type}`);
+      // Validate file type and size before attempting compression.
+      // Allow empty MIME type (iOS sometimes returns "" for library photos) — let compressImage handle it.
+      const mimeOk = file.type === "" || ALLOWED_TYPES.has(file.type) || file.type.startsWith("image/");
+      const extOk = file.name.match(/\.(jpg|jpeg|png|gif|webp|heic|heif)$/i);
+      if (!mimeOk && !extOk) {
+        console.warn(`[PhotoSection] Skipping unsupported file type: ${file.type} / ${file.name}`);
+        skipped++;
         continue;
       }
       if (file.size > MAX_RAW_BYTES) {
         console.warn(`[PhotoSection] Skipping file over 20 MB: ${file.name} (${file.size} bytes)`);
+        skipped++;
         continue;
       }
       try {
@@ -44,13 +52,17 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
           dataUrl,
           capturedAt: new Date().toISOString(),
         });
-      } catch {
-        // Skip images that fail to compress
+      } catch (err) {
+        console.error("[PhotoSection] Failed to process photo:", file.name, err);
+        skipped++;
       }
     }
 
     if (newPhotos.length > 0) {
       onChange([...photos, ...newPhotos]);
+    }
+    if (skipped > 0 && newPhotos.length === 0) {
+      setPhotoError("Couldn't add the photo. Try a different image or format.");
     }
   }
 
@@ -114,6 +126,11 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
         <p className="text-xs text-slate-500 text-center">
           Attach photos from your camera roll or take new ones · up to {MAX_PHOTOS}
         </p>
+      )}
+
+      {/* Error feedback */}
+      {photoError && (
+        <p className="text-xs text-red-500 text-center">{photoError}</p>
       )}
 
       {/* Hidden file input */}

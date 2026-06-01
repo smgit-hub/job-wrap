@@ -60,6 +60,7 @@ export function deletePhotosForReport(reportId: string): void {
 
 // Compress a File to a base64 data URL.
 // Resizes to MAX_DIMENSION on the longest edge, then encodes as JPEG.
+// Falls back to raw FileReader data URL if canvas decode fails (e.g. HEIC on some browsers).
 export function compressImage(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -84,7 +85,8 @@ export function compressImage(file: File): Promise<string> {
       canvas.height = height;
       const ctx = canvas.getContext("2d");
       if (!ctx) {
-        reject(new Error("Canvas 2D context unavailable"));
+        // Canvas unavailable — fall back to raw data URL
+        readAsDataUrl(file, resolve, reject);
         return;
       }
       ctx.drawImage(img, 0, 0, width, height);
@@ -92,10 +94,29 @@ export function compressImage(file: File): Promise<string> {
     };
 
     img.onerror = () => {
+      // Canvas/Image can't decode this format (e.g. HEIC) — fall back to raw data URL
       URL.revokeObjectURL(objectUrl);
-      reject(new Error("Image failed to load"));
+      console.warn("[compressImage] Image decode failed, using raw FileReader fallback for:", file.name);
+      readAsDataUrl(file, resolve, reject);
     };
 
     img.src = objectUrl;
   });
+}
+
+function readAsDataUrl(
+  file: File,
+  resolve: (v: string) => void,
+  reject: (e: Error) => void,
+): void {
+  const reader = new FileReader();
+  reader.onload = () => {
+    if (typeof reader.result === "string") {
+      resolve(reader.result);
+    } else {
+      reject(new Error("FileReader did not return a string"));
+    }
+  };
+  reader.onerror = () => reject(new Error("FileReader failed"));
+  reader.readAsDataURL(file);
 }
