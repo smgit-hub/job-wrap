@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { Camera, ImagePlus, X } from "lucide-react";
+import { ImagePlus, X } from "lucide-react";
 import type { JobPhoto } from "@/types/report";
 import { compressImage } from "@/lib/photoStorage";
 
@@ -13,7 +13,6 @@ interface PhotoSectionProps {
 }
 
 export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
-  const cameraRef = useRef<HTMLInputElement>(null);
   const galleryRef = useRef<HTMLInputElement>(null);
 
   // 20 MB raw limit — compressImage will downscale anyway, but we refuse
@@ -113,26 +112,16 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
         </div>
       )}
 
-      {/* Add buttons */}
+      {/* Add button */}
       {canAdd && (
-        <div className="flex gap-2">
-          <button
-            onClick={() => cameraRef.current?.click()}
-            aria-label="Take a photo with camera"
-            className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 border-dashed border-orange-200 bg-orange-50 text-orange-500 text-sm font-semibold active:bg-orange-100 transition-colors"
-          >
-            <Camera className="w-4 h-4" />
-            Camera
-          </button>
-          <button
-            onClick={() => galleryRef.current?.click()}
-            aria-label="Choose photo from gallery"
-            className="flex-1 flex items-center justify-center gap-2 h-11 rounded-xl border-2 border-dashed border-orange-200 bg-orange-50 text-orange-500 text-sm font-semibold active:bg-orange-100 transition-colors"
-          >
-            <ImagePlus className="w-4 h-4" />
-            Gallery
-          </button>
-        </div>
+        <button
+          onClick={() => galleryRef.current?.click()}
+          aria-label="Add photos"
+          className="w-full flex items-center justify-center gap-2 h-11 rounded-xl border-2 border-dashed border-orange-200 bg-orange-50 text-orange-500 text-sm font-semibold active:bg-orange-100 transition-colors"
+        >
+          <ImagePlus className="w-4 h-4" />
+          Add Photos
+        </button>
       )}
 
       {photos.length > 0 && photos.length < MAX_PHOTOS && (
@@ -149,18 +138,7 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
         </p>
       )}
 
-      {/* Hidden file inputs */}
-      <input
-        ref={cameraRef}
-        type="file"
-        accept="image/*"
-        capture="environment"
-        className="hidden"
-        onChange={(e) => {
-          handleFiles(e.target.files);
-          e.target.value = "";
-        }}
-      />
+      {/* Hidden file input */}
       <input
         ref={galleryRef}
         type="file"
