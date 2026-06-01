@@ -372,7 +372,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
                 <span className="text-sm font-medium">
                   {logoLoading ? "Processing…" : "Tap to upload logo"}
                 </span>
-                <span className="text-xs">PNG or JPG recommended</span>
+                <span className="text-xs">Square logo · PNG or JPG · White or transparent background works best</span>
               </button>
             )}
             <input
