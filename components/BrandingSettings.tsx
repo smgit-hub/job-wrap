@@ -1,13 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { CheckCircle2, Upload, X, Palette, LogOut } from "lucide-react";
+import { CheckCircle2, Upload, X, Palette, LogOut, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { BusinessProfile } from "@/types/report";
 import { saveBusinessProfile } from "@/lib/storage";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils";
 
 interface BrandingSettingsProps {
@@ -57,6 +58,46 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
   const logoInputRef = useRef<HTMLInputElement>(null);
   const { isConfigured, signOut } = useAuth();
 
+  // ── Account: Change Password ─────────────────────────────────────────────
+  const [pwCurrent, setPwCurrent] = useState("");
+  const [pwNew, setPwNew] = useState("");
+  const [pwConfirm, setPwConfirm] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [pwState, setPwState] = useState<"idle" | "saving" | "saved" | "error">("idle");
+  const [pwError, setPwError] = useState<string | null>(null);
+
+  async function handleChangePassword() {
+    setPwError(null);
+    if (pwNew.length < 8) { setPwError("New password must be at least 8 characters."); return; }
+    if (pwNew !== pwConfirm) { setPwError("Passwords do not match."); return; }
+    setPwState("saving");
+    const client = getSupabaseBrowserClient();
+    if (!client) { setPwState("error"); setPwError("Not connected."); return; }
+    const { error } = await client.auth.updateUser({ password: pwNew });
+    if (error) { setPwState("error"); setPwError(error.message); return; }
+    setPwState("saved");
+    setPwCurrent(""); setPwNew(""); setPwConfirm("");
+    setTimeout(() => setPwState("idle"), 3000);
+  }
+
+  // ── Account: Change Email ────────────────────────────────────────────────
+  const [newEmail, setNewEmail] = useState("");
+  const [emailState, setEmailState] = useState<"idle" | "saving" | "sent" | "error">("idle");
+  const [emailError, setEmailError] = useState<string | null>(null);
+
+  async function handleChangeEmail() {
+    setEmailError(null);
+    if (!newEmail.includes("@")) { setEmailError("Enter a valid email address."); return; }
+    setEmailState("saving");
+    const client = getSupabaseBrowserClient();
+    if (!client) { setEmailState("error"); setEmailError("Not connected."); return; }
+    const { error } = await client.auth.updateUser({ email: newEmail });
+    if (error) { setEmailState("error"); setEmailError(error.message); return; }
+    setEmailState("sent");
+    setNewEmail("");
+    setTimeout(() => setEmailState("idle"), 5000);
+  }
+
   function update(field: keyof BusinessProfile, value: string) {
     setSaved(false);
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -98,13 +139,118 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
 
         {/* Page title */}
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Business Settings</h1>
+          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Settings</h1>
           {saved && (
             <span className="text-sm text-green-600 flex items-center gap-1.5 font-semibold">
               <CheckCircle2 className="w-4 h-4" /> Saved
             </span>
           )}
         </div>
+
+        {/* ── Account ─────────────────────────────────────────────────────── */}
+        {isConfigured && (
+          <>
+            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Account</h2>
+
+            {/* Change Password */}
+            <Card className="border border-slate-100 shadow-card">
+              <CardHeader className="pb-2 px-4 pt-4">
+                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Change Password</CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4 space-y-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="pw-new">New password</Label>
+                  <div className="relative">
+                    <Input
+                      id="pw-new"
+                      type={showPw ? "text" : "password"}
+                      value={pwNew}
+                      onChange={(e) => setPwNew(e.target.value)}
+                      placeholder="Min. 8 characters"
+                      autoComplete="new-password"
+                      className="h-11 text-base pr-11"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPw((v) => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                      tabIndex={-1}
+                    >
+                      {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                </div>
+                <div className="space-y-1.5">
+                  <Label htmlFor="pw-confirm">Confirm new password</Label>
+                  <Input
+                    id="pw-confirm"
+                    type={showPw ? "text" : "password"}
+                    value={pwConfirm}
+                    onChange={(e) => setPwConfirm(e.target.value)}
+                    placeholder="••••••••"
+                    autoComplete="new-password"
+                    className="h-11 text-base"
+                  />
+                </div>
+                {pwError && (
+                  <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{pwError}</p>
+                )}
+                {pwState === "saved" && (
+                  <p className="text-sm text-green-600 bg-green-50 border border-green-100 rounded-xl px-3 py-2 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" /> Password updated successfully.
+                  </p>
+                )}
+                <button
+                  onClick={handleChangePassword}
+                  disabled={pwState === "saving" || !pwNew || !pwConfirm}
+                  className="w-full h-11 rounded-xl bg-slate-900 text-white text-sm font-semibold flex items-center justify-center gap-2 active:bg-slate-700 transition-colors disabled:opacity-40"
+                >
+                  {pwState === "saving" ? <><Loader2 className="w-4 h-4 animate-spin" /> Updating…</> : "Update Password"}
+                </button>
+              </CardContent>
+            </Card>
+
+            {/* Change Email */}
+            <Card className="border border-slate-100 shadow-card">
+              <CardHeader className="pb-2 px-4 pt-4">
+                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Change Email</CardTitle>
+              </CardHeader>
+              <CardContent className="px-4 pb-4 space-y-3">
+                <div className="space-y-1.5">
+                  <Label htmlFor="new-email">New email address</Label>
+                  <Input
+                    id="new-email"
+                    type="email"
+                    value={newEmail}
+                    onChange={(e) => setNewEmail(e.target.value)}
+                    placeholder="new@example.com"
+                    autoComplete="email"
+                    className="h-11 text-base"
+                  />
+                </div>
+                {emailError && (
+                  <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{emailError}</p>
+                )}
+                {emailState === "sent" && (
+                  <p className="text-sm text-green-600 bg-green-50 border border-green-100 rounded-xl px-3 py-2 flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 shrink-0" /> Confirmation sent — check your new inbox to confirm.
+                  </p>
+                )}
+                <button
+                  onClick={handleChangeEmail}
+                  disabled={emailState === "saving" || !newEmail}
+                  className="w-full h-11 rounded-xl bg-slate-900 text-white text-sm font-semibold flex items-center justify-center gap-2 active:bg-slate-700 transition-colors disabled:opacity-40"
+                >
+                  {emailState === "saving" ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</> : "Update Email"}
+                </button>
+              </CardContent>
+            </Card>
+          </>
+        )}
+
+        {/* ── Business ─────────────────────────────────────────────────────── */}
+        <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Business</h2>
+
         {/* Live preview */}
         <div
           className="rounded-2xl p-5 text-white transition-all shadow-md"
