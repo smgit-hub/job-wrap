@@ -39,8 +39,6 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
       }
       try {
         const dataUrl = await compressImage(file);
-        // First photo added to an empty report defaults to "before",
-        // everything else defaults to "after"
         newPhotos.push({
           id: `ph_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
           dataUrl,
