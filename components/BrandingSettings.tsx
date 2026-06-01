@@ -142,6 +142,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
   const headerColor = form.brandColor || "#0f172a";
 
   return (
+    <>
     <div className="min-h-screen bg-slate-100 flex flex-col animate-screen-enter">
       <main className="flex-1 max-w-lg lg:max-w-4xl mx-auto w-full px-4 pt-10 lg:pt-8 pb-52 lg:pb-32 space-y-5">
 
@@ -465,6 +466,8 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
 
       </main>
 
+    </div>
+
       {/* Sticky Save button */}
       <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
         <div className="lg:pl-60">
@@ -485,6 +488,6 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
