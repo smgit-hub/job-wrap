@@ -1,19 +1,18 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, Eye, CheckCircle2, Circle, AlertTriangle, RefreshCw, Loader2, Sparkles } from "lucide-react";
+import { ChevronLeft, Eye, AlertTriangle, RefreshCw, Loader2, Sparkles } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
-import type { ServiceReport, GeneratedReport, JobPhoto, JobDetails, SectionVerified } from "@/types/report";
+import type { ServiceReport, GeneratedReport, JobPhoto, JobDetails } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
 import { saveReport } from "@/lib/storage";
 import { getPhotosForReport, savePhotosForReport } from "@/lib/photoStorage";
 import PhotoSection from "@/components/PhotoSection";
 import BulletEditor from "@/components/BulletEditor";
-import { cn } from "@/lib/utils";
 import DatePicker from "@/components/ui/DatePicker";
 
 interface ReportEditorProps {
@@ -24,28 +23,6 @@ interface ReportEditorProps {
   onRegenerate?: (job: JobDetails) => Promise<GeneratedReport>;
 }
 
-const SECTION_KEYS: (keyof GeneratedReport)[] = [
-  "customerSummary",
-  "findings",
-  "workPerformed",
-  "recommendations",
-];
-
-// Verify toggle — just an icon, no label
-function VerifyButton({ verified, onToggle }: { verified: boolean; onToggle: () => void }) {
-  return (
-    <button
-      onClick={onToggle}
-      className="shrink-0 transition-transform active:scale-90"
-      aria-label={verified ? "Unmark verified" : "Mark as verified"}
-    >
-      {verified
-        ? <CheckCircle2 className="w-5 h-5 text-orange-500" />
-        : <Circle className="w-5 h-5 text-slate-500 hover:text-slate-400 transition-colors" />
-      }
-    </button>
-  );
-}
 
 export default function ReportEditor({ report, isNewReport, onBack, onPreview, onRegenerate }: ReportEditorProps) {
   const [draft, setDraft] = useState<ServiceReport>(report);
@@ -74,28 +51,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
 
   const isUngenerated = !draft.report.customerSummary && !draft.report.workPerformed;
 
-  // Verification helpers
-  const v = draft.verified ?? {};
-  const verifiedCount = SECTION_KEYS.filter((k) => v[k as keyof SectionVerified]).length;
-  const allVerified = verifiedCount === SECTION_KEYS.length;
-
-  function isVerified(key: keyof GeneratedReport) {
-    return (draft.verified?.[key as keyof SectionVerified]) ?? false;
-  }
-
-  function toggleVerify(key: keyof GeneratedReport) {
-    setDraft((prev) => {
-      const wasVerified = prev.verified?.[key as keyof SectionVerified] ?? false;
-      const newVerified: SectionVerified = { ...prev.verified, [key]: !wasVerified };
-      const nowAllDone = SECTION_KEYS.every((k) => newVerified[k as keyof SectionVerified]);
-      return {
-        ...prev,
-        verified: newVerified,
-        status: nowAllDone ? "complete" : prev.status,
-      };
-    });
-  }
-
   function handlePhotosChange(updated: JobPhoto[]) {
     setPhotos(updated);
     savePhotosForReport(draft.id, updated);
@@ -111,7 +66,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
       setDraft((prev) => ({
         ...prev,
         report: newReport,
-        verified: {},
         updatedAt: new Date().toISOString(),
       }));
     } catch (err) {
@@ -121,27 +75,18 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
     }
   }
 
-  // Editing a textarea marks it verified automatically
   function updateField(key: keyof GeneratedReport, value: string) {
     setDraft((prev) => ({
       ...prev,
       report: { ...prev.report, [key]: value },
-      verified: { ...prev.verified, [key]: true },
     }));
   }
 
-  // BulletEditor edits — marks verified and checks if all done
   function updateFieldAndSave(key: keyof GeneratedReport, value: string) {
-    setDraft((prev) => {
-      const newVerified: SectionVerified = { ...prev.verified, [key]: true };
-      const nowAllDone = SECTION_KEYS.every((k) => newVerified[k as keyof SectionVerified]);
-      return {
-        ...prev,
-        report: { ...prev.report, [key]: value },
-        verified: newVerified,
-        status: nowAllDone ? "complete" : prev.status,
-      };
-    });
+    setDraft((prev) => ({
+      ...prev,
+      report: { ...prev.report, [key]: value },
+    }));
   }
 
   function updateJobField(field: keyof JobDetails, value: string) {
@@ -208,14 +153,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex-1">Edit Report</h1>
-          {!isUngenerated && (
-            <span className={cn(
-              "text-xs font-bold px-2.5 py-1 rounded-full shrink-0 tabular-nums",
-              allVerified ? "bg-orange-500 text-white" : "bg-slate-200 text-slate-500"
-            )}>
-              {verifiedCount}/{SECTION_KEYS.length}
-            </span>
-          )}
         </div>
         {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={3} />}
 
@@ -242,18 +179,10 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         {!isUngenerated && (
           <>
             {/* Customer Summary */}
-            <Card className={cn(
-              "border shadow-card transition-colors",
-              isVerified("customerSummary") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
-            )}>
+            <Card className="border border-slate-100 shadow-card">
               <CardHeader className="pb-2 px-4 pt-4">
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Customer Summary</CardTitle>
-                    <p className="text-xs text-slate-500 mt-0.5 font-normal tracking-normal normal-case">Plain English — written for the customer</p>
-                  </div>
-                  <VerifyButton verified={isVerified("customerSummary")} onToggle={() => toggleVerify("customerSummary")} />
-                </div>
+                <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Customer Summary</CardTitle>
+                <p className="text-xs text-slate-500 mt-0.5 font-normal tracking-normal normal-case">Plain English — written for the customer</p>
               </CardHeader>
               <CardContent className="px-4 pb-4">
                 <Textarea
@@ -269,18 +198,10 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             </Card>
 
             {/* Observations */}
-            <Card className={cn(
-              "border shadow-card transition-colors",
-              isVerified("findings") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
-            )}>
+            <Card className="border border-slate-100 shadow-card">
               <CardHeader className="pb-2 px-4 pt-4">
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Observations</CardTitle>
-                    <p className="text-xs text-slate-500 mt-0.5 font-normal tracking-normal normal-case">What was noticed — not what was done</p>
-                  </div>
-                  <VerifyButton verified={isVerified("findings")} onToggle={() => toggleVerify("findings")} />
-                </div>
+                <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Observations</CardTitle>
+                <p className="text-xs text-slate-500 mt-0.5 font-normal tracking-normal normal-case">What was noticed — not what was done</p>
               </CardHeader>
               <CardContent className="px-4 pb-4">
                 <BulletEditor
@@ -293,18 +214,10 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             </Card>
 
             {/* Work Performed */}
-            <Card className={cn(
-              "border shadow-card transition-colors",
-              isVerified("workPerformed") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
-            )}>
+            <Card className="border border-slate-100 shadow-card">
               <CardHeader className="pb-2 px-4 pt-4">
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Work Performed</CardTitle>
-                    <p className="text-xs text-slate-500 mt-0.5 font-normal tracking-normal normal-case">Everything completed during the visit</p>
-                  </div>
-                  <VerifyButton verified={isVerified("workPerformed")} onToggle={() => toggleVerify("workPerformed")} />
-                </div>
+                <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Work Performed</CardTitle>
+                <p className="text-xs text-slate-500 mt-0.5 font-normal tracking-normal normal-case">Everything completed during the visit</p>
               </CardHeader>
               <CardContent className="px-4 pb-4">
                 <BulletEditor
@@ -317,18 +230,10 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             </Card>
 
             {/* Recommendations */}
-            <Card className={cn(
-              "border shadow-card transition-colors",
-              isVerified("recommendations") ? "border-orange-200 bg-orange-50/40" : "border-slate-100"
-            )}>
+            <Card className="border border-slate-100 shadow-card">
               <CardHeader className="pb-2 px-4 pt-4">
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Recommendations</CardTitle>
-                    <p className="text-xs text-slate-500 mt-0.5 font-normal tracking-normal normal-case">Next steps for the customer</p>
-                  </div>
-                  <VerifyButton verified={isVerified("recommendations")} onToggle={() => toggleVerify("recommendations")} />
-                </div>
+                <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Recommendations</CardTitle>
+                <p className="text-xs text-slate-500 mt-0.5 font-normal tracking-normal normal-case">Next steps for the customer</p>
               </CardHeader>
               <CardContent className="px-4 pb-4">
                 <BulletEditor
