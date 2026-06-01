@@ -116,7 +116,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
               {" "}in Settings.
             </p>
           ) : (
-            <p className="text-sm text-slate-500 mt-1">Ready to wrap up a job?</p>
+            <p className="text-sm text-slate-500 mt-1">Ready to wrap up a service?</p>
           )}
         </div>
 
@@ -243,7 +243,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
               </div>
               <p className="text-slate-800 text-sm font-semibold">No jobs yet</p>
               <p className="text-slate-400 text-sm mt-1 leading-relaxed">
-                Tap New Report to write up your first job.
+                Tap New Report to write up your first AC or HVAC service.
               </p>
             </div>
           ) : (

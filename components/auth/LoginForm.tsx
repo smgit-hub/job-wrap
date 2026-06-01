@@ -47,7 +47,7 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
         </div>
 
         <h1 className="text-2xl font-bold text-slate-900 mb-1">Sign in</h1>
-        <p className="text-slate-500 text-sm mb-8">Welcome back. Sign in to your account.</p>
+        <p className="text-slate-500 text-sm mb-8">For air conditioning & HVAC technicians.</p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">

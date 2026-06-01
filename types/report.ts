@@ -111,12 +111,12 @@ export const EMPTY_REPORT: GeneratedReport = {
 };
 
 export const SERVICE_TYPE_LABELS: Record<ServiceType, string> = {
-  "hvac-maintenance": "Preventative Maintenance",
+  "hvac-maintenance": "AC / HVAC Maintenance",
   "hvac-emergency": "Emergency Service",
-  "hvac-repair": "Repair & Diagnostics",
-  "hvac-install": "System Installation",
+  "hvac-repair": "AC / HVAC Repair & Diagnostics",
+  "hvac-install": "AC / HVAC Installation",
   "hvac-seasonal": "Pre-Season Service",
-  "hvac-inspection": "System Inspection",
+  "hvac-inspection": "AC / HVAC Inspection",
   "hvac-duct-cleaning": "Duct Cleaning",
   other: "Other",
 };
