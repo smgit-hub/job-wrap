@@ -4,11 +4,12 @@ import { useRef, useState } from "react";
 import { CheckCircle2, Upload, X, Palette, LogOut, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import type { BusinessProfile } from "@/types/report";
 import { saveBusinessProfile } from "@/lib/storage";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { saveBusinessSettingsToDb } from "@/lib/supabase/queries/businessSettings";
 import { cn } from "@/lib/utils";
 
 interface BrandingSettingsProps {
@@ -123,11 +124,19 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
     setSaved(false);
   }
 
-  function handleSave() {
+  async function handleSave() {
     saveBusinessProfile(form);
     onSave(form);
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
+    // Also persist to Supabase if signed in
+    const client = getSupabaseBrowserClient();
+    if (client) {
+      const { data: { user } } = await client.auth.getUser();
+      if (user) {
+        saveBusinessSettingsToDb(form, user.id);
+      }
+    }
   }
 
   const headerColor = form.brandColor || "#0f172a";
@@ -139,11 +148,22 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         {/* Page title */}
         <div className="flex items-center justify-between">
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Settings</h1>
-          {saved && (
-            <span className="text-sm text-green-600 flex items-center gap-1.5 font-semibold">
-              <CheckCircle2 className="w-4 h-4" /> Saved
-            </span>
-          )}
+          <div className="flex items-center gap-3">
+            {saved && (
+              <span className="text-sm text-green-600 flex items-center gap-1.5 font-semibold">
+                <CheckCircle2 className="w-4 h-4" /> Saved
+              </span>
+            )}
+            {isConfigured && (
+              <button
+                onClick={async () => { await signOut(); window.location.href = "/login"; }}
+                className="flex items-center gap-1.5 text-sm font-medium text-slate-500 hover:text-slate-700 transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+                Sign out
+              </button>
+            )}
+          </div>
         </div>
 
         {/* ── Account ─────────────────────────────────────────────────────── */}
@@ -154,97 +174,97 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
               <div className="flex-1 h-px bg-slate-300" />
             </div>
 
-            {/* Change Password */}
             <Card className="border border-slate-100 shadow-card">
-              <CardHeader className="pb-2 px-4 pt-4">
-                <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Change Password</CardTitle>
-              </CardHeader>
-              <CardContent className="px-4 pb-4 space-y-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="pw-new">New password</Label>
-                  <div className="relative">
-                    <Input
-                      id="pw-new"
-                      type={showPw ? "text" : "password"}
-                      value={pwNew}
-                      onChange={(e) => setPwNew(e.target.value)}
-                      placeholder="Min. 8 characters"
-                      autoComplete="new-password"
-                      className="h-11 text-base pr-11"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPw((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
-                      tabIndex={-1}
-                    >
-                      {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                    </button>
-                  </div>
-                </div>
-                <div className="space-y-1.5">
-                  <Label htmlFor="pw-confirm">Confirm new password</Label>
-                  <Input
-                    id="pw-confirm"
-                    type={showPw ? "text" : "password"}
-                    value={pwConfirm}
-                    onChange={(e) => setPwConfirm(e.target.value)}
-                    placeholder="••••••••"
-                    autoComplete="new-password"
-                    className="h-11 text-base"
-                  />
-                </div>
-                {pwError && (
-                  <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{pwError}</p>
-                )}
-                {pwState === "saved" && (
-                  <p className="text-sm text-green-600 bg-green-50 border border-green-100 rounded-xl px-3 py-2 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 shrink-0" /> Password updated successfully.
-                  </p>
-                )}
-                <button
-                  onClick={handleChangePassword}
-                  disabled={pwState === "saving" || !pwNew || !pwConfirm}
-                  className="w-full h-11 rounded-xl bg-slate-900 text-white text-sm font-semibold flex items-center justify-center gap-2 active:bg-slate-700 transition-colors disabled:opacity-40"
-                >
-                  {pwState === "saving" ? <><Loader2 className="w-4 h-4 animate-spin" /> Updating…</> : "Update Password"}
-                </button>
-              </CardContent>
-            </Card>
+              <CardContent className="px-4 pb-4 pt-4 space-y-5">
 
-            {/* Change Email */}
-            <Card className="border border-slate-100 shadow-card">
-              <CardHeader className="pb-2 px-4 pt-4">
-                <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Change Email</CardTitle>
-              </CardHeader>
-              <CardContent className="px-4 pb-4 space-y-3">
-                <div className="space-y-1.5">
-                  <Label htmlFor="new-email">New email address</Label>
-                  <Input
-                    id="new-email"
-                    type="email"
-                    value={newEmail}
-                    onChange={(e) => setNewEmail(e.target.value)}
-                    placeholder="new@example.com"
-                    autoComplete="email"
-                    className="h-11 text-base"
-                  />
+                {/* Change Password */}
+                <div className="space-y-3">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Change Password</p>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="pw-new">New password</Label>
+                    <div className="relative">
+                      <Input
+                        id="pw-new"
+                        type={showPw ? "text" : "password"}
+                        value={pwNew}
+                        onChange={(e) => setPwNew(e.target.value)}
+                        placeholder="Min. 8 characters"
+                        autoComplete="new-password"
+                        className="h-11 text-base pr-11"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPw((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                        tabIndex={-1}
+                      >
+                        {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="pw-confirm">Confirm new password</Label>
+                    <Input
+                      id="pw-confirm"
+                      type={showPw ? "text" : "password"}
+                      value={pwConfirm}
+                      onChange={(e) => setPwConfirm(e.target.value)}
+                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      className="h-11 text-base"
+                    />
+                  </div>
+                  {pwError && (
+                    <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{pwError}</p>
+                  )}
+                  {pwState === "saved" && (
+                    <p className="text-sm text-green-600 bg-green-50 border border-green-100 rounded-xl px-3 py-2 flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" /> Password updated successfully.
+                    </p>
+                  )}
+                  <button
+                    onClick={handleChangePassword}
+                    disabled={pwState === "saving" || !pwNew || !pwConfirm}
+                    className="w-full h-11 rounded-xl bg-slate-900 text-white text-sm font-semibold flex items-center justify-center gap-2 active:bg-slate-700 transition-colors disabled:opacity-40"
+                  >
+                    {pwState === "saving" ? <><Loader2 className="w-4 h-4 animate-spin" /> Updating…</> : "Update Password"}
+                  </button>
                 </div>
-                {emailError && (
-                  <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{emailError}</p>
-                )}
-                {emailState === "sent" && (
-                  <p className="text-sm text-green-600 bg-green-50 border border-green-100 rounded-xl px-3 py-2 flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4 shrink-0" /> Confirmation sent — check your new inbox to confirm.
-                  </p>
-                )}
-                <button
-                  onClick={handleChangeEmail}
-                  disabled={emailState === "saving" || !newEmail}
-                  className="w-full h-11 rounded-xl bg-slate-900 text-white text-sm font-semibold flex items-center justify-center gap-2 active:bg-slate-700 transition-colors disabled:opacity-40"
-                >
-                  {emailState === "saving" ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</> : "Update Email"}
-                </button>
+
+                <div className="h-px bg-slate-100" />
+
+                {/* Change Email */}
+                <div className="space-y-3">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Change Email</p>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="new-email">New email address</Label>
+                    <Input
+                      id="new-email"
+                      type="email"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      placeholder="new@example.com"
+                      autoComplete="email"
+                      className="h-11 text-base"
+                    />
+                  </div>
+                  {emailError && (
+                    <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{emailError}</p>
+                  )}
+                  {emailState === "sent" && (
+                    <p className="text-sm text-green-600 bg-green-50 border border-green-100 rounded-xl px-3 py-2 flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" /> Confirmation sent — check your new inbox to confirm.
+                    </p>
+                  )}
+                  <button
+                    onClick={handleChangeEmail}
+                    disabled={emailState === "saving" || !newEmail}
+                    className="w-full h-11 rounded-xl bg-slate-900 text-white text-sm font-semibold flex items-center justify-center gap-2 active:bg-slate-700 transition-colors disabled:opacity-40"
+                  >
+                    {emailState === "saving" ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</> : "Update Email"}
+                  </button>
+                </div>
+
               </CardContent>
             </Card>
           </>
@@ -281,187 +301,167 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
           </div>
         </div>
 
-        {/* Business details */}
         <Card className="border border-slate-100 shadow-card">
-          <CardHeader className="pb-2 px-4 pt-4">
-            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Business Details</CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 pb-4 space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="businessName">Business Name</Label>
-              <Input id="businessName" value={form.businessName} onChange={(e) => update("businessName", e.target.value)} placeholder="e.g. Apex Climate Services" className="h-12 text-base" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="technicianName">Technician Name</Label>
-              <Input id="technicianName" value={form.technicianName} onChange={(e) => update("technicianName", e.target.value)} placeholder="e.g. Alex Morgan" className="h-12 text-base" />
-            </div>
-            <div className="space-y-2">
-              <Label>Licences / Registrations</Label>
-              <div className="grid grid-cols-2 gap-2">
-                <Input value={form.licence1Label} onChange={(e) => update("licence1Label", e.target.value)} placeholder="e.g. ARCtick, Gas Safe, EPA 608" className="h-11 text-base" />
-                <Input value={form.licence1Number} onChange={(e) => update("licence1Number", e.target.value)} placeholder="Number" className="h-11 text-base" />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <Input value={form.licence2Label} onChange={(e) => update("licence2Label", e.target.value)} placeholder="Label (e.g. Gas Licence)" className="h-11 text-base" />
-                <Input value={form.licence2Number} onChange={(e) => update("licence2Number", e.target.value)} placeholder="Number" className="h-11 text-base" />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="tagline">Tagline <span className="text-slate-500 font-normal">(optional)</span></Label>
-              <Input id="tagline" value={form.tagline ?? ""} onChange={(e) => update("tagline", e.target.value)} placeholder="e.g. Licensed & Insured · Your local specialists" className="h-12 text-base" />
-            </div>
-          </CardContent>
-        </Card>
+          <CardContent className="px-4 pb-4 pt-4 space-y-5">
 
-        {/* Contact */}
-        <Card className="border border-slate-100 shadow-card">
-          <CardHeader className="pb-2 px-4 pt-4">
-            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Contact Info</CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 pb-4 space-y-4">
-            <div className="space-y-1.5">
-              <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="e.g. +1 555 012 3456" className="h-12 text-base" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="e.g. hello@apexclimate.com" className="h-12 text-base" />
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="website">Website <span className="text-slate-500 font-normal">(optional)</span></Label>
-              <Input id="website" type="url" value={form.website ?? ""} onChange={(e) => update("website", e.target.value)} placeholder="e.g. www.apexclimate.com" className="h-12 text-base" />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Logo upload */}
-        <Card className="border border-slate-100 shadow-card">
-          <CardHeader className="pb-2 px-4 pt-4">
-            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Business Logo</CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 pb-4">
-            {form.logoUrl ? (
-              <div className="flex items-center gap-4">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={form.logoUrl}
-                  alt="Logo preview"
-                  className="w-16 h-16 rounded-xl object-contain border border-slate-100 bg-slate-50"
-                />
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-slate-800">Logo uploaded</p>
-                  <p className="text-xs text-slate-500 mt-0.5">Shown in report headers and PDFs</p>
-                  <div className="flex gap-2 mt-3">
-                    <button
-                      onClick={() => logoInputRef.current?.click()}
-                      className="h-8 px-3 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 active:bg-slate-200 transition-colors"
-                    >
-                      Replace
-                    </button>
-                    <button
-                      onClick={removeLogo}
-                      className="h-8 px-3 rounded-lg text-xs font-semibold bg-red-50 text-red-500 active:bg-red-100 transition-colors flex items-center gap-1"
-                    >
-                      <X className="w-3 h-3" /> Remove
-                    </button>
-                  </div>
+            {/* Business Details */}
+            <div className="space-y-4">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Business Details</p>
+              <div className="space-y-1.5">
+                <Label htmlFor="businessName">Business Name</Label>
+                <Input id="businessName" value={form.businessName} onChange={(e) => update("businessName", e.target.value)} placeholder="e.g. Apex Climate Services" className="h-12 text-base" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="technicianName">Technician Name</Label>
+                <Input id="technicianName" value={form.technicianName} onChange={(e) => update("technicianName", e.target.value)} placeholder="e.g. Alex Morgan" className="h-12 text-base" />
+              </div>
+              <div className="space-y-2">
+                <Label>Licences / Registrations</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input value={form.licence1Label} onChange={(e) => update("licence1Label", e.target.value)} placeholder="e.g. ARCtick, Gas Safe, EPA 608" className="h-11 text-base" />
+                  <Input value={form.licence1Number} onChange={(e) => update("licence1Number", e.target.value)} placeholder="Number" className="h-11 text-base" />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Input value={form.licence2Label} onChange={(e) => update("licence2Label", e.target.value)} placeholder="Label (e.g. Gas Licence)" className="h-11 text-base" />
+                  <Input value={form.licence2Number} onChange={(e) => update("licence2Number", e.target.value)} placeholder="Number" className="h-11 text-base" />
                 </div>
               </div>
-            ) : (
-              <button
-                onClick={() => logoInputRef.current?.click()}
-                disabled={logoLoading}
-                className="w-full h-24 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-2 text-slate-500 hover:border-slate-300 hover:text-slate-500 active:bg-slate-50 transition-colors disabled:opacity-50"
-              >
-                <Upload className="w-5 h-5" />
-                <span className="text-sm font-medium">
-                  {logoLoading ? "Processing…" : "Tap to upload logo"}
-                </span>
-                <span className="text-xs">Square logo · PNG or JPG · White or transparent background works best</span>
-              </button>
-            )}
-            <input
-              ref={logoInputRef}
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleLogoFile}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Brand colour */}
-        <Card className="border border-slate-100 shadow-card">
-          <CardHeader className="pb-2 px-4 pt-4">
-            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Header Colour</CardTitle>
-          </CardHeader>
-          <CardContent className="px-4 pb-4 space-y-4">
-            {/* Preset swatches */}
-            <div className="flex gap-2.5 flex-wrap">
-              {COLOR_PRESETS.map((preset) => (
-                <button
-                  key={preset.value}
-                  onClick={() => update("brandColor", preset.value)}
-                  title={preset.label}
-                  aria-label={`Set header colour to ${preset.label}`}
-                  aria-pressed={(form.brandColor || "#0f172a") === preset.value}
-                  className={cn(
-                    "w-9 h-9 rounded-xl transition-all border-2",
-                    (form.brandColor || "#0f172a") === preset.value
-                      ? "border-orange-400 scale-110 shadow-md"
-                      : "border-transparent"
-                  )}
-                  style={{ backgroundColor: preset.value }}
-                />
-              ))}
-
-              {/* Custom colour picker */}
-              <label
-                title="Custom colour"
-                aria-label="Pick a custom header colour"
-                className={cn(
-                  "w-9 h-9 rounded-xl border-2 flex items-center justify-center cursor-pointer transition-all overflow-hidden",
-                  !COLOR_PRESETS.some((p) => p.value === (form.brandColor || "#0f172a"))
-                    ? "border-orange-400 scale-110 shadow-md"
-                    : "border-transparent border-slate-200"
-                )}
-                style={{
-                  backgroundColor: !COLOR_PRESETS.some((p) => p.value === (form.brandColor || "#0f172a"))
-                    ? form.brandColor || "#0f172a"
-                    : undefined,
-                }}
-              >
-                {COLOR_PRESETS.some((p) => p.value === (form.brandColor || "#0f172a")) && (
-                  <Palette className="w-4 h-4 text-slate-500" />
-                )}
-                <input
-                  type="color"
-                  value={form.brandColor || "#0f172a"}
-                  onChange={(e) => update("brandColor", e.target.value)}
-                  className="absolute opacity-0 w-0 h-0"
-                />
-              </label>
+              <div className="space-y-1.5">
+                <Label htmlFor="tagline">Tagline <span className="text-slate-500 font-normal">(optional)</span></Label>
+                <Input id="tagline" value={form.tagline ?? ""} onChange={(e) => update("tagline", e.target.value)} placeholder="e.g. Licensed & Insured · Your local specialists" className="h-12 text-base" />
+              </div>
             </div>
-            <p className="text-xs text-slate-500">
-              Tap a swatch or pick a custom colour. Shown in report headers and PDFs.
-            </p>
+
+            <div className="h-px bg-slate-100" />
+
+            {/* Contact Info */}
+            <div className="space-y-4">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Contact Info</p>
+              <div className="space-y-1.5">
+                <Label htmlFor="phone">Phone</Label>
+                <Input id="phone" type="tel" value={form.phone} onChange={(e) => update("phone", e.target.value)} placeholder="e.g. +1 555 012 3456" className="h-12 text-base" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="email">Email</Label>
+                <Input id="email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="e.g. hello@apexclimate.com" className="h-12 text-base" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="website">Website <span className="text-slate-500 font-normal">(optional)</span></Label>
+                <Input id="website" type="url" value={form.website ?? ""} onChange={(e) => update("website", e.target.value)} placeholder="e.g. www.apexclimate.com" className="h-12 text-base" />
+              </div>
+            </div>
+
+            <div className="h-px bg-slate-100" />
+
+            {/* Business Logo */}
+            <div className="space-y-3">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Business Logo</p>
+              {form.logoUrl ? (
+                <div className="flex items-center gap-4">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={form.logoUrl}
+                    alt="Logo preview"
+                    className="w-16 h-16 rounded-xl object-contain border border-slate-100 bg-slate-50"
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm font-semibold text-slate-800">Logo uploaded</p>
+                    <p className="text-xs text-slate-500 mt-0.5">Shown in report headers and PDFs</p>
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={() => logoInputRef.current?.click()}
+                        className="h-8 px-3 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 active:bg-slate-200 transition-colors"
+                      >
+                        Replace
+                      </button>
+                      <button
+                        onClick={removeLogo}
+                        className="h-8 px-3 rounded-lg text-xs font-semibold bg-red-50 text-red-500 active:bg-red-100 transition-colors flex items-center gap-1"
+                      >
+                        <X className="w-3 h-3" /> Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => logoInputRef.current?.click()}
+                  disabled={logoLoading}
+                  className="w-full h-24 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-2 text-slate-500 hover:border-slate-300 hover:text-slate-500 active:bg-slate-50 transition-colors disabled:opacity-50"
+                >
+                  <Upload className="w-5 h-5" />
+                  <span className="text-sm font-medium">
+                    {logoLoading ? "Processing…" : "Tap to upload logo"}
+                  </span>
+                  <span className="text-xs">Square logo · PNG or JPG · White or transparent background works best</span>
+                </button>
+              )}
+              <input
+                ref={logoInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleLogoFile}
+              />
+            </div>
+
+            <div className="h-px bg-slate-100" />
+
+            {/* Header Colour */}
+            <div className="space-y-4">
+              <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Header Colour</p>
+              <div className="flex gap-2.5 flex-wrap">
+                {COLOR_PRESETS.map((preset) => (
+                  <button
+                    key={preset.value}
+                    onClick={() => update("brandColor", preset.value)}
+                    title={preset.label}
+                    aria-label={`Set header colour to ${preset.label}`}
+                    aria-pressed={(form.brandColor || "#0f172a") === preset.value}
+                    className={cn(
+                      "w-9 h-9 rounded-xl transition-all border-2",
+                      (form.brandColor || "#0f172a") === preset.value
+                        ? "border-orange-400 scale-110 shadow-md"
+                        : "border-transparent"
+                    )}
+                    style={{ backgroundColor: preset.value }}
+                  />
+                ))}
+                <label
+                  title="Custom colour"
+                  aria-label="Pick a custom header colour"
+                  className={cn(
+                    "w-9 h-9 rounded-xl border-2 flex items-center justify-center cursor-pointer transition-all overflow-hidden",
+                    !COLOR_PRESETS.some((p) => p.value === (form.brandColor || "#0f172a"))
+                      ? "border-orange-400 scale-110 shadow-md"
+                      : "border-transparent border-slate-200"
+                  )}
+                  style={{
+                    backgroundColor: !COLOR_PRESETS.some((p) => p.value === (form.brandColor || "#0f172a"))
+                      ? form.brandColor || "#0f172a"
+                      : undefined,
+                  }}
+                >
+                  {COLOR_PRESETS.some((p) => p.value === (form.brandColor || "#0f172a")) && (
+                    <Palette className="w-4 h-4 text-slate-500" />
+                  )}
+                  <input
+                    type="color"
+                    value={form.brandColor || "#0f172a"}
+                    onChange={(e) => update("brandColor", e.target.value)}
+                    className="absolute opacity-0 w-0 h-0"
+                  />
+                </label>
+              </div>
+              <p className="text-xs text-slate-500">
+                Tap a swatch or pick a custom colour. Shown in report headers and PDFs.
+              </p>
+            </div>
+
           </CardContent>
         </Card>
 
-        <p className="text-center text-xs text-slate-500">Settings saved on this device</p>
 
-        {/* Sign out */}
-        {isConfigured && (
-          <div className="pt-2 space-y-3 pb-4">
-            <button
-              onClick={async () => { await signOut(); window.location.href = "/login"; }}
-              className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-medium text-slate-500 border border-slate-200 hover:bg-slate-50 hover:text-slate-600 active:bg-slate-100 transition-colors"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign out
-            </button>
-          </div>
-        )}
 
       </main>
 
