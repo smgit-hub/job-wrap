@@ -233,8 +233,20 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
   const userId = await getUserId(); // write-safe — skips demo account
   if (!userId) return; // not logged in, or demo account
 
-  const reports = lsGetReports();
-  const customers = lsGetCustomers();
+  // Strip out any stale sample/demo reports left over from the old
+  // auto-seed that used to run in Dashboard. These should never be
+  // migrated into a real user's account.
+  const allReports = lsGetReports().filter((r) => !r.id.startsWith("sample_"));
+  const allCustomers = lsGetCustomers();
+
+  // Also clean up the stale sample data from localStorage while we're here
+  const staleIds = lsGetReports()
+    .filter((r) => r.id.startsWith("sample_"))
+    .map((r) => r.id);
+  staleIds.forEach((id) => lsDeleteReport(id));
+
+  const reports = allReports;
+  const customers = allCustomers;
 
   if (reports.length === 0 && customers.length === 0) {
     localStorage.setItem(MIGRATION_KEY, "1");
