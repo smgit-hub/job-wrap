@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { CheckCircle2, Upload, X, Palette, LogOut, Eye, EyeOff, Loader2 } from "lucide-react";
+import { CheckCircle2, Upload, X, Palette, LogOut, Eye, EyeOff, Loader2, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -57,6 +57,12 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
   const [logoLoading, setLogoLoading] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const { isConfigured, signOut } = useAuth();
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  function handleClearAllData() {
+    localStorage.clear();
+    window.location.reload();
+  }
 
   // ── Account: Change Password ─────────────────────────────────────────────
   const [pwCurrent, setPwCurrent] = useState("");
@@ -453,7 +459,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
 
         {/* Sign out */}
         {isConfigured && (
-          <div className="pt-2 pb-4">
+          <div className="pt-2 space-y-3 pb-4">
             <button
               onClick={async () => { await signOut(); window.location.href = "/login"; }}
               className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-medium text-slate-500 border border-slate-200 hover:bg-slate-50 hover:text-slate-600 active:bg-slate-100 transition-colors"
@@ -461,6 +467,46 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
               <LogOut className="w-4 h-4" />
               Sign out
             </button>
+            <button
+              onClick={() => setShowClearConfirm(true)}
+              className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-medium text-red-400 border border-red-100 hover:bg-red-50 active:bg-red-100 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              Clear all data
+            </button>
+          </div>
+        )}
+
+        {/* Clear data confirmation */}
+        {showClearConfirm && (
+          <div
+            className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50"
+            onClick={() => setShowClearConfirm(false)}
+          >
+            <div
+              className="bg-white rounded-t-3xl px-4 pt-3 pb-above-nav w-full max-w-lg mx-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-5" />
+              <p className="text-base font-bold text-slate-900 text-center">Clear all data?</p>
+              <p className="text-sm text-slate-500 text-center mt-1 mb-6">
+                All reports, customers, photos and settings will be permanently deleted from this device.
+              </p>
+              <div className="space-y-3">
+                <button
+                  onClick={handleClearAllData}
+                  className="w-full h-14 rounded-2xl bg-red-500 text-base font-bold text-white active:bg-red-600 transition-colors"
+                >
+                  Clear everything
+                </button>
+                <button
+                  onClick={() => setShowClearConfirm(false)}
+                  className="w-full h-14 rounded-2xl bg-slate-100 text-base font-semibold text-slate-700 active:bg-slate-200 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </main>
