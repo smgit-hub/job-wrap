@@ -14,7 +14,7 @@ export type ReportStatus = "draft" | "complete";
 // Attached to a report after generation. Stored separately in photoStorage.
 export interface JobPhoto {
   id: string;
-  label: "before" | "after";
+  label?: "before" | "after";
   dataUrl: string; // compressed base64 JPEG
   capturedAt: string;
 }

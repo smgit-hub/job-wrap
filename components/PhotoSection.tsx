@@ -41,11 +41,8 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
         const dataUrl = await compressImage(file);
         // First photo added to an empty report defaults to "before",
         // everything else defaults to "after"
-        const label: JobPhoto["label"] =
-          photos.length === 0 && newPhotos.length === 0 ? "before" : "after";
         newPhotos.push({
           id: `ph_${Date.now()}_${Math.random().toString(36).slice(2, 5)}`,
-          label,
           dataUrl,
           capturedAt: new Date().toISOString(),
         });
@@ -57,14 +54,6 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
     if (newPhotos.length > 0) {
       onChange([...photos, ...newPhotos]);
     }
-  }
-
-  function toggleLabel(id: string) {
-    onChange(
-      photos.map((p) =>
-        p.id === id ? { ...p, label: p.label === "before" ? "after" : "before" } : p
-      )
-    );
   }
 
   function removePhoto(id: string) {
@@ -89,15 +78,6 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
                 alt=""
                 className="w-full h-full object-cover"
               />
-
-              {/* Before / After label toggle */}
-              <button
-                onClick={() => toggleLabel(photo.id)}
-                aria-label={`Toggle photo label — currently ${photo.label === "before" ? "Before" : "After"}`}
-                className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-black/55 active:bg-black/75 transition-colors"
-              >
-                {photo.label === "before" ? "Before" : "After"}
-              </button>
 
               {/* Remove */}
               <button
@@ -126,7 +106,7 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
 
       {photos.length > 0 && photos.length < MAX_PHOTOS && (
         <p className="text-xs text-slate-400 text-center">
-          {MAX_PHOTOS - photos.length} slot{MAX_PHOTOS - photos.length !== 1 ? "s" : ""} remaining · tap a label to toggle Before / After
+          {MAX_PHOTOS - photos.length} slot{MAX_PHOTOS - photos.length !== 1 ? "s" : ""} remaining
         </p>
       )}
       {photos.length === MAX_PHOTOS && (
