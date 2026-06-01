@@ -58,12 +58,17 @@ export default function Home() {
   // Purge reports that have been in trash for more than 7 days
   useState(() => { purgeExpiredDeletedReports(); });
 
+  // Flips to true once the startup sync has written data into localStorage,
+  // used as a key on screen components so they remount with fresh data.
+  const [syncReady, setSyncReady] = useState(false);
+
   // On mount: migrate any existing localStorage data to Supabase,
   // then sync the latest cloud data back into the localStorage cache.
   useEffect(() => {
     migrateLocalStorageToSupabase()
       .then(() => syncFromSupabase())
-      .catch((err) => console.warn("[page] startup sync failed:", err));
+      .then(() => setSyncReady(true))
+      .catch((err) => { console.warn("[page] startup sync failed:", err); setSyncReady(true); });
   }, []);
 
   const [screen, setScreen] = useState<Screen>("dashboard");
@@ -272,6 +277,7 @@ export default function Home() {
 
       {screen === "dashboard" && (
         <Dashboard
+          key={syncReady ? "ready" : "loading"}
           onNewReport={handleNewReport}
           onOpenReport={handleOpenReport}
           onSettings={() => goToScreen("settings")}
@@ -281,6 +287,7 @@ export default function Home() {
 
       {screen === "reports" && (
         <Reports
+          key={syncReady ? "ready" : "loading"}
           initialFilter={reportsFilter}
           onOpenReport={handleOpenReport}
         />
