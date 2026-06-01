@@ -338,10 +338,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
 
         {/* ── Customer section ────────────────────────────────────────────── */}
         <div className="space-y-2">
-          <div>
-            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Customer</h2>
-            <p className="text-xs text-slate-500 mt-0.5">Only a name is needed to start — everything else can be added later.</p>
-          </div>
+          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Customer</h2>
 
           {!detailsExpanded ? (
             /* Collapsed — autocomplete search for unlinked, summary card when linked */
