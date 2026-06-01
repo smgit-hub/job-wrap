@@ -130,7 +130,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
           </div>
           <div className="flex-1 text-left">
             <p className="text-xl font-extrabold leading-tight">New Report</p>
-            <p className="text-sm text-orange-100 font-medium mt-0.5">Speak · AI writes · Done</p>
+            <p className="text-sm text-orange-100 font-medium mt-0.5">Talk through the job. We write it up.</p>
           </div>
           <ArrowRight className="w-5 h-5 text-white/70 shrink-0" />
         </button>
