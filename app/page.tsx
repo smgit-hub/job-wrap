@@ -330,8 +330,7 @@ export default function Home() {
           isNewReport={isNewReport}
           onBack={popScreen}
           onPreview={handlePreview}
-          onRegenerate={isDemo ? undefined : handleRegenerate}
-          readOnly={isDemo}
+          onRegenerate={handleRegenerate}
         />
       )}
 

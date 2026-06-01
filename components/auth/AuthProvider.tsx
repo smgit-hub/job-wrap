@@ -1,9 +1,10 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useCallback } from "react";
 import type { User, Session } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { signOut as authSignOut } from "@/lib/supabase/auth";
+import { clearDemoSession } from "@/lib/db";
 
 interface AuthContextValue {
   user: User | null;
@@ -34,6 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const configured = isSupabaseConfigured();
+  const userRef = useRef<User | null>(null);
 
   useEffect(() => {
     if (!configured) {
@@ -50,6 +52,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Load the initial session
     client.auth.getSession().then(({ data }) => {
+      userRef.current = data.session?.user ?? null;
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setLoading(false);
@@ -57,8 +60,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Subscribe to auth state changes (login, logout, token refresh)
     const { data: { subscription } } = client.auth.onAuthStateChange((_event, newSession) => {
+      const newUser = newSession?.user ?? null;
+      // If a real (non-demo) user just signed in and the previous session was
+      // demo, clear localStorage so demo data can't migrate into their account.
+      if (newUser && newUser.email !== DEMO_EMAIL && userRef.current?.email === DEMO_EMAIL) {
+        clearDemoSession();
+      }
+      userRef.current = newUser;
       setSession(newSession);
-      setUser(newSession?.user ?? null);
+      setUser(newUser);
     });
 
     return () => subscription.unsubscribe();

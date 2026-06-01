@@ -41,6 +41,7 @@ import {
   saveCustomerToDb,
   deleteCustomerFromDb,
 } from "@/lib/supabase/queries/customers";
+import { loadBusinessSettingsFromDb } from "@/lib/supabase/queries/businessSettings";
 import {
   uploadPhotosForReport,
   resolvePhotos,
@@ -54,6 +55,7 @@ import type { ServiceReport, JobPhoto, Customer, BusinessProfile } from "@/types
 
 const DEMO_EMAIL = "demo@jobwrap.app";
 
+/** Returns the user ID for write operations. Returns null for demo accounts (read-only). */
 async function getUserId(): Promise<string | null> {
   const client = getSupabaseBrowserClient();
   if (!client) return null;
@@ -65,10 +67,18 @@ async function getUserId(): Promise<string | null> {
   return user.id;
 }
 
+/** Returns the user ID for read operations. Includes demo accounts. */
+async function getUserIdForRead(): Promise<string | null> {
+  const client = getSupabaseBrowserClient();
+  if (!client) return null;
+  const { data } = await client.auth.getUser();
+  return data.user?.id ?? null;
+}
+
 // ── Reports ───────────────────────────────────────────────────────────────────
 
 export async function dbGetReports(): Promise<ServiceReport[]> {
-  const userId = await getUserId();
+  const userId = await getUserIdForRead();
   if (userId) {
     const rows = await getUserReports(userId);
     if (rows) return rows.map(rowToReport);
@@ -77,7 +87,7 @@ export async function dbGetReports(): Promise<ServiceReport[]> {
 }
 
 export async function dbGetDeletedReports(): Promise<ServiceReport[]> {
-  const userId = await getUserId();
+  const userId = await getUserIdForRead();
   if (userId) {
     const rows = await getDeletedUserReports(userId);
     if (rows) return rows.map(rowToReport);
@@ -177,7 +187,7 @@ export async function dbDeletePhotos(
 // ── Customers ─────────────────────────────────────────────────────────────────
 
 export async function dbGetCustomers(): Promise<Customer[]> {
-  const userId = await getUserId();
+  const userId = await getUserIdForRead();
   if (userId) {
     const customers = await getCustomersFromDb(userId);
     if (customers) return customers;
@@ -220,8 +230,8 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
   if (typeof window === "undefined") return;
   if (localStorage.getItem(MIGRATION_KEY)) return; // already done
 
-  const userId = await getUserId();
-  if (!userId) return; // not logged in yet
+  const userId = await getUserId(); // write-safe — skips demo account
+  if (!userId) return; // not logged in, or demo account
 
   const reports = lsGetReports();
   const customers = lsGetCustomers();
@@ -252,6 +262,26 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
 // Re-export getStoredPhotos for use in components that need to check stored state
 export { getStoredPhotos };
 
+// ── Demo session cleanup ───────────────────────────────────────────────────────
+//
+// Called when a demo user clicks "Create free account". Wipes all localStorage
+// so their demo-session data doesn't get migrated into their new real account.
+
+export function clearDemoSession(): void {
+  if (typeof window === "undefined") return;
+  const keys = [
+    "jobwrap_reports",
+    "jobwrap_deleted_reports",
+    "jobwrap_customers",
+    "jobwrap_business",
+    "jobwrap_draft",
+    "jobwrap_seeded_v3",
+    "jobwrap_migrated_v1",
+    "jobwrap_last_sync",
+  ];
+  keys.forEach((k) => localStorage.removeItem(k));
+}
+
 // ── Sync: Supabase → localStorage cache ───────────────────────────────────────
 //
 // Called on app startup. Loads the user's data from Supabase and writes it
@@ -264,7 +294,7 @@ const SYNC_INTERVAL_MS = 5 * 60 * 1000; // re-sync at most every 5 minutes
 export async function syncFromSupabase(): Promise<void> {
   if (typeof window === "undefined") return;
 
-  const userId = await getUserId();
+  const userId = await getUserIdForRead();
   if (!userId) return;
 
   // Throttle — don't re-sync if we just did it
@@ -272,9 +302,10 @@ export async function syncFromSupabase(): Promise<void> {
   if (Date.now() - lastSync < SYNC_INTERVAL_MS) return;
 
   try {
-    const [reportRows, customers] = await Promise.all([
+    const [reportRows, customers, businessProfile] = await Promise.all([
       getUserReports(userId),
       getCustomersFromDb(userId),
+      loadBusinessSettingsFromDb(userId),
     ]);
 
     if (reportRows) {
@@ -285,6 +316,11 @@ export async function syncFromSupabase(): Promise<void> {
     if (customers) {
       const { saveCustomer: lsSaveCustomer } = await import("@/lib/storage");
       customers.forEach((c) => lsSaveCustomer(c));
+    }
+
+    if (businessProfile) {
+      const { saveBusinessProfile: lsSaveBiz } = await import("@/lib/storage");
+      lsSaveBiz(businessProfile);
     }
 
     localStorage.setItem(SYNC_KEY, String(Date.now()));
