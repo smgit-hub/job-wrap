@@ -579,7 +579,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
             className="bg-white rounded-t-3xl px-4 pt-3 pb-above-nav w-full max-w-lg mx-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
+            <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-5" />
             <p className="text-base font-bold text-slate-900 text-center">Discard changes?</p>
             <p className="text-sm text-slate-500 text-center mt-1 mb-6">Your customer details won&apos;t be saved.</p>
             <div className="space-y-3">

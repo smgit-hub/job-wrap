@@ -152,7 +152,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
           <>
             <div className="flex items-center gap-3 pt-2">
               <h2 className="text-xl font-bold text-slate-900 shrink-0">Account</h2>
-              <div className="flex-1 h-px bg-slate-200" />
+              <div className="flex-1 h-px bg-slate-300" />
             </div>
 
             {/* Change Password */}
@@ -254,7 +254,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         {/* ── Business ─────────────────────────────────────────────────────── */}
         <div className="flex items-center gap-3 pt-2">
           <h2 className="text-xl font-bold text-slate-900 shrink-0">Business</h2>
-          <div className="flex-1 h-px bg-slate-200" />
+          <div className="flex-1 h-px bg-slate-300" />
         </div>
 
         {/* Live preview */}

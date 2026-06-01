@@ -589,7 +589,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             className="bg-white rounded-t-3xl px-4 pt-3 pb-above-nav w-full max-w-lg mx-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
+            <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-5" />
             <p className="text-base font-bold text-slate-900 text-center mb-1">Move to…</p>
             <p className="text-xs text-slate-500 text-center mb-5 px-4 truncate">&ldquo;{movingBullet.text}&rdquo;</p>
             <div className="space-y-2">
