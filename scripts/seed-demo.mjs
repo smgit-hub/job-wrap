@@ -305,8 +305,8 @@ const REPORTS = [
         equipment: "LG Multi V S 8HP VRF system, office fit-out 2023",
         voiceNotes: {
           jobNotes:
-            "LG VRF unit fault code CH38 showing on two indoor heads in the open-plan area. Found low refrigerant charge on the A-circuit — slow leak at a flare fitting behind the ceiling. Re-flared the joint, pressure tested, held vacuum, topped up with R410A. Both heads back online and running at correct temps. Checked B-circuit pressures while on site — all good.",
-          recommendations: "Recommend a follow-up check in 3 months to confirm no further refrigerant loss from the A-circuit.",
+            "LG VRF unit fault code CH38 showing on two indoor heads in the open-plan area. Found low refrigerant charge on the A-circuit — slow leak at a flare fitting behind the ceiling. Re-flared the joint, pressure tested, held vacuum, topped up with R410A. Both heads back online and running at correct temps. Checked B-circuit pressures while on site — all good. Recommend a follow-up check in 3 months to confirm no further refrigerant loss from the A-circuit.",
+          recommendations: "",
         },
       },
       business: BUSINESS,
@@ -341,8 +341,8 @@ const REPORTS = [
         equipment: "Panasonic CS-Z50VKR 5kW reverse-cycle split, installed 2020",
         voiceNotes: {
           jobNotes:
-            "Annual service on Fiona's Panasonic 5kW split. Filters were really dirty — hadn't been cleaned since install. Washed filters, cleaned evaporator coil, had some light mould on the coil so hit it with coil cleaner. Condensate drain was starting to block up, flushed it out. Refrigerant pressures looked good. Unit running well after service.",
-          recommendations: "Recommend customer cleans filters every 6 weeks going forward. Book next annual service May 2027.",
+            "Annual service on Fiona's Panasonic 5kW split. Filters were really dirty — hadn't been cleaned since install. Washed filters, cleaned evaporator coil, had some light mould on the coil so hit it with coil cleaner. Condensate drain was starting to block up, flushed it out. Refrigerant pressures looked good. Unit running well after service. Recommend customer cleans filters every 6 weeks going forward. Book next annual service May 2027.",
+          recommendations: "",
         },
       },
       business: BUSINESS,
