@@ -52,11 +52,17 @@ import type { ServiceReport, JobPhoto, Customer, BusinessProfile } from "@/types
 
 // ── Session helper ────────────────────────────────────────────────────────────
 
+const DEMO_EMAIL = "demo@jobwrap.app";
+
 async function getUserId(): Promise<string | null> {
   const client = getSupabaseBrowserClient();
   if (!client) return null;
   const { data } = await client.auth.getUser();
-  return data.user?.id ?? null;
+  const user = data.user;
+  if (!user) return null;
+  // Demo account is read-only — never write to Supabase from it
+  if (user.email === DEMO_EMAIL) return null;
+  return user.id;
 }
 
 // ── Reports ───────────────────────────────────────────────────────────────────

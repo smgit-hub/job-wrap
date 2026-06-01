@@ -10,14 +10,18 @@ interface AuthContextValue {
   session: Session | null;
   loading: boolean;
   isConfigured: boolean;
+  isDemo: boolean;
   signOut: () => Promise<void>;
 }
+
+export const DEMO_EMAIL = "demo@jobwrap.app";
 
 const AuthContext = createContext<AuthContextValue>({
   user: null,
   session: null,
   loading: true,
   isConfigured: false,
+  isDemo: false,
   signOut: async () => {},
 });
 
@@ -66,8 +70,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setSession(null);
   }, []);
 
+  const isDemo = user?.email === DEMO_EMAIL;
+
   return (
-    <AuthContext.Provider value={{ user, session, loading, isConfigured: configured, signOut }}>
+    <AuthContext.Provider value={{ user, session, loading, isConfigured: configured, isDemo, signOut }}>
       {children}
     </AuthContext.Provider>
   );

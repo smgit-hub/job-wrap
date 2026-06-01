@@ -13,6 +13,7 @@ import CustomerProfile from "@/components/CustomerProfile";
 import Sidebar, { type ActiveSection } from "@/components/Sidebar";
 import BottomNav from "@/components/BottomNav";
 import type { ServiceReport, JobDetails, BusinessProfile, GeneratedReport, Customer } from "@/types/report";
+import { useAuth } from "@/components/auth/AuthProvider";
 import {
   getBusinessProfile,
   saveBusinessProfile,
@@ -51,6 +52,8 @@ export default function Home() {
   //               </AppGildGate>;
   //   4. Test in both licensed and unlicensed states before releasing.
   // ── end AppGild TODO ────────────────────────────────────────────────────────
+
+  const { isDemo, signOut } = useAuth();
 
   // Purge reports that have been in trash for more than 7 days
   useState(() => { purgeExpiredDeletedReports(); });
@@ -94,7 +97,10 @@ export default function Home() {
 
   // ── Screen handlers ───────────────────────────────────────────────────────────
 
+  const [showDemoPrompt, setShowDemoPrompt] = useState(false);
+
   function handleNewReport() {
+    if (isDemo) { setShowDemoPrompt(true); return; }
     setActiveReport(null);
     setSelectedCustomer(null);
     pushScreen("new-report");
@@ -195,6 +201,54 @@ export default function Home() {
 
   return (
     <>
+      {/* Demo mode banner */}
+      {isDemo && (
+        <div className="fixed top-0 left-0 right-0 z-50 bg-orange-500 px-4 py-2.5 flex items-center justify-between gap-3">
+          <p className="text-sm font-semibold text-white">
+            You&apos;re exploring the demo
+          </p>
+          <button
+            onClick={() => signOut().then(() => { window.location.href = "/login"; })}
+            className="text-xs font-bold text-white bg-white/20 rounded-lg px-3 py-1.5 active:bg-white/30 transition-colors shrink-0"
+          >
+            Create free account →
+          </button>
+        </div>
+      )}
+
+      {/* Sign-up prompt bottom sheet (shown when demo user tries to create) */}
+      {showDemoPrompt && (
+        <div
+          className="fixed inset-0 z-50 flex flex-col justify-end bg-black/50"
+          onClick={() => setShowDemoPrompt(false)}
+        >
+          <div
+            className="bg-white rounded-t-3xl px-4 pt-3 pb-10 w-full max-w-lg mx-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="w-10 h-1 bg-slate-300 rounded-full mx-auto mb-5" />
+            <div className="text-center space-y-2 mb-6">
+              <p className="text-lg font-bold text-slate-900">Create your free account</p>
+              <p className="text-sm text-slate-500">Sign up to start creating and saving your own reports.</p>
+            </div>
+            <div className="space-y-3">
+              <button
+                onClick={() => signOut().then(() => { window.location.href = "/login"; })}
+                className="w-full h-14 rounded-2xl bg-orange-500 text-base font-bold text-white active:bg-orange-600 transition-colors"
+              >
+                Sign up free
+              </button>
+              <button
+                onClick={() => setShowDemoPrompt(false)}
+                className="w-full h-12 text-sm font-semibold text-slate-500"
+              >
+                Keep exploring
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Sidebar
         activeSection={getActiveSection(screen)}
         onDashboard={() => goToScreen("dashboard")}
@@ -213,8 +267,8 @@ export default function Home() {
         onSettings={() => goToScreen("settings")}
       />
 
-      {/* Content — offset right of sidebar on desktop */}
-      <div className="lg:pl-60">
+      {/* Content — offset right of sidebar on desktop, pushed down by demo banner */}
+      <div className={`lg:pl-60${isDemo ? " pt-10" : ""}`}>
 
       {screen === "dashboard" && (
         <Dashboard
@@ -276,7 +330,8 @@ export default function Home() {
           isNewReport={isNewReport}
           onBack={popScreen}
           onPreview={handlePreview}
-          onRegenerate={handleRegenerate}
+          onRegenerate={isDemo ? undefined : handleRegenerate}
+          readOnly={isDemo}
         />
       )}
 

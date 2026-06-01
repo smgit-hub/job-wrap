@@ -22,10 +22,11 @@ interface ReportEditorProps {
   onBack: () => void;
   onPreview: (report: ServiceReport) => void;
   onRegenerate?: (job: JobDetails) => Promise<GeneratedReport>;
+  readOnly?: boolean;
 }
 
 
-export default function ReportEditor({ report, isNewReport, onBack, onPreview, onRegenerate }: ReportEditorProps) {
+export default function ReportEditor({ report, isNewReport, onBack, onPreview, onRegenerate, readOnly = false }: ReportEditorProps) {
   const [draft, setDraft] = useState<ServiceReport>(report);
   const [movingBullet, setMovingBullet] = useState<{ text: string; from: keyof GeneratedReport } | null>(null);
   const [photos, setPhotos] = useState<JobPhoto[]>([]);
@@ -544,16 +545,26 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         </div>
       )}
 
-      {/* Sticky footer — Preview always available */}
+      {/* Sticky footer */}
       <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer">
-          <button
-            onClick={handlePreview}
-            className="w-full h-14 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-md shadow-orange-200/50 transition-colors"
-          >
-            Save & Preview
-            <Eye className="w-5 h-5" />
-          </button>
+          {readOnly ? (
+            <button
+              onClick={handlePreview}
+              className="w-full h-14 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-md shadow-orange-200/50 transition-colors"
+            >
+              Preview Report
+              <Eye className="w-5 h-5" />
+            </button>
+          ) : (
+            <button
+              onClick={handlePreview}
+              className="w-full h-14 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-md shadow-orange-200/50 transition-colors"
+            >
+              Save & Preview
+              <Eye className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
     </>
