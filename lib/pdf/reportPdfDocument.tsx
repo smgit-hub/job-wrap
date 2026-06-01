@@ -413,11 +413,6 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
                   <View key={photo.id} style={s.photoWrap}>
                     {/* eslint-disable-next-line jsx-a11y/alt-text */}
                     <Image src={photo.dataUrl} style={s.photoImg} />
-                    <View style={s.photoLabelWrap}>
-                      <Text style={s.photoLabelText}>
-                        {photo.label === "before" ? "Before" : "After"}
-                      </Text>
-                    </View>
                   </View>
                 ))}
               </View>

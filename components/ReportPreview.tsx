@@ -325,9 +325,6 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
                       <div key={photo.id} className="relative aspect-square rounded-xl overflow-hidden bg-slate-100">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={photo.dataUrl} alt="" className="w-full h-full object-cover" />
-                        <span className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-black/55">
-                          {photo.label === "before" ? "Before" : "After"}
-                        </span>
                       </div>
                     ))}
                   </div>
