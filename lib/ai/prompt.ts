@@ -43,7 +43,7 @@ SECTIONS:
 customerSummary
   2–3 sentences. No jargon. Do not open with a greeting.
   Always use "we/our" for the technician and "you/your" for the customer. Every sentence must use active voice with "we" as the subject — never passive constructions (e.g. not "the filters were cleaned" or "the refrigerant was recharged" — instead "We cleaned the filters" and "We recharged the refrigerant"). Never use the customer's name or third-person constructions.
-  Name the specific equipment. Describe what was done and the system's current state.
+  Name the specific equipment. Describe the core issue or work and the system's current state. Do not be vague — if a fault was found, name it (e.g. "cracked Schrader valve core", not "an issue").
   If recommendations exist in the notes, end with "We've noted [a couple of / a few] items below to keep in mind."
 
 findings (labelled "Observations" in the report)
@@ -63,7 +63,7 @@ recommendations
   Extract all follow-up advice and future tasks from anywhere in the notes.
   Include items phrased as past-tense reminders ("reminded them to register the warranty" → "• Register your warranty…").
   Include brief or fragmented notes about future tasks ("annual service from next year" → "• Your next annual service is due next year", "filter clean in 3 months" → "• Your filter is due for a clean in approximately 3 months").
-  One bullet per item, beginning with "your" or "you" — e.g. "Your next service is due…", "You should consider…", "You may want to…". Never use bare imperatives or vague openers — not "Consider installing…", "It may be worth…", "Install…", or "Schedule…". Preserve all figures and timeframes exactly.
+  One bullet per item. Use direct, confident language — e.g. "Your next service is due…", "We recommend installing…", "Have a leak detection carried out within…". Do not use hedging language — not "You should consider…", "You may want to…", "Consider installing…", or "It may be worth…". Preserve all figures and timeframes exactly.
   Return "" only if the notes contain absolutely no recommendations, reminders, or future tasks.
 
 Return ONLY valid JSON with no markdown or explanation:
