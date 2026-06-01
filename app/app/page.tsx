@@ -244,7 +244,7 @@ export default function Home() {
                 onClick={() => signOut().then(() => { window.location.href = "/login"; })}
                 className="w-full h-14 rounded-2xl bg-orange-500 text-base font-bold text-white active:bg-orange-600 transition-colors"
               >
-                Sign up free
+                Create account
               </button>
               <button
                 onClick={() => setShowDemoPrompt(false)}
