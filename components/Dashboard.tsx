@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { FileText, ChevronRight, CheckCircle2, Clock, Calendar, Mic } from "lucide-react";
+import { FileText, ChevronRight, CheckCircle2, Clock, Calendar, Mic, ArrowRight } from "lucide-react";
 import type { ServiceReport, BusinessProfile } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
 import { getReports, deleteReport, getBusinessProfile, migrateCustomersFromReports, seedSampleData, DEFAULT_BUSINESS } from "@/lib/storage";
@@ -123,14 +123,16 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
         {/* New job CTA */}
         <button
           onClick={onNewReport}
-          style={{ background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)" }}
-          className="w-full rounded-2xl px-5 py-5 flex flex-col items-center gap-2 shadow-lg shadow-orange-200 active:opacity-90 transition-opacity"
+          className="w-full bg-orange-500 active:bg-orange-600 text-white rounded-2xl px-5 py-4 flex items-center gap-4 transition-colors shadow-lg shadow-orange-200"
         >
-          <div className="w-12 h-12 rounded-full bg-white/25 flex items-center justify-center">
-            <Mic className="w-6 h-6 text-white" />
+          <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
+            <Mic className="w-7 h-7 text-white" />
           </div>
-          <p className="text-2xl font-extrabold text-white tracking-tight">New Report</p>
-          <p className="text-xs text-orange-100 font-medium">Speak · AI writes · Done</p>
+          <div className="flex-1 text-left">
+            <p className="text-xl font-extrabold leading-tight">New Report</p>
+            <p className="text-sm text-orange-100 font-medium mt-0.5">Speak · AI writes · Done</p>
+          </div>
+          <ArrowRight className="w-5 h-5 text-white/70 shrink-0" />
         </button>
 
         {/* Folder cards */}
