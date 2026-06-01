@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { Plus, FileText, ChevronRight, CheckCircle2, Clock, Calendar, Mic, ArrowRight, Sparkles } from "lucide-react";
+import { FileText, ChevronRight, CheckCircle2, Clock, Calendar, Mic } from "lucide-react";
 import type { ServiceReport, BusinessProfile } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
 import { getReports, deleteReport, getBusinessProfile, migrateCustomersFromReports, seedSampleData, DEFAULT_BUSINESS } from "@/lib/storage";
@@ -120,63 +120,18 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
           )}
         </div>
 
-        {/* ── CTA VARIATIONS (pick one, delete the rest) ────────────────── */}
-
-        {/* VARIATION A — Hero card: mic left, title + tagline, arrow right */}
-        <div className="space-y-1">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">A</p>
-          <button
-            onClick={onNewReport}
-            className="w-full bg-orange-500 active:bg-orange-600 text-white rounded-2xl px-5 py-4 flex items-center gap-4 transition-colors shadow-lg shadow-orange-200"
-          >
-            <div className="w-14 h-14 rounded-2xl bg-white/20 flex items-center justify-center shrink-0">
-              <Mic className="w-7 h-7 text-white" />
-            </div>
-            <div className="flex-1 text-left">
-              <p className="text-xl font-extrabold leading-tight">New Report</p>
-              <p className="text-sm text-orange-100 font-medium mt-0.5">Record a job in 60 seconds</p>
-            </div>
-            <ArrowRight className="w-5 h-5 text-white/70 shrink-0" />
-          </button>
-        </div>
-
-        {/* VARIATION B — Gradient banner: centred, icon top, big text */}
-        <div className="space-y-1">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">B</p>
-          <button
-            onClick={onNewReport}
-            style={{ background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)" }}
-            className="w-full rounded-2xl px-5 py-5 flex flex-col items-center gap-2 shadow-lg shadow-orange-200 active:opacity-90 transition-opacity"
-          >
-            <div className="w-12 h-12 rounded-full bg-white/25 flex items-center justify-center">
-              <Mic className="w-6 h-6 text-white" />
-            </div>
-            <p className="text-2xl font-extrabold text-white tracking-tight">New Report</p>
-            <p className="text-xs text-orange-100 font-medium">Speak · AI writes · Done</p>
-          </button>
-        </div>
-
-        {/* VARIATION C — Two-tone split: dark left panel + orange right */}
-        <div className="space-y-1">
-          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center">C</p>
-          <button
-            onClick={onNewReport}
-            className="w-full rounded-2xl overflow-hidden flex shadow-lg shadow-slate-200 active:opacity-90 transition-opacity h-20"
-          >
-            <div className="bg-slate-900 w-20 flex items-center justify-center shrink-0">
-              <Mic className="w-8 h-8 text-orange-400" />
-            </div>
-            <div className="bg-orange-500 flex-1 flex items-center justify-between px-5">
-              <div className="text-left">
-                <p className="text-lg font-extrabold text-white leading-tight">New Report</p>
-                <p className="text-xs text-orange-100 font-medium mt-0.5">Tap to start recording</p>
-              </div>
-              <Sparkles className="w-5 h-5 text-white/60 shrink-0" />
-            </div>
-          </button>
-        </div>
-
-        {/* ── END VARIATIONS ────────────────────────────────────────────── */}
+        {/* New job CTA */}
+        <button
+          onClick={onNewReport}
+          style={{ background: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)" }}
+          className="w-full rounded-2xl px-5 py-5 flex flex-col items-center gap-2 shadow-lg shadow-orange-200 active:opacity-90 transition-opacity"
+        >
+          <div className="w-12 h-12 rounded-full bg-white/25 flex items-center justify-center">
+            <Mic className="w-6 h-6 text-white" />
+          </div>
+          <p className="text-2xl font-extrabold text-white tracking-tight">New Report</p>
+          <p className="text-xs text-orange-100 font-medium">Speak · AI writes · Done</p>
+        </button>
 
         {/* Folder cards */}
         <div className="grid grid-cols-2 gap-3">
