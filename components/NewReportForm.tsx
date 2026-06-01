@@ -378,11 +378,11 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                     <button
                       type="button"
                       onClick={handleSetupContinue}
-                      disabled={!customerForm.name.trim()}
+                      disabled={customerForm.name.trim().length < 2}
                       aria-label="Continue"
                       className={cn(
                         "h-11 w-11 rounded-xl flex items-center justify-center shrink-0 transition-all",
-                        customerForm.name.trim()
+                        customerForm.name.trim().length >= 2
                           ? "bg-orange-500 text-white shadow-md shadow-orange-200 active:bg-orange-600"
                           : "bg-slate-200 text-slate-400 cursor-not-allowed"
                       )}
@@ -620,10 +620,10 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer">
           <button
             onClick={handleSetupContinue}
-            disabled={!customerForm.name.trim()}
+            disabled={customerForm.name.trim().length < 2}
             className={cn(
               "w-full h-14 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 transition-all",
-              customerForm.name.trim()
+              customerForm.name.trim().length >= 2
                 ? "bg-orange-500 hover:bg-orange-600 active:bg-orange-700 shadow-md shadow-orange-200"
                 : "bg-slate-300"
             )}
