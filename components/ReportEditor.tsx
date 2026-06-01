@@ -238,13 +238,6 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
           </div>
         )}
 
-        {isRegenerating && (
-          <div className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-slate-50 border border-slate-100 text-slate-400 text-sm">
-            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-            {isUngenerated ? "Generating report…" : "Regenerating…"}
-          </div>
-        )}
-
         {/* ── Report sections ────────────────────────────────────────────── */}
         {!isUngenerated && (
           <>
@@ -348,42 +341,45 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             </Card>
 
             {/* Regenerate — below the content it affects */}
-            {onRegenerate && !isRegenerating && !confirmRegen && (
-              <button
-                onClick={() => setConfirmRegen(true)}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-300 text-slate-400 text-sm hover:border-orange-300 hover:text-orange-500 transition-colors"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                Regenerate with AI
-              </button>
-            )}
-
-            {confirmRegen && (
-              <div className="bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3 space-y-3">
-                <p className="text-sm font-semibold text-amber-800">Regenerate this report?</p>
-                <p className="text-xs text-amber-700">Your current edits will be replaced with a fresh AI-generated version.</p>
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setConfirmRegen(false)}
-                    className="flex-1 h-10 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-600 active:bg-slate-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleRegenerate}
-                    className="flex-1 h-10 rounded-xl bg-orange-500 text-sm font-semibold text-white active:bg-orange-600"
-                  >
-                    Regenerate
-                  </button>
+            {onRegenerate && (
+              isRegenerating ? (
+                <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Regenerating…
                 </div>
-              </div>
-            )}
-
-            {regenError && (
-              <div className="flex items-start gap-3 bg-red-50 border border-red-100 rounded-2xl px-4 py-3">
-                <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-                <p className="text-xs text-red-700">{regenError}</p>
-              </div>
+              ) : confirmRegen ? (
+                <div className="bg-amber-50 border border-amber-100 rounded-2xl px-4 py-3 space-y-3">
+                  <p className="text-sm font-semibold text-amber-800">Regenerate this report?</p>
+                  <p className="text-xs text-amber-700">Your current edits will be replaced with a fresh AI-generated version.</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setConfirmRegen(false)}
+                      className="flex-1 h-10 rounded-xl bg-white border border-slate-200 text-sm font-semibold text-slate-600 active:bg-slate-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleRegenerate}
+                      className="flex-1 h-10 rounded-xl bg-orange-500 text-sm font-semibold text-white active:bg-orange-600"
+                    >
+                      Regenerate
+                    </button>
+                  </div>
+                </div>
+              ) : regenError ? (
+                <div className="flex items-start gap-3 bg-red-50 border border-red-100 rounded-2xl px-4 py-3">
+                  <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-red-700">{regenError}</p>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmRegen(true)}
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-300 text-slate-400 text-sm hover:border-orange-300 hover:text-orange-500 transition-colors"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  Regenerate with AI
+                </button>
+              )
             )}
           </>
         )}
