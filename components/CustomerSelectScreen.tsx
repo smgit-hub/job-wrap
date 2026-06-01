@@ -236,7 +236,8 @@ export default function CustomerSelectScreen({
         </main>
 
         {/* Footer actions */}
-        <div className="fixed left-0 lg:left-60 right-0 z-20 bg-white border-t border-slate-100 above-nav">
+        <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
+          <div className="lg:pl-60">
           <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer space-y-2">
             {/* Standalone edit: Start job is the primary CTA */}
             {!isNew && standalone && (
@@ -260,6 +261,7 @@ export default function CustomerSelectScreen({
             >
               {isNew ? "Add Customer" : "Save Changes"}
             </button>
+          </div>
           </div>
         </div>
       </div>
