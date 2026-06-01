@@ -63,8 +63,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const newUser = newSession?.user ?? null;
       if (newUser) {
         if (newUser.email === DEMO_EMAIL) {
-          // Demo just signed in — mark localStorage so we can detect it after
-          // a page reload when userRef has been reset.
+          // Demo just signed in — clear any leftover session data so every
+          // demo visit starts fresh, then mark the flag for real-user detection.
+          clearDemoSession();
           markDemoSessionActive();
         } else if (wasDemoSessionActive()) {
           // Real user signing in after a demo session (survives page reloads).
