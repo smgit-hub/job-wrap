@@ -466,7 +466,8 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
       </main>
 
       {/* Sticky Save button */}
-      <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav lg:pl-60">
+      <div className="fixed left-0 right-0 z-20 bg-white border-t border-slate-100 above-nav">
+        <div className="lg:pl-60">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer">
           <button
             onClick={handleSave}
@@ -481,6 +482,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
               "Save Settings"
             )}
           </button>
+        </div>
         </div>
       </div>
     </div>
