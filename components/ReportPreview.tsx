@@ -390,7 +390,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
                 />
                 <ActionTile
                   icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : canNativeShare ? <Share2 className="w-5 h-5 text-slate-500" /> : <Link className="w-5 h-5 text-slate-500" />}
-                  label={linkState === "generating" ? "Sharing…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : canNativeShare ? "Share" : "Copy Link"}
+                  label={linkState === "generating" ? "Getting Link…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : "Share Link"}
                   onClick={handleShareOrCopy}
                   disabled={linkState === "generating"}
                 />
@@ -420,7 +420,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
                 />
                 <ActionTile
                   icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : canNativeShare ? <Share2 className="w-5 h-5 text-slate-500" /> : <Link className="w-5 h-5 text-slate-500" />}
-                  label={linkState === "generating" ? "Sharing…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : canNativeShare ? "Share" : "Copy Link"}
+                  label={linkState === "generating" ? "Getting Link…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : "Share Link"}
                   onClick={handleShareOrCopy}
                   disabled={linkState === "generating"}
                 />
