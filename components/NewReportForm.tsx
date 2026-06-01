@@ -295,7 +295,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
               </div>
               <button
                 onClick={() => { setFormStep("recording"); window.scrollTo({ top: 0 }); }}
-                className="w-full h-10 text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors"
+                className="w-full h-10 text-sm font-semibold text-slate-500 hover:text-slate-600 transition-colors"
               >
                 ← Back to recording
               </button>
@@ -309,7 +309,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                 <p className="font-bold text-slate-900 text-lg">Writing your report…</p>
                 <p className="text-sm text-slate-500">This usually takes 10–20 seconds.</p>
               </div>
-              <Loader2 className="w-5 h-5 text-slate-300 animate-spin mt-2" />
+              <Loader2 className="w-5 h-5 text-slate-500 animate-spin mt-2" />
             </div>
           )}
         </main>
@@ -338,7 +338,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
 
         {/* ── Customer section ────────────────────────────────────────────── */}
         <div className="space-y-2">
-          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Customer</h2>
+          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Customer</h2>
 
           {!detailsExpanded ? (
             /* Collapsed — autocomplete search for unlinked, summary card when linked */
@@ -349,7 +349,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                   <div className="min-w-0">
                     <p className="font-semibold text-slate-900 truncate">{customerForm.name}</p>
                     {customerForm.address && (
-                      <p className="text-xs text-slate-400 truncate mt-0.5">{customerForm.address}</p>
+                      <p className="text-xs text-slate-500 truncate mt-0.5">{customerForm.address}</p>
                     )}
                   </div>
                   <button
@@ -387,7 +387,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                             <div className="min-w-0">
                               <p className="text-sm font-semibold text-slate-900">{c.name}</p>
                               {c.address && (
-                                <p className="text-xs text-slate-400 truncate">{c.address}</p>
+                                <p className="text-xs text-slate-500 truncate">{c.address}</p>
                               )}
                             </div>
                           </button>
@@ -398,7 +398,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                   <button
                     type="button"
                     onClick={() => setDetailsExpanded(true)}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-orange-500 active:text-orange-700 transition-colors"
+                    className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-orange-500 active:text-orange-700 transition-colors"
                   >
                     <ChevronDown className="w-3.5 h-3.5" />
                     Add address &amp; contact details
@@ -416,7 +416,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
                 <button
                   type="button"
                   onClick={() => setDetailsExpanded(false)}
-                  className="flex items-center gap-1 text-xs font-semibold text-slate-400 active:text-slate-600"
+                  className="flex items-center gap-1 text-xs font-semibold text-slate-500 active:text-slate-600"
                 >
                   Hide <ChevronUp className="w-3.5 h-3.5" />
                 </button>
@@ -497,7 +497,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
 
         {/* ── This Job section ────────────────────────────────────────────── */}
         <div className="space-y-2">
-          <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">This Job</h2>
+          <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">This Job</h2>
 
           <div className="bg-white rounded-2xl shadow-card px-4 py-4 space-y-4">
             {/* Service type */}
@@ -618,7 +618,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
           </button>
           <button
             onClick={handleSaveForLater}
-            className="w-full h-10 flex items-center justify-center gap-1.5 text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors"
+            className="w-full h-10 flex items-center justify-center gap-1.5 text-sm font-semibold text-slate-500 hover:text-slate-600 transition-colors"
           >
             <BookmarkCheck className="w-4 h-4" />
             Save for later

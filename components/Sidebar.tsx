@@ -51,7 +51,7 @@ export default function Sidebar({ activeSection, onDashboard, onReports, onCusto
           <div className="min-w-0">
             <p className="text-sm font-bold text-slate-900 leading-tight">JobWrap</p>
             {profile.businessName && (
-              <p className="text-xs text-slate-400 leading-tight truncate">{profile.businessName}</p>
+              <p className="text-xs text-slate-500 leading-tight truncate">{profile.businessName}</p>
             )}
           </div>
         </button>
@@ -82,7 +82,7 @@ export default function Sidebar({ activeSection, onDashboard, onReports, onCusto
         <div className="px-3 pb-5 border-t border-slate-100 pt-3">
           <button
             onClick={async () => { await signOut(); window.location.href = "/login"; }}
-            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-slate-50 hover:text-slate-600 transition-colors"
+            className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-600 transition-colors"
           >
             <LogOut className="w-4 h-4 shrink-0" />
             Sign out

@@ -86,7 +86,7 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
                 </p>
                 <p className="text-sm font-semibold text-slate-800 mt-0.5">{email}</p>
               </div>
-              <p className="text-xs text-slate-400 leading-relaxed">
+              <p className="text-xs text-slate-500 leading-relaxed">
                 Tap the link in the email to activate your account, then come back here to sign in. Check your spam folder if you don&apos;t see it.
               </p>
             </div>
@@ -164,7 +164,7 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-600 p-0.5"
                 tabIndex={-1}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -208,7 +208,7 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
           </button>
         </p>
 
-        <p className="text-center text-xs text-slate-400 mt-4">
+        <p className="text-center text-xs text-slate-500 mt-4">
           By creating an account you agree to our{" "}
           <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
         </p>

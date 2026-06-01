@@ -158,7 +158,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
             {/* Change Password */}
             <Card className="border border-slate-100 shadow-card">
               <CardHeader className="pb-2 px-4 pt-4">
-                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Change Password</CardTitle>
+                <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Change Password</CardTitle>
               </CardHeader>
               <CardContent className="px-4 pb-4 space-y-3">
                 <div className="space-y-1.5">
@@ -176,7 +176,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
                     <button
                       type="button"
                       onClick={() => setShowPw((v) => !v)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
                       tabIndex={-1}
                     >
                       {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -216,7 +216,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
             {/* Change Email */}
             <Card className="border border-slate-100 shadow-card">
               <CardHeader className="pb-2 px-4 pt-4">
-                <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Change Email</CardTitle>
+                <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Change Email</CardTitle>
               </CardHeader>
               <CardContent className="px-4 pb-4 space-y-3">
                 <div className="space-y-1.5">
@@ -285,7 +285,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         {/* Business details */}
         <Card className="border border-slate-100 shadow-card">
           <CardHeader className="pb-2 px-4 pt-4">
-            <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Business Details</CardTitle>
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Business Details</CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4 space-y-4">
             <div className="space-y-1.5">
@@ -308,7 +308,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="tagline">Tagline <span className="text-slate-400 font-normal">(optional)</span></Label>
+              <Label htmlFor="tagline">Tagline <span className="text-slate-500 font-normal">(optional)</span></Label>
               <Input id="tagline" value={form.tagline ?? ""} onChange={(e) => update("tagline", e.target.value)} placeholder="e.g. Licensed & Insured · Your local specialists" className="h-12 text-base" />
             </div>
           </CardContent>
@@ -317,7 +317,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         {/* Contact */}
         <Card className="border border-slate-100 shadow-card">
           <CardHeader className="pb-2 px-4 pt-4">
-            <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Contact Info</CardTitle>
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Contact Info</CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4 space-y-4">
             <div className="space-y-1.5">
@@ -329,7 +329,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
               <Input id="email" type="email" value={form.email} onChange={(e) => update("email", e.target.value)} placeholder="e.g. hello@apexclimate.com" className="h-12 text-base" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="website">Website <span className="text-slate-400 font-normal">(optional)</span></Label>
+              <Label htmlFor="website">Website <span className="text-slate-500 font-normal">(optional)</span></Label>
               <Input id="website" type="url" value={form.website ?? ""} onChange={(e) => update("website", e.target.value)} placeholder="e.g. www.apexclimate.com" className="h-12 text-base" />
             </div>
           </CardContent>
@@ -338,7 +338,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         {/* Logo upload */}
         <Card className="border border-slate-100 shadow-card">
           <CardHeader className="pb-2 px-4 pt-4">
-            <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Business Logo</CardTitle>
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Business Logo</CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4">
             {form.logoUrl ? (
@@ -351,7 +351,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
                 />
                 <div className="flex-1">
                   <p className="text-sm font-semibold text-slate-800">Logo uploaded</p>
-                  <p className="text-xs text-slate-400 mt-0.5">Shown in report headers and PDFs</p>
+                  <p className="text-xs text-slate-500 mt-0.5">Shown in report headers and PDFs</p>
                   <div className="flex gap-2 mt-3">
                     <button
                       onClick={() => logoInputRef.current?.click()}
@@ -372,7 +372,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
               <button
                 onClick={() => logoInputRef.current?.click()}
                 disabled={logoLoading}
-                className="w-full h-24 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-2 text-slate-400 hover:border-slate-300 hover:text-slate-500 active:bg-slate-50 transition-colors disabled:opacity-50"
+                className="w-full h-24 rounded-xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-2 text-slate-500 hover:border-slate-300 hover:text-slate-500 active:bg-slate-50 transition-colors disabled:opacity-50"
               >
                 <Upload className="w-5 h-5" />
                 <span className="text-sm font-medium">
@@ -394,7 +394,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         {/* Brand colour */}
         <Card className="border border-slate-100 shadow-card">
           <CardHeader className="pb-2 px-4 pt-4">
-            <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Header Colour</CardTitle>
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Header Colour</CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4 space-y-4">
             {/* Preset swatches */}
@@ -433,7 +433,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
                 }}
               >
                 {COLOR_PRESETS.some((p) => p.value === (form.brandColor || "#0f172a")) && (
-                  <Palette className="w-4 h-4 text-slate-400" />
+                  <Palette className="w-4 h-4 text-slate-500" />
                 )}
                 <input
                   type="color"
@@ -443,20 +443,20 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
                 />
               </label>
             </div>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500">
               Tap a swatch or pick a custom colour. Shown in report headers and PDFs.
             </p>
           </CardContent>
         </Card>
 
-        <p className="text-center text-xs text-slate-400">Settings saved on this device</p>
+        <p className="text-center text-xs text-slate-500">Settings saved on this device</p>
 
         {/* Sign out */}
         {isConfigured && (
           <div className="pt-2 pb-4">
             <button
               onClick={async () => { await signOut(); window.location.href = "/login"; }}
-              className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-medium text-slate-400 border border-slate-200 hover:bg-slate-50 hover:text-slate-600 active:bg-slate-100 transition-colors"
+              className="w-full flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-medium text-slate-500 border border-slate-200 hover:bg-slate-50 hover:text-slate-600 active:bg-slate-100 transition-colors"
             >
               <LogOut className="w-4 h-4" />
               Sign out

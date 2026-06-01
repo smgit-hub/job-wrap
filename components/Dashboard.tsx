@@ -148,14 +148,14 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
             </div>
             <div className="text-left min-w-0">
               <p className="text-2xl font-bold leading-none text-slate-900">{complete.length}</p>
-              <p className="text-xs font-medium mt-1 text-slate-400">Completed</p>
+              <p className="text-xs font-medium mt-1 text-slate-500">Completed</p>
               {thisMonthCount > 0 && (
                 <p className="text-[10px] font-semibold text-green-500 mt-0.5 leading-none">
                   {thisMonthCount} this month
                 </p>
               )}
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-300 ml-auto shrink-0" />
+            <ChevronRight className="w-4 h-4 text-slate-500 ml-auto shrink-0" />
           </button>
 
           {/* Drafts */}
@@ -168,9 +168,9 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
             </div>
             <div className="text-left min-w-0">
               <p className="text-2xl font-bold leading-none text-slate-900">{drafts.length}</p>
-              <p className="text-xs font-medium mt-1 text-slate-400">Drafts</p>
+              <p className="text-xs font-medium mt-1 text-slate-500">Drafts</p>
             </div>
-            <ChevronRight className="w-4 h-4 text-slate-300 ml-auto shrink-0" />
+            <ChevronRight className="w-4 h-4 text-slate-500 ml-auto shrink-0" />
           </button>
 
         </div>
@@ -178,7 +178,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
         {/* Upcoming services — only shown when nextServiceDate data exists */}
         {upcoming.length > 0 && (
           <div>
-            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">
+            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-3">
               Upcoming Services
             </h2>
             <div className="space-y-2">
@@ -203,7 +203,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
                       <p className="text-sm font-semibold text-slate-800 truncate">
                         {r.job.customerName}
                       </p>
-                      <p className="text-xs text-slate-400 truncate">
+                      <p className="text-xs text-slate-500 truncate">
                         {r.job.customServiceType ?? SERVICE_TYPE_LABELS[r.job.serviceType]}
                       </p>
                     </div>
@@ -223,7 +223,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
         {/* Recent jobs */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">
               Recent Jobs
             </h2>
             {sorted.length > 0 && (
@@ -239,10 +239,10 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
           {recent.length === 0 ? (
             <div className="bg-white rounded-2xl p-10 text-center shadow-card">
               <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-7 h-7 text-slate-300" />
+                <FileText className="w-7 h-7 text-slate-500" />
               </div>
               <p className="text-slate-800 text-sm font-semibold">No jobs yet</p>
-              <p className="text-slate-400 text-sm mt-1 leading-relaxed">
+              <p className="text-slate-500 text-sm mt-1 leading-relaxed">
                 Tap New Report to write up your first AC or HVAC service.
               </p>
             </div>

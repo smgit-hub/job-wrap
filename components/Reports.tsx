@@ -50,17 +50,17 @@ function DeletedCard({
     <div className="bg-white rounded-2xl shadow-card overflow-hidden border border-slate-100 opacity-75">
       <div className="flex items-center gap-3 px-4 pt-4 pb-3">
         <div className="w-11 h-11 rounded-2xl bg-slate-100 flex items-center justify-center shrink-0">
-          <Trash2 className="w-5 h-5 text-slate-400" />
+          <Trash2 className="w-5 h-5 text-slate-500" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-bold text-slate-600 truncate leading-snug">
             {report.job.customerName || "Unknown customer"}
           </p>
-          <p className="text-xs text-slate-400 truncate mt-0.5">
+          <p className="text-xs text-slate-500 truncate mt-0.5">
             {SERVICE_TYPE_LABELS[report.job.serviceType]}
             {report.job.serviceAddress ? ` · ${report.job.serviceAddress}` : ""}
           </p>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             {formatJobDate(report.job.jobDate)} · {days} day{days !== 1 ? "s" : ""} until permanent deletion
           </p>
         </div>
@@ -79,7 +79,7 @@ function DeletedCard({
             "h-10 rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 transition-colors",
             armed
               ? "px-3 bg-red-500 text-white active:bg-red-600"
-              : "w-10 text-slate-300 hover:text-red-400 hover:bg-red-50 active:bg-red-100"
+              : "w-10 text-slate-500 hover:text-red-400 hover:bg-red-50 active:bg-red-100"
           )}
           aria-label={armed ? "Confirm permanent delete" : "Permanently delete"}
         >
@@ -175,7 +175,7 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
               {counts[id] > 0 && (
                 <span className={cn(
                   "text-[11px] font-bold leading-none px-1.5 py-0.5 rounded-full",
-                  filter === id ? "bg-white/20 text-white" : id === "deleted" ? "bg-red-100 text-red-500" : "bg-slate-100 text-slate-400"
+                  filter === id ? "bg-white/20 text-white" : id === "deleted" ? "bg-red-100 text-red-500" : "bg-slate-100 text-slate-500"
                 )}>
                   {counts[id]}
                 </span>
@@ -189,14 +189,14 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
           deleted.length === 0 ? (
             <div className="bg-white rounded-2xl p-10 text-center shadow-card">
               <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <Trash2 className="w-7 h-7 text-slate-300" />
+                <Trash2 className="w-7 h-7 text-slate-500" />
               </div>
               <p className="text-slate-800 text-sm font-semibold">Trash is empty</p>
-              <p className="text-slate-400 text-sm mt-1">Deleted reports appear here for 7 days before being permanently removed.</p>
+              <p className="text-slate-500 text-sm mt-1">Deleted reports appear here for 7 days before being permanently removed.</p>
             </div>
           ) : (
             <>
-              <p className="text-xs text-slate-400">Deleted reports are permanently removed after 7 days.</p>
+              <p className="text-xs text-slate-500">Deleted reports are permanently removed after 7 days.</p>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-2.5 lg:gap-3">
                 {deleted.map((report) => (
                   <DeletedCard
@@ -214,12 +214,12 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
           visible.length === 0 ? (
             <div className="bg-white rounded-2xl p-10 text-center shadow-card">
               <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-7 h-7 text-slate-300" />
+                <FileText className="w-7 h-7 text-slate-500" />
               </div>
               <p className="text-slate-800 text-sm font-semibold">
                 {filter === "complete" ? "No completed jobs yet" : filter === "draft" ? "No drafts" : "No reports yet"}
               </p>
-              <p className="text-slate-400 text-sm mt-1 leading-relaxed">
+              <p className="text-slate-500 text-sm mt-1 leading-relaxed">
                 {filter === "complete"
                   ? "Finished jobs will appear here."
                   : filter === "draft"

@@ -143,7 +143,7 @@ export default function FreeformRecordingFlow({
 
         {/* ── Cue card ── */}
         <div className="bg-white rounded-2xl px-4 py-3.5 shadow-card space-y-2">
-          <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest">
+          <p className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">
             Speak naturally — cover
           </p>
           <ul className="space-y-2">
@@ -191,7 +191,7 @@ export default function FreeformRecordingFlow({
               </span>
             </>
           ) : (
-            <div className="flex items-center gap-2 text-slate-400 text-sm">
+            <div className="flex items-center gap-2 text-slate-500 text-sm">
               <MicOff className="w-4 h-4" />
               <span>Voice requires Chrome or Safari — type below instead</span>
             </div>

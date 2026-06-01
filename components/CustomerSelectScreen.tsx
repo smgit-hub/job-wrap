@@ -153,7 +153,7 @@ export default function CustomerSelectScreen({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1.5">
               <Label htmlFor="edit-phone" className="flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5 text-slate-400" />
+                <Phone className="w-3.5 h-3.5 text-slate-500" />
                 Phone
               </Label>
               <Input
@@ -168,7 +168,7 @@ export default function CustomerSelectScreen({
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="edit-email" className="flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5 text-slate-400" />
+                <Mail className="w-3.5 h-3.5 text-slate-500" />
                 Email
               </Label>
               <Input
@@ -185,8 +185,8 @@ export default function CustomerSelectScreen({
 
           <div className="space-y-1.5">
             <Label htmlFor="edit-notes" className="flex items-center gap-1.5">
-              <StickyNote className="w-3.5 h-3.5 text-slate-400" />
-              Site Notes <span className="text-slate-400 font-normal">(optional)</span>
+              <StickyNote className="w-3.5 h-3.5 text-slate-500" />
+              Site Notes <span className="text-slate-500 font-normal">(optional)</span>
             </Label>
             <Input
               id="edit-notes"
@@ -274,7 +274,7 @@ export default function CustomerSelectScreen({
         {/* Search */}
         {customers.length > 0 && (
           <div className="relative">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
             <input
               type="text"
               value={query}
@@ -317,13 +317,13 @@ export default function CustomerSelectScreen({
                     {customer.name}
                   </p>
                   {customer.address && (
-                    <span className="text-xs text-slate-400 truncate flex items-center gap-1 mt-0.5">
+                    <span className="text-xs text-slate-500 truncate flex items-center gap-1 mt-0.5">
                       <MapPin className="w-3 h-3 shrink-0" />
                       {customer.address}
                     </span>
                   )}
                 </div>
-                <ChevronRight className="w-4 h-4 text-slate-300 shrink-0" />
+                <ChevronRight className="w-4 h-4 text-slate-500 shrink-0" />
               </button>
             ))}
           </div>
@@ -333,7 +333,7 @@ export default function CustomerSelectScreen({
         {query.trim() && filtered.length === 0 && (
           <div className="text-center py-8">
             <p className="text-slate-500 text-sm">No customers match &ldquo;{query}&rdquo;</p>
-            <p className="text-slate-400 text-xs mt-1">Start fresh and they&apos;ll be saved automatically</p>
+            <p className="text-slate-500 text-xs mt-1">Start fresh and they&apos;ll be saved automatically</p>
           </div>
         )}
 
@@ -341,10 +341,10 @@ export default function CustomerSelectScreen({
         {customers.length === 0 && (
           <div className="text-center py-10">
             <div className="w-14 h-14 rounded-full bg-slate-100 flex items-center justify-center mx-auto mb-3">
-              <UserPlus className="w-6 h-6 text-slate-400" />
+              <UserPlus className="w-6 h-6 text-slate-500" />
             </div>
             <p className="font-semibold text-slate-700">No customers yet</p>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm text-slate-500 mt-1">
               Customers are saved automatically when you complete a job
             </p>
           </div>
@@ -362,7 +362,7 @@ export default function CustomerSelectScreen({
         )}
 
         {customers.length > 0 && (
-          <p className="text-center text-xs text-slate-400 pb-4">
+          <p className="text-center text-xs text-slate-500 pb-4">
             Customers are saved and updated automatically after each job
           </p>
         )}

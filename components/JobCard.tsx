@@ -69,7 +69,7 @@ export function JobCard({
             {SERVICE_TYPE_LABELS[report.job.serviceType]}
             {report.job.serviceAddress ? ` · ${report.job.serviceAddress}` : ""}
           </p>
-          <p className="text-xs text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             {formatJobDate(report.job.jobDate)}
           </p>
         </div>
@@ -106,12 +106,12 @@ export function JobCard({
             <>
               <button
                 onClick={handleDeleteClick}
-                className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50 active:bg-red-100 transition-colors"
+                className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-50 active:bg-red-100 transition-colors"
                 aria-label="Delete report"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
-              <ChevronRight className="w-4 h-4 text-slate-300" />
+              <ChevronRight className="w-4 h-4 text-slate-500" />
             </>
           )}
         </div>

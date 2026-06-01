@@ -104,7 +104,7 @@ export default function CustomerProfile({
             <button
               onClick={handleSave}
               disabled={!isDirty || !form.name.trim()}
-              className="text-sm font-semibold text-orange-500 disabled:text-slate-300 active:text-orange-700 transition-colors shrink-0"
+              className="text-sm font-semibold text-orange-500 disabled:text-slate-500 active:text-orange-700 transition-colors shrink-0"
             >
               Save
             </button>
@@ -220,7 +220,7 @@ export default function CustomerProfile({
         {/* Service history */}
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Service History</h2>
+            <h2 className="text-xs font-bold text-slate-500 uppercase tracking-widest">Service History</h2>
             {reports.length > 0 && (
               <span className="bg-slate-900 text-white text-[11px] font-bold px-1.5 py-0.5 rounded-full leading-none">
                 {reports.length}
@@ -231,7 +231,7 @@ export default function CustomerProfile({
           {reports.length === 0 ? (
             <div className="bg-white rounded-2xl p-8 text-center shadow-card">
               <p className="text-slate-600 text-sm font-semibold">No service history yet</p>
-              <p className="text-slate-400 text-xs mt-1 leading-relaxed">
+              <p className="text-slate-500 text-xs mt-1 leading-relaxed">
                 Reports will appear here after jobs are completed.
               </p>
             </div>
@@ -256,7 +256,7 @@ export default function CustomerProfile({
                       <p className="font-semibold text-slate-900 text-sm truncate">
                         {SERVICE_TYPE_LABELS[report.job.serviceType]}
                       </p>
-                      <p className="text-xs text-slate-400 mt-0.5">{formatDate(report.job.jobDate)}</p>
+                      <p className="text-xs text-slate-500 mt-0.5">{formatDate(report.job.jobDate)}</p>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <span className={cn(
@@ -267,7 +267,7 @@ export default function CustomerProfile({
                       )}>
                         {report.status === "complete" ? "Complete" : "Draft"}
                       </span>
-                      <ChevronRight className="w-4 h-4 text-slate-300" />
+                      <ChevronRight className="w-4 h-4 text-slate-500" />
                     </div>
                   </div>
                 </button>

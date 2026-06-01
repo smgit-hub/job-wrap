@@ -37,7 +37,7 @@ function BulletSection({ text }: { text: string }) {
     <ul className="space-y-2">
       {lines.map((line, i) => (
         <li key={i} className="flex gap-2 text-sm text-gray-700 leading-relaxed">
-          <span className="shrink-0 text-slate-400 w-3 text-center">•</span>
+          <span className="shrink-0 text-slate-500 w-3 text-center">•</span>
           <span>{line.replace(/^[•\-]\s*/, "")}</span>
         </li>
       ))}
@@ -249,7 +249,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
 
           {/* Prepared for */}
           <div className="px-5 pt-5 pb-4 border-b border-slate-100">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
+            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
               Prepared for
             </p>
             <p className="text-2xl font-bold text-slate-900 leading-tight">
@@ -258,7 +258,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             {job.serviceAddress && (
               <p className="text-sm text-slate-500 mt-1">{job.serviceAddress}</p>
             )}
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-3">
+            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mt-3">
               {SERVICE_TYPE_LABELS[job.serviceType]}  ·  {formatDate(job.jobDate)}
             </p>
             {job.equipment?.trim() && <p className="text-xs text-slate-500 mt-1">{job.equipment.trim()}</p>}
@@ -272,7 +272,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
           {/* Customer summary — plain-English intro */}
           {rpt.customerSummary && (
             <div className="px-5 py-4 bg-slate-50 border-b border-slate-100">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Summary</p>
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Summary</p>
               <p className="text-sm text-slate-700 leading-relaxed">{rpt.customerSummary}</p>
             </div>
           )}
@@ -397,7 +397,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
               </div>
               <button
                 onClick={onDone}
-                className="w-full h-10 text-sm font-semibold text-slate-400 hover:text-slate-600 active:text-slate-800 transition-colors"
+                className="w-full h-10 text-sm font-semibold text-slate-500 hover:text-slate-600 active:text-slate-800 transition-colors"
               >
                 Back to dashboard
               </button>

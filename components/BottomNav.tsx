@@ -32,11 +32,11 @@ function Tab({
     >
       <Icon className={cn(
         "w-5 h-5 transition-colors",
-        active ? "text-slate-900" : "text-slate-400"
+        active ? "text-slate-900" : "text-slate-500"
       )} />
       <span className={cn(
         "text-[10px] font-semibold leading-none transition-colors",
-        active ? "text-slate-900" : "text-slate-400"
+        active ? "text-slate-900" : "text-slate-500"
       )}>
         {label}
       </span>

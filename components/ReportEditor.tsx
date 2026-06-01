@@ -41,7 +41,7 @@ function VerifyButton({ verified, onToggle }: { verified: boolean; onToggle: () 
     >
       {verified
         ? <CheckCircle2 className="w-5 h-5 text-orange-500" />
-        : <Circle className="w-5 h-5 text-slate-300 hover:text-slate-400 transition-colors" />
+        : <Circle className="w-5 h-5 text-slate-500 hover:text-slate-400 transition-colors" />
       }
     </button>
   );
@@ -211,7 +211,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
           {!isUngenerated && (
             <span className={cn(
               "text-xs font-bold px-2.5 py-1 rounded-full shrink-0 tabular-nums",
-              allVerified ? "bg-orange-500 text-white" : "bg-slate-200 text-slate-400"
+              allVerified ? "bg-orange-500 text-white" : "bg-slate-200 text-slate-500"
             )}>
               {verifiedCount}/{SECTION_KEYS.length}
             </span>
@@ -227,7 +227,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             </div>
             <div>
               <p className="text-sm font-bold text-slate-900">No report generated yet</p>
-              <p className="text-xs text-slate-400 mt-1">Tap below to generate the report from your saved notes.</p>
+              <p className="text-xs text-slate-500 mt-1">Tap below to generate the report from your saved notes.</p>
             </div>
             <button
               onClick={handleRegenerate}
@@ -249,8 +249,8 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               <CardHeader className="pb-2 px-4 pt-4">
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Customer Summary</CardTitle>
-                    <p className="text-xs text-slate-400 mt-0.5 font-normal tracking-normal normal-case">Plain English — written for the customer</p>
+                    <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Customer Summary</CardTitle>
+                    <p className="text-xs text-slate-500 mt-0.5 font-normal tracking-normal normal-case">Plain English — written for the customer</p>
                   </div>
                   <VerifyButton verified={isVerified("customerSummary")} onToggle={() => toggleVerify("customerSummary")} />
                 </div>
@@ -276,8 +276,8 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               <CardHeader className="pb-2 px-4 pt-4">
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Observations</CardTitle>
-                    <p className="text-xs text-slate-400 mt-0.5 font-normal tracking-normal normal-case">What was noticed — not what was done</p>
+                    <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Observations</CardTitle>
+                    <p className="text-xs text-slate-500 mt-0.5 font-normal tracking-normal normal-case">What was noticed — not what was done</p>
                   </div>
                   <VerifyButton verified={isVerified("findings")} onToggle={() => toggleVerify("findings")} />
                 </div>
@@ -300,8 +300,8 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               <CardHeader className="pb-2 px-4 pt-4">
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Work Performed</CardTitle>
-                    <p className="text-xs text-slate-400 mt-0.5 font-normal tracking-normal normal-case">Everything completed during the visit</p>
+                    <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Work Performed</CardTitle>
+                    <p className="text-xs text-slate-500 mt-0.5 font-normal tracking-normal normal-case">Everything completed during the visit</p>
                   </div>
                   <VerifyButton verified={isVerified("workPerformed")} onToggle={() => toggleVerify("workPerformed")} />
                 </div>
@@ -324,8 +324,8 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               <CardHeader className="pb-2 px-4 pt-4">
                 <div className="flex items-center justify-between gap-2">
                   <div>
-                    <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Recommendations</CardTitle>
-                    <p className="text-xs text-slate-400 mt-0.5 font-normal tracking-normal normal-case">Next steps for the customer</p>
+                    <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Recommendations</CardTitle>
+                    <p className="text-xs text-slate-500 mt-0.5 font-normal tracking-normal normal-case">Next steps for the customer</p>
                   </div>
                   <VerifyButton verified={isVerified("recommendations")} onToggle={() => toggleVerify("recommendations")} />
                 </div>
@@ -343,7 +343,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             {/* Regenerate — below the content it affects */}
             {onRegenerate && (
               isRegenerating ? (
-                <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-200 text-slate-400 text-sm">
+                <div className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-200 text-slate-500 text-sm">
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   Regenerating…
                 </div>
@@ -374,7 +374,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               ) : (
                 <button
                   onClick={() => setConfirmRegen(true)}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-300 text-slate-400 text-sm hover:border-orange-300 hover:text-orange-500 transition-colors"
+                  className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-300 text-slate-500 text-sm hover:border-orange-300 hover:text-orange-500 transition-colors"
                 >
                   <RefreshCw className="w-3.5 h-3.5" />
                   Regenerate with AI
@@ -387,7 +387,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         {/* ── Job Details ────────────────────────────────────────────────── */}
         <Card className="border border-slate-100 shadow-card">
           <CardHeader className="pb-2 px-4 pt-4">
-            <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Job Details</CardTitle>
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Job Details</CardTitle>
           </CardHeader>
           <CardContent className="px-4 pb-4 space-y-3">
 
@@ -399,7 +399,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                 className="w-full flex items-center justify-between px-3 py-2.5 bg-slate-50 active:bg-slate-100 transition-colors"
               >
                 <div className="text-left min-w-0">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Customer</p>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Customer</p>
                   {!customerExpanded && (
                     <p className="text-sm font-semibold text-slate-700 mt-0.5 truncate">
                       {[draft.job.customerName, draft.job.serviceAddress].filter(Boolean).join(" · ") || "—"}
@@ -489,7 +489,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                 className="w-full flex items-center justify-between px-3 py-2.5 bg-slate-50 active:bg-slate-100 transition-colors"
               >
                 <div className="text-left min-w-0">
-                  <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">Equipment</p>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Equipment</p>
                   {!equipmentExpanded && (
                     <p className="text-sm font-semibold text-slate-700 mt-0.5 truncate">
                       {draft.job.equipment?.trim() || "—"}
@@ -525,7 +525,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               onClick={() => setNotesExpanded((v) => !v)}
               className="w-full flex items-center justify-between px-4 py-3.5 text-left active:bg-slate-50 transition-colors"
             >
-              <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">Original Job Notes</CardTitle>
+              <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">Original Job Notes</CardTitle>
               <span className="text-xs font-semibold text-orange-500 shrink-0 ml-3">
                 {notesExpanded ? "Hide" : "Show"}
               </span>
@@ -534,7 +534,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               <CardContent className="px-4 pb-4 pt-0 space-y-3">
                 {draft.job.voiceNotes.jobNotes && (
                   <div className="space-y-1.5">
-                    <Label htmlFor="notes-job" className="text-xs text-slate-400">What happened</Label>
+                    <Label htmlFor="notes-job" className="text-xs text-slate-500">What happened</Label>
                     <Textarea
                       id="notes-job"
                       value={draft.job.voiceNotes.jobNotes}
@@ -546,7 +546,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
                 )}
                 {draft.job.voiceNotes.recommendations && (
                   <div className="space-y-1.5">
-                    <Label htmlFor="notes-recs" className="text-xs text-slate-400">Recommendations noted</Label>
+                    <Label htmlFor="notes-recs" className="text-xs text-slate-500">Recommendations noted</Label>
                     <Textarea
                       id="notes-recs"
                       value={draft.job.voiceNotes.recommendations}
@@ -564,10 +564,10 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
         {/* ── Photos ─────────────────────────────────────────────────────── */}
         <Card className="border border-slate-100 shadow-card">
           <CardHeader className="pb-2 px-4 pt-4">
-            <CardTitle className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <CardTitle className="text-xs font-bold text-slate-500 uppercase tracking-widest">
               Job Photos
             </CardTitle>
-            <p className="text-xs text-slate-400 mt-0.5 normal-case tracking-normal font-normal">
+            <p className="text-xs text-slate-500 mt-0.5 normal-case tracking-normal font-normal">
               Before / after shots — included in the report and PDF
             </p>
           </CardHeader>
@@ -591,7 +591,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
           >
             <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mb-5" />
             <p className="text-base font-bold text-slate-900 text-center mb-1">Move to…</p>
-            <p className="text-xs text-slate-400 text-center mb-5 px-4 truncate">&ldquo;{movingBullet.text}&rdquo;</p>
+            <p className="text-xs text-slate-500 text-center mb-5 px-4 truncate">&ldquo;{movingBullet.text}&rdquo;</p>
             <div className="space-y-2">
               {(
                 [
@@ -613,7 +613,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
             </div>
             <button
               onClick={() => setMovingBullet(null)}
-              className="w-full h-12 mt-3 text-sm font-semibold text-slate-400 active:text-slate-600 transition-colors"
+              className="w-full h-12 mt-3 text-sm font-semibold text-slate-500 active:text-slate-600 transition-colors"
             >
               Cancel
             </button>

@@ -24,9 +24,9 @@ export default function DatePicker({ id, value, onChange, placeholder = "Select 
       <div className="h-11 flex items-center justify-between px-3 rounded-xl border border-slate-200 bg-slate-50 pointer-events-none">
         {value
           ? <span className="text-base text-slate-900">{formatDisplay(value)}</span>
-          : <span className="text-base text-slate-400">{placeholder}</span>
+          : <span className="text-base text-slate-500">{placeholder}</span>
         }
-        <CalendarDays className="w-4 h-4 text-slate-400 shrink-0 ml-2" />
+        <CalendarDays className="w-4 h-4 text-slate-500 shrink-0 ml-2" />
       </div>
       {/* Invisible native date input — covers the display div so tapping opens the picker */}
       <input

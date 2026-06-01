@@ -105,15 +105,15 @@ export default function PhotoSection({ photos, onChange }: PhotoSectionProps) {
       )}
 
       {photos.length > 0 && photos.length < MAX_PHOTOS && (
-        <p className="text-xs text-slate-400 text-center">
+        <p className="text-xs text-slate-500 text-center">
           {MAX_PHOTOS - photos.length} slot{MAX_PHOTOS - photos.length !== 1 ? "s" : ""} remaining
         </p>
       )}
       {photos.length === MAX_PHOTOS && (
-        <p className="text-xs text-slate-400 text-center">Maximum {MAX_PHOTOS} photos per report</p>
+        <p className="text-xs text-slate-500 text-center">Maximum {MAX_PHOTOS} photos per report</p>
       )}
       {photos.length === 0 && (
-        <p className="text-xs text-slate-400 text-center">
+        <p className="text-xs text-slate-500 text-center">
           Attach photos from your camera roll or take new ones · up to {MAX_PHOTOS}
         </p>
       )}

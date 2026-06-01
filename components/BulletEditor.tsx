@@ -102,7 +102,7 @@ function SortableBullet({
       <button
         {...attributes}
         {...listeners}
-        className="shrink-0 mt-2 text-slate-300 hover:text-slate-400 cursor-grab active:cursor-grabbing touch-none"
+        className="shrink-0 mt-2 text-slate-500 hover:text-slate-400 cursor-grab active:cursor-grabbing touch-none"
         tabIndex={-1}
         aria-label="Drag to reorder"
       >
@@ -110,7 +110,7 @@ function SortableBullet({
       </button>
 
       {/* Bullet dot */}
-      <span className="text-slate-400 shrink-0 mt-2.5 text-sm leading-none select-none">•</span>
+      <span className="text-slate-500 shrink-0 mt-2.5 text-sm leading-none select-none">•</span>
 
       {isEditing ? (
         /* ── Edit mode ── */
@@ -148,7 +148,7 @@ function SortableBullet({
             {onMove && (
               <button
                 onClick={() => onMove(item.text)}
-                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 active:text-blue-400 active:bg-blue-50 transition-colors"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 active:text-blue-400 active:bg-blue-50 transition-colors"
                 aria-label="Move to another section"
               >
                 <ArrowRightLeft className="w-3.5 h-3.5" />
@@ -156,7 +156,7 @@ function SortableBullet({
             )}
             <button
               onClick={onRemove}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 active:text-red-400 active:bg-red-50 transition-colors"
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 active:text-red-400 active:bg-red-50 transition-colors"
               aria-label="Delete"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -256,7 +256,7 @@ export default function BulletEditor({
       <SortableContext items={items.map((i) => i.id)} strategy={verticalListSortingStrategy}>
         <div className="space-y-0.5">
           {items.length === 0 && emptyState && (
-            <p className="text-sm text-slate-400 italic pb-1">{emptyState}</p>
+            <p className="text-sm text-slate-500 italic pb-1">{emptyState}</p>
           )}
 
           {items.map((item) => (
@@ -278,7 +278,7 @@ export default function BulletEditor({
 
           <button
             onClick={addItem}
-            className="flex items-center gap-1.5 text-sm text-slate-400 active:text-orange-500 transition-colors pt-1 pb-0.5"
+            className="flex items-center gap-1.5 text-sm text-slate-500 active:text-orange-500 transition-colors pt-1 pb-0.5"
           >
             <Plus className="w-3.5 h-3.5" />
             Add item

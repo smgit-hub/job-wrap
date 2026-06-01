@@ -81,7 +81,7 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 aria-label={showPassword ? "Hide password" : "Show password"}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-0.5"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-600 p-0.5"
                 tabIndex={-1}
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -111,7 +111,7 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
           </button>
         </p>
 
-        <p className="text-center text-xs text-slate-400 mt-4">
+        <p className="text-center text-xs text-slate-500 mt-4">
           <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
         </p>
       </div>
