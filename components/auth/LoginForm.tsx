@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Sparkles, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Eye, EyeOff, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -128,8 +129,15 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
   // page flashing during the navigation to /app.
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center gap-5 text-center">
+        <div className="w-20 h-20 rounded-3xl bg-orange-50 flex items-center justify-center">
+          <Sparkles className="w-10 h-10 text-orange-400 animate-pulse" />
+        </div>
+        <div className="space-y-1">
+          <p className="font-bold text-slate-900 text-lg">JobWrap</p>
+          <p className="text-sm text-slate-500">Signing in…</p>
+        </div>
+        <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
       </div>
     );
   }
