@@ -13,6 +13,7 @@ import CustomerSelectScreen from "@/components/CustomerSelectScreen";
 import CustomerProfile from "@/components/CustomerProfile";
 import Sidebar, { type ActiveSection } from "@/components/Sidebar";
 import BottomNav from "@/components/BottomNav";
+import InstallNudge from "@/components/InstallNudge";
 import type { ServiceReport, JobDetails, BusinessProfile, GeneratedReport, Customer } from "@/types/report";
 import { useAuth } from "@/components/auth/AuthProvider";
 import {
@@ -379,6 +380,8 @@ export default function Home() {
       )}
 
       </div>{/* end lg:pl-60 content wrapper */}
+
+      <InstallNudge />
     </>
   );
 }
