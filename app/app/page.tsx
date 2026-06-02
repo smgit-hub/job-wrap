@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Sparkles, Loader2 } from "lucide-react";
 import Dashboard from "@/components/Dashboard";
 import Reports from "@/components/Reports";
 import type { ReportsFilter } from "@/components/Reports";
@@ -206,11 +207,18 @@ export default function Home() {
     goToScreen("dashboard");
   }
 
-  // Show spinner until auth resolves and the initial sync completes.
+  // Show loading screen until auth resolves and the initial sync completes.
   if (authLoading || !syncDone) {
     return (
-      <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center gap-5 text-center">
+        <div className="w-20 h-20 rounded-3xl bg-orange-50 flex items-center justify-center">
+          <Sparkles className="w-10 h-10 text-orange-400 animate-pulse" />
+        </div>
+        <div className="space-y-1">
+          <p className="font-bold text-slate-900 text-lg">JobWrap</p>
+          <p className="text-sm text-slate-500">Getting things ready…</p>
+        </div>
+        <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
       </div>
     );
   }
