@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useRef, useState, useCallback } f
 import type { User, Session } from "@supabase/supabase-js";
 import { getSupabaseBrowserClient, isSupabaseConfigured } from "@/lib/supabase/client";
 import { signOut as authSignOut } from "@/lib/supabase/auth";
-import { clearDemoSession } from "@/lib/db";
+import { clearDemoSession, wasDemoSessionActive, markDemoSessionActive } from "@/lib/db";
 
 interface AuthContextValue {
   user: User | null;
@@ -64,7 +64,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (newUser) {
         if (newUser.email === DEMO_EMAIL) {
           // Demo just signed in — clear any leftover localStorage so every
-          // demo visit starts fresh.
+          // demo visit starts fresh, then mark the flag.
+          clearDemoSession();
+          markDemoSessionActive();
+        } else if (wasDemoSessionActive()) {
+          // Real user signing in after a demo session — clear demo localStorage
+          // so no demo data (especially the business profile) bleeds through.
           clearDemoSession();
         }
       }
