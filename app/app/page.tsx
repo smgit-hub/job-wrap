@@ -66,7 +66,7 @@ export default function Home() {
   //   5. Redeploy and click "Run integration check" in the wizard
   // ── end AppGild TODO ────────────────────────────────────────────────────────
 
-  const { signOut, loading: authLoading } = useAuth();
+  const { user, signOut, loading: authLoading } = useAuth();
 
   // Purge reports that have been in trash for more than 7 days
   useState(() => { purgeExpiredDeletedReports(); });
@@ -83,12 +83,14 @@ export default function Home() {
     migrateLocalStorageToSupabase()
       .then(() => syncFromSupabase())
       .then(async () => {
-        // Seed sample data if the account is empty after sync
-        await seedSampleData();
-        // Push any newly seeded reports to Supabase
-        const seeded = getReports();
-        if (seeded.length > 0) {
-          await Promise.all(seeded.map((r) => dbSaveReport(r)));
+        // Only seed sample data for the demo account — never for real users
+        if (user?.email === "demo@jobwrap.app") {
+          await seedSampleData();
+          // Push any newly seeded reports to Supabase
+          const seeded = getReports();
+          if (seeded.length > 0) {
+            await Promise.all(seeded.map((r) => dbSaveReport(r)));
+          }
         }
       })
       .then(() => { setSyncDone(true); setSyncVersion(v => v + 1); })
