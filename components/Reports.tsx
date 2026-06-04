@@ -140,12 +140,13 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
   const visible = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return baseVisible;
-    return baseVisible.filter((r) =>
-      r.job.customerName.toLowerCase().includes(q) ||
-      r.job.serviceAddress?.toLowerCase().includes(q) ||
-      SERVICE_TYPE_LABELS[r.job.serviceType]?.toLowerCase().includes(q) ||
-      (r.job.customServiceType ?? "").toLowerCase().includes(q)
-    );
+    return baseVisible.filter((r) => {
+      const jn = ("JW-" + r.id.replace(/[^a-zA-Z0-9]/g, "").slice(-6)).toUpperCase();
+      return (
+        r.job.customerName.toLowerCase().includes(q) ||
+        jn.toLowerCase().includes(q)
+      );
+    });
   }, [baseVisible, search]);
 
   function handleDelete(e: React.MouseEvent, id: string) {
@@ -177,7 +178,7 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
             type="search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by customer, address or service type…"
+            placeholder="Search by customer name or job number…"
             className="w-full h-11 pl-10 pr-10 rounded-xl bg-white border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-300 shadow-card"
           />
           {search && (
