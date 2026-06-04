@@ -68,7 +68,7 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       equipment: "Carrier 10-ton rooftop package unit, serving ground floor retail, installed 2019",
       nextServiceDate: "2026-06-10",
       voiceNotes: {
-        jobNotes: "Emergency call — Carrier 10 ton rooftop unit not cooling. Found cracked Schrader valve core on high side service port. Replaced valve core, pressure tested, vacuumed, recharged with R410A. System back online and cooling correctly.",
+        jobNotes: "Emergency call for Tom Nguyen at Commerce Street — Carrier 10 ton rooftop unit not cooling at all. On arrival the unit was running but warm air only inside. Went up to the roof. Compressor running but both refrigerant pressures were very low, basically nothing on the high side. Found the leak — Schrader valve on the high side service port, the valve core was cracked and leaking. Replaced the Schrader valve core. Pressure tested the whole circuit to 400 psi, held for 30 minutes, no drop. Vacuumed the system down. Recharged with R410A, brought the system back to full operating pressures. Tested — unit now cooling correctly, supply temps down to about 12 degrees Celsius, confirmed good airflow at the diffusers inside. System is fully back online. The service ports on the roof are pretty exposed, I'd recommend putting a locked cage or cover over that service point — it looks like someone may have been tampering with the valve. Worth having a word with building security. I've scheduled a follow-up for 10 June to confirm refrigerant levels are stable.",
       },
     },
     report: {
@@ -99,12 +99,12 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       jobDate: "2026-05-05",
       equipment: "Daikin FTXM71W/RXM71W heat pump split system, 7.1kW",
       voiceNotes: {
-        jobNotes: "Installed new Daikin 7.1kW heat pump split system at Linda Chen's. Indoor unit on feature wall, lineset through wall cavity, outdoor unit on concrete pad. Pressure tested, vacuumed, commissioned. System cooling normally at 14°C. Customer briefed on operation and warranty registration.",
+        jobNotes: "Just finished installing a new Daikin 7.1 kilowatt heat pump split system at Linda Chen's place in Riverside. Mounted the indoor unit on the feature wall in the main living area. Ran the lineset through the wall cavity down to the outdoor unit sitting on a concrete pad on the north side of the house. Pressure tested to 600 psi — held for 30 minutes, no drop. Vacuumed the system down, held vacuum. Electrical — connected the outdoor unit to the consumer mains via a dedicated 20 amp isolator. Wired the indoor unit back to the outdoor. Commissioned and powered up. System cooling normally, temps dropping to around 14 degrees Celsius out the supply grille. Showed Linda how to use the remote and walked her through the timer and sleep mode functions. Reminded her to register the warranty with Daikin within 30 days. First filter clean is due in about 3 months. Annual service from next year.",
       },
     },
     report: {
       customerSummary: "Installation of your new Daikin 7.1kW heat pump split system has been completed successfully. The system has been commissioned, tested, and is operating correctly. You can begin using it immediately.",
-      findings: "• New installation — no pre-existing faults\n• Wall structure suitable for indoor unit mounting\n• Outdoor unit location on north-facing concrete pad is appropriate for airflow and access",
+      findings: "",
       workPerformed: "• Mounted indoor unit on feature wall in main living area\n• Ran lineset through wall cavity to outdoor unit\n• Installed outdoor unit on concrete pad on north side of property\n• Pressure tested refrigerant circuit to 600 psi — held for 30 minutes with no drop\n• Vacuumed system down to target vacuum\n• Connected outdoor unit to consumer mains via dedicated 20 amp isolator\n• Wired indoor unit to outdoor unit\n• Commissioned and powered up system\n• Confirmed cooling operation — supply air at 14°C with good airflow\n• Demonstrated operation of remote control, timer, and sleep mode functions to customer",
       recommendations: "• Register warranty with Daikin within 30 days of installation\n• First filter clean due in approximately 3 months\n• Annual servicing recommended from next year to maintain warranty and efficiency",
     },
