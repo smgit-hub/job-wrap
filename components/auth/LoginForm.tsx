@@ -155,25 +155,9 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
         <h1 className="text-2xl font-bold text-slate-900 mb-1">Sign in</h1>
         <p className="text-slate-500 text-sm mb-6">For air conditioning & HVAC technicians.</p>
 
-        {/* Demo account */}
-        <button
-          type="button"
-          onClick={async () => {
-            setLoading(true);
-            setError(null);
-            const { error: err } = await signInWithPassword("demo@jobwrap.app", "demo1234");
-            if (err) { setError("Demo unavailable — please try again later."); setLoading(false); return; }
-            onSuccess();
-          }}
-          disabled={loading}
-          className="w-full h-12 rounded-xl border-2 border-orange-200 bg-orange-50 text-orange-600 text-sm font-semibold mb-6 hover:bg-orange-100 active:bg-orange-200 transition-colors disabled:opacity-50"
-        >
-          Try the demo
-        </button>
-
         <div className="flex items-center gap-3 mb-6">
           <div className="flex-1 h-px bg-slate-200" />
-          <span className="text-xs text-slate-400 font-medium">or sign in</span>
+          <span className="text-xs text-slate-400 font-medium">sign in</span>
           <div className="flex-1 h-px bg-slate-200" />
         </div>
 
