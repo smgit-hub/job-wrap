@@ -35,7 +35,7 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       serviceType: "hvac-maintenance",
       jobDate: "2026-05-20",
       equipment: "Daikin FTXM50W/RXM50W reverse-cycle split, 6kW, installed 2021",
-      nextServiceDate: "2027-05-20",
+      nextServiceDate: "2026-06-20",
       voiceNotes: {
         jobNotes: "Annual maintenance on Rachel Kim's Daikin 6kW split in Mount Waverley. Cleaned the filters, they were about a year's worth of dust — gave them a good wash. Cleaned the evaporator coil, not too bad. Went outside and cleaned the condenser coil, had some grass clippings and debris packed into the fins. Checked the refrigerant pressures, all within spec. Tested heating and cooling, both operating correctly, temperatures good. Checked the capacitors, all fine. Cleared the condensate drain, flowing freely. Overall the system is in good shape. I'd recommend keeping up the annual service. Next service due around May 2027.",
       },
