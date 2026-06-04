@@ -44,7 +44,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
   // Auto-save on every draft change — localStorage instantly, Supabase async
   useEffect(() => {
     saveReport(draft);
-    void dbSaveReport(draft, photos);
+    dbSaveReport(draft, photos).catch((err) => console.error("[handleSave] Supabase save failed:", err));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draft]);
 
@@ -58,7 +58,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
   function handlePhotosChange(updated: JobPhoto[]) {
     setPhotos(updated);
     savePhotosForReport(draft.id, updated);   // localStorage cache
-    void dbSaveReport(draft, updated);         // Supabase — uploads new photos
+    dbSaveReport(draft, updated).catch((err) => console.error("[handlePhotoSave] Supabase save failed:", err));
   }
 
   async function handleRegenerate() {
@@ -113,6 +113,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
       updatedAt: new Date().toISOString(),
     };
     saveReport(completed);
+    dbSaveReport(completed).catch((err) => console.error("[handleComplete] Supabase save failed:", err));
     setDraft(completed);
     onPreview(completed);
   }

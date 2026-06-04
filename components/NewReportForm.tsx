@@ -12,6 +12,7 @@ import FreeformRecordingFlow from "@/components/recording/FreeformRecordingFlow"
 import type { JobDetails, VoiceNotes, ServiceType, Customer, ServiceReport } from "@/types/report";
 import { EMPTY_VOICE_NOTES, EMPTY_REPORT, SERVICE_TYPE_LABELS } from "@/types/report";
 import { saveDraft, getDraft, saveReport, clearDraft, generateId, getBusinessProfile, saveCustomer, deleteCustomer, getCustomers } from "@/lib/storage";
+import { dbSaveReport } from "@/lib/db";
 import { cn } from "@/lib/utils";
 import DatePicker from "@/components/ui/DatePicker";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
@@ -197,6 +198,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
       report: { ...EMPTY_REPORT },
     };
     saveReport(draft);
+    dbSaveReport(draft).catch((err) => console.error("[saveForLater] Supabase save failed:", err));
     clearDraft();
     onSaveForLater();
   }
