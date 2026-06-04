@@ -66,6 +66,7 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       serviceType: "hvac-emergency",
       jobDate: "2026-05-10",
       equipment: "Carrier 10-ton rooftop package unit, serving ground floor retail, installed 2019",
+      nextServiceDate: "2026-06-10",
       voiceNotes: {
         jobNotes: "Emergency call — Carrier 10 ton rooftop unit not cooling. Found cracked Schrader valve core on high side service port. Replaced valve core, pressure tested, vacuumed, recharged with R410A. System back online and cooling correctly.",
       },
@@ -74,7 +75,7 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       customerSummary: "Emergency repair completed on your Carrier rooftop package unit. A refrigerant leak was identified and repaired, the system was recharged, and full cooling operation has been restored.",
       findings: "• System running but producing warm air only — no cooling\n• Refrigerant pressures critically low on both high and low side\n• Cracked Schrader valve core identified on high side service port — confirmed source of refrigerant loss\n• Service ports on roof appear exposed and show signs of possible tampering",
       workPerformed: "• Identified refrigerant leak at high side Schrader valve core\n• Replaced Schrader valve core\n• Pressure tested entire refrigerant circuit to 400 psi — held for 30 minutes with no drop\n• Vacuumed system down\n• Recharged with R410A to manufacturer specifications\n• Confirmed system cooling correctly — supply air temperature 12°C, good airflow at all diffusers",
-      recommendations: "• Install a locked protective cage or cover over rooftop service ports to prevent unauthorised access\n• Notify building security of possible tampering\n• Schedule a follow-up inspection in 30 days to confirm refrigerant levels are stable",
+      recommendations: "• Install a locked protective cage or cover over rooftop service ports to prevent unauthorised access\n• Notify building security of possible tampering\n• Follow-up inspection scheduled for 10 June 2026 to confirm refrigerant levels are stable",
     },
     verified: {
       customerSummary: true,
