@@ -307,15 +307,15 @@ export function clearDemoSession(): void {
 const SYNC_KEY = "jobwrap_last_sync";
 const SYNC_INTERVAL_MS = 60 * 1000; // re-sync at most every 60 seconds
 
-export async function syncFromSupabase(): Promise<void> {
+export async function syncFromSupabase(force = false): Promise<void> {
   if (typeof window === "undefined") return;
 
   const userId = await getUserIdForRead();
   if (!userId) return;
 
-  // Throttle — don't re-sync if we just did it
+  // Throttle — don't re-sync if we just did it (unless forced)
   const lastSync = Number(localStorage.getItem(SYNC_KEY) ?? 0);
-  if (Date.now() - lastSync < SYNC_INTERVAL_MS) return;
+  if (!force && Date.now() - lastSync < SYNC_INTERVAL_MS) return;
 
   try {
     const [reportRows, customers, businessProfile] = await Promise.all([

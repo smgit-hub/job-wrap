@@ -101,7 +101,7 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
 
   async function handleRefresh() {
     setSyncing(true);
-    await syncFromSupabase();
+    await syncFromSupabase(true); // force bypass throttle
     reload();
     setSyncing(false);
   }
