@@ -34,10 +34,23 @@ function str(v: unknown, fallback = ""): string {
 }
 
 export async function POST(request: Request) {
-  // Auth check — must be a signed-in user
+  // Auth check — must be a signed-in user.
+  // Accepts either a session cookie (standard) or a Bearer token in the
+  // Authorization header (fallback for iOS PWA where cookies may not persist).
   const supabase = await getSupabaseServerClient();
   if (supabase) {
-    const { data: { user } } = await supabase.auth.getUser();
+    let user = (await supabase.auth.getUser()).data.user;
+
+    // Fallback: check Authorization header bearer token
+    if (!user) {
+      const authHeader = request.headers.get("authorization");
+      const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+      if (token) {
+        const { data } = await supabase.auth.getUser(token);
+        user = data.user;
+      }
+    }
+
     if (!user) {
       return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
     }

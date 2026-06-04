@@ -88,15 +88,23 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
 
 
 
+  async function getAuthHeaders(): Promise<Record<string, string>> {
+    const { getSupabaseBrowserClient } = await import("@/lib/supabase/client");
+    const client = getSupabaseBrowserClient();
+    const token = client ? (await client.auth.getSession()).data.session?.access_token : null;
+    return token ? { "Authorization": `Bearer ${token}` } : {};
+  }
+
   async function handleEmail() {
     if (emailState === "generating") return;
     setEmailState("generating");
     const subject = `Service Report – ${job.customerName || business.businessName}`;
     try {
       // Generate the PDF
+      const authHeaders = await getAuthHeaders();
       const res = await fetch("/api/export-pdf", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({ report, photos }),
       });
       if (!res.ok) throw new Error("PDF generation failed");
@@ -132,9 +140,10 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
     setExportState("generating");
     setExportError(null);
     try {
+      const authHeaders = await getAuthHeaders();
       const res = await fetch("/api/export-pdf", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({ report, photos }),
       });
       if (!res.ok) {

@@ -162,9 +162,22 @@ export default function Home() {
   // Throws on HTTP errors or when the AI returns an empty report (notes too brief).
   async function callGenerateApi(job: JobDetails): Promise<GeneratedReport> {
     const business = getBusinessProfile();
+
+    // Get the access token to pass in the Authorization header.
+    // This ensures the API route can authenticate the request even when
+    // the session cookie is not available (e.g. iOS PWA).
+    const { getSupabaseBrowserClient } = await import("@/lib/supabase/client");
+    const supabaseClient = getSupabaseBrowserClient();
+    const accessToken = supabaseClient
+      ? (await supabaseClient.auth.getSession()).data.session?.access_token
+      : null;
+
     const response = await fetch("/api/generate-report", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        ...(accessToken ? { "Authorization": `Bearer ${accessToken}` } : {}),
+      },
       body: JSON.stringify({
         serviceType: job.serviceType,
         customServiceType: job.customServiceType,
