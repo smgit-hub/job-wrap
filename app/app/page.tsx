@@ -20,14 +20,12 @@ import {
   getBusinessProfile,
   saveBusinessProfile,
   saveReport,
+  saveCustomer,
   clearDraft,
   generateId,
   upsertCustomerFromJob,
   purgeExpiredDeletedReports,
   getReports,
-  saveReport,
-  saveCustomer,
-  saveBusinessProfile,
 } from "@/lib/storage";
 import { dbSaveReport, syncFromSupabase, migrateLocalStorageToSupabase } from "@/lib/db";
 
