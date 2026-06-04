@@ -279,8 +279,9 @@ function Divider() {
 // ── Main document ────────────────────────────────────────────────────────────
 
 function jobNumber(id: string): string {
-  // Last 8 chars of the ID, uppercased — e.g. "JW-A1B2C3D4"
-  return "JW-" + id.slice(-8).toUpperCase();
+  // Strip non-alphanumeric chars, take last 6, uppercase — e.g. "JW-A1B2C3"
+  const clean = id.replace(/[^a-zA-Z0-9]/g, "");
+  return "JW-" + clean.slice(-6).toUpperCase();
 }
 
 export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocumentProps) {

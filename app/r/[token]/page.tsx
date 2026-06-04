@@ -7,7 +7,8 @@ import { safeBrandColor } from "@/lib/utils";
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function jobNumber(id: string): string {
-  return "JW-" + id.slice(-8).toUpperCase();
+  const clean = id.replace(/[^a-zA-Z0-9]/g, "");
+  return "JW-" + clean.slice(-6).toUpperCase();
 }
 
 function formatDate(dateStr: string): string {

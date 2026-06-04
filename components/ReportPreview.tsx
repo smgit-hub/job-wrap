@@ -271,7 +271,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mt-3">
               {SERVICE_TYPE_LABELS[job.serviceType]}  ·  {formatDate(job.jobDate)}
             </p>
-            <p className="text-[10px] font-mono text-slate-400 mt-1">{"JW-" + report.id.slice(-8).toUpperCase()}</p>
+            <p className="text-[10px] font-mono text-slate-400 mt-1">{"JW-" + report.id.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()}</p>
             {job.equipment?.trim() && <p className="text-xs text-slate-500 mt-1">{job.equipment.trim()}</p>}
             {job.nextServiceDate && (
               <p className="text-xs font-semibold text-slate-500 mt-1">
