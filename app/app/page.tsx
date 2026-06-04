@@ -24,6 +24,8 @@ import {
   generateId,
   upsertCustomerFromJob,
   purgeExpiredDeletedReports,
+  seedSampleData,
+  getReports,
 } from "@/lib/storage";
 import { dbSaveReport, syncFromSupabase, migrateLocalStorageToSupabase } from "@/lib/db";
 
@@ -80,6 +82,15 @@ export default function Home() {
   useEffect(() => {
     migrateLocalStorageToSupabase()
       .then(() => syncFromSupabase())
+      .then(async () => {
+        // Seed sample data if the account is empty after sync
+        await seedSampleData();
+        // Push any newly seeded reports to Supabase
+        const seeded = getReports();
+        if (seeded.length > 0) {
+          await Promise.all(seeded.map((r) => dbSaveReport(r)));
+        }
+      })
       .then(() => { setSyncDone(true); setSyncVersion(v => v + 1); })
       .catch((err) => { console.warn("[page] startup sync failed:", err); setSyncDone(true); });
   }, []);
