@@ -208,6 +208,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
                 />
               )}
               <div>
+                <p className="text-[10px] font-bold text-white/50 uppercase tracking-widest mb-1">Service Report</p>
                 <p className="text-lg font-bold text-white leading-tight">{business.businessName}</p>
                 {business.technicianName && (
                   <p className="text-white/70 text-sm mt-0.5">Technician: {business.technicianName}</p>
@@ -219,27 +220,39 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             </div>
           </div>
 
-          {/* Prepared for */}
+          {/* Info grid — mirrors PDF layout */}
           <div className="px-5 pt-5 pb-4 border-b border-slate-100">
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">
-              Prepared for
-            </p>
-            <p className="text-2xl font-bold text-slate-900 leading-tight">
-              {job.customerName || "—"}
-            </p>
-            {job.serviceAddress && (
-              <p className="text-sm text-slate-500 mt-1">{job.serviceAddress}</p>
-            )}
-            <p className="text-[11px] font-semibold text-slate-500 uppercase tracking-widest mt-3">
-              {SERVICE_TYPE_LABELS[job.serviceType]}  ·  {formatDate(job.jobDate)}
-            </p>
-            <p className="text-[10px] font-mono text-slate-400 mt-1">{"JW-" + report.id.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()}</p>
-            {job.equipment?.trim() && <p className="text-xs text-slate-500 mt-1">{job.equipment.trim()}</p>}
-            {job.nextServiceDate && (
-              <p className="text-xs font-semibold text-slate-500 mt-1">
-                Next service due: {formatDate(job.nextServiceDate)}
-              </p>
-            )}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Customer</p>
+                <p className="text-sm font-semibold text-slate-900">{job.customerName || "—"}</p>
+                {job.serviceAddress && <p className="text-xs text-slate-500 mt-0.5">{job.serviceAddress}</p>}
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Job Number</p>
+                <p className="text-sm font-mono text-slate-700">{"JW-" + report.id.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Date of Service</p>
+                <p className="text-sm text-slate-700">{formatDate(job.jobDate)}</p>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Service Type</p>
+                <p className="text-sm text-slate-700">{SERVICE_TYPE_LABELS[job.serviceType]}</p>
+              </div>
+              {job.equipment?.trim() && (
+                <div className="col-span-2">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Equipment / System</p>
+                  <p className="text-sm text-slate-700">{job.equipment.trim()}</p>
+                </div>
+              )}
+              {job.nextServiceDate && (
+                <div className="col-span-2">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Next Service Due</p>
+                  <p className="text-sm font-semibold text-slate-700">{formatDate(job.nextServiceDate)}</p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Customer summary — plain-English intro */}
