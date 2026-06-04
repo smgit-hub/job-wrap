@@ -34,7 +34,7 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       serviceType: "hvac-maintenance",
       jobDate: "2026-05-20",
       equipment: "Daikin FTXM50W/RXM50W heat pump split system, 6kW, installed 2021",
-      nextServiceDate: "2026-06-20",
+      nextServiceDate: "2027-05-20",
       voiceNotes: {
         jobNotes: "Annual maintenance on Rachel Kim's Daikin 6kW split system. Cleaned filters, evaporator and condenser coils. Refrigerant pressures within spec. Heating and cooling tested, operating correctly. Capacitors fine. Condensate drain clear. System in good shape.",
       },
@@ -43,7 +43,7 @@ export const SAMPLE_REPORTS: ServiceReport[] = [
       customerSummary: "Annual maintenance completed on your Daikin heat pump split system. The system is in excellent condition and operating efficiently. All components were inspected and cleaned, and no faults were found.",
       findings: "• Filters heavily loaded with approximately 12 months of dust accumulation\n• Evaporator coil in good condition with minor surface dust\n• Condenser coil had grass clippings and debris packed into fins\n• Refrigerant pressures within manufacturer specifications\n• Capacitors testing within tolerance\n• Condensate drain clear and flowing freely",
       workPerformed: "• Removed, washed and reinstalled both indoor filters\n• Cleaned evaporator coil\n• Cleaned condenser coil and cleared fin debris\n• Checked and recorded refrigerant pressures\n• Tested heating and cooling operation — both confirmed working correctly\n• Checked run capacitors\n• Cleared and flushed condensate drain",
-      recommendations: "• Continue annual servicing to maintain efficiency and system life\n• Next service due May 2027",
+      recommendations: "• Continue annual servicing to maintain efficiency and system life\n• Next service due May 2027 — we will be in touch closer to the time",
     },
     verified: {
       customerSummary: true,
