@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { FileText, Trash2, RotateCcw } from "lucide-react";
+import { FileText, Trash2, RotateCcw, Search, X } from "lucide-react";
 import type { ServiceReport } from "@/types/report";
 import { getReports, getDeletedReports, deleteReport, restoreReport, purgeReport } from "@/lib/storage";
 import { JobCard, formatJobDate } from "@/components/JobCard";
@@ -95,6 +95,7 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
   const [reports, setReports] = useState<ServiceReport[]>([]);
   const [deleted, setDeleted] = useState<ServiceReport[]>([]);
   const [filter, setFilter] = useState<ReportsFilter>(initialFilter);
+  const [search, setSearch] = useState("");
 
   function reload() {
     setReports(getReports());
@@ -131,10 +132,21 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
     deleted:  deleted.length,
   }), [sorted, complete, drafts, deleted]);
 
-  const visible = useMemo(
+  const baseVisible = useMemo(
     () => filter === "complete" ? complete : filter === "draft" ? drafts : sorted,
     [filter, complete, drafts, sorted]
   );
+
+  const visible = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return baseVisible;
+    return baseVisible.filter((r) =>
+      r.job.customerName.toLowerCase().includes(q) ||
+      r.job.serviceAddress?.toLowerCase().includes(q) ||
+      SERVICE_TYPE_LABELS[r.job.serviceType]?.toLowerCase().includes(q) ||
+      (r.job.customServiceType ?? "").toLowerCase().includes(q)
+    );
+  }, [baseVisible, search]);
 
   function handleDelete(e: React.MouseEvent, id: string) {
     e.stopPropagation();
@@ -157,6 +169,27 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
       <main className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-10 lg:pt-8 pb-28 lg:pb-8 space-y-5">
 
         <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Reports</h1>
+
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+          <input
+            type="search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by customer, address or service type…"
+            className="w-full h-11 pl-10 pr-10 rounded-xl bg-white border border-slate-200 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-orange-300 shadow-card"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              aria-label="Clear search"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
 
         {/* Filter tabs */}
         <div className="flex gap-2 flex-wrap">
@@ -214,17 +247,19 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
           visible.length === 0 ? (
             <div className="bg-white rounded-2xl p-10 text-center shadow-card">
               <div className="w-14 h-14 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-4">
-                <FileText className="w-7 h-7 text-slate-500" />
+                {search ? <Search className="w-7 h-7 text-slate-500" /> : <FileText className="w-7 h-7 text-slate-500" />}
               </div>
               <p className="text-slate-800 text-sm font-semibold">
-                {filter === "complete" ? "No completed jobs yet" : filter === "draft" ? "No drafts" : "No reports yet"}
+                {search ? "No results found" : filter === "complete" ? "No completed jobs yet" : filter === "draft" ? "No drafts" : "No reports yet"}
               </p>
               <p className="text-slate-500 text-sm mt-1 leading-relaxed">
-                {filter === "complete"
-                  ? "Finished jobs will appear here."
-                  : filter === "draft"
-                    ? "Jobs saved as draft will appear here."
-                    : "Tap New Report to write up your first job."}
+                {search
+                  ? `No reports matching "${search}".`
+                  : filter === "complete"
+                    ? "Finished jobs will appear here."
+                    : filter === "draft"
+                      ? "Jobs saved as draft will appear here."
+                      : "Tap New Report to write up your first job."}
               </p>
             </div>
           ) : (
