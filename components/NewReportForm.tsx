@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 import {
   ChevronLeft, ChevronDown, ChevronUp,
   Sparkles, Loader2, AlertCircle, BookmarkCheck, ArrowRight,
-  MapPin, Phone, Mail, StickyNote, Wrench,
+  MapPin, Phone, Mail, StickyNote, Wrench, Calendar,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -558,25 +558,29 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
               />
             </div>
 
-            {/* Date / Next Service */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="jobDate" className="text-slate-500">Job Date</Label>
-                <DatePicker
-                  id="jobDate"
-                  value={job.jobDate}
-                  onChange={(iso) => setJob((prev) => ({ ...prev, jobDate: iso }))}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="jobNextService" className="text-slate-500">Next Service <span className="text-slate-400 font-normal">(optional)</span></Label>
-                <DatePicker
-                  id="jobNextService"
-                  value={job.nextServiceDate ?? ""}
-                  onChange={(iso) => setJob((prev) => ({ ...prev, nextServiceDate: iso }))}
-                  placeholder="Optional"
-                />
-              </div>
+            {/* Job Date */}
+            <div className="space-y-1.5">
+              <Label htmlFor="jobDate" className="text-slate-500">Job Date</Label>
+              <DatePicker
+                id="jobDate"
+                value={job.jobDate}
+                onChange={(iso) => setJob((prev) => ({ ...prev, jobDate: iso }))}
+              />
+            </div>
+
+            {/* Next Service Date — full width, prominent */}
+            <div className="space-y-1.5">
+              <Label htmlFor="jobNextService" className="flex items-center gap-1.5 text-slate-700 font-semibold">
+                <Calendar className="w-3.5 h-3.5 text-orange-400" />
+                Next Service Date
+                <span className="text-slate-400 font-normal text-xs">(optional)</span>
+              </Label>
+              <DatePicker
+                id="jobNextService"
+                value={job.nextServiceDate ?? ""}
+                onChange={(iso) => setJob((prev) => ({ ...prev, nextServiceDate: iso }))}
+                placeholder="Set a reminder date for the next visit"
+              />
             </div>
           </div>
         </div>
