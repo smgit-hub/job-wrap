@@ -6,6 +6,10 @@ import { safeBrandColor } from "@/lib/utils";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+function jobNumber(id: string): string {
+  return "JW-" + id.slice(-8).toUpperCase();
+}
+
 function formatDate(dateStr: string): string {
   try {
     return new Date(dateStr).toLocaleDateString("en-CA", {
@@ -146,6 +150,7 @@ export default async function SharedReportPage({
             <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-3">
               {SERVICE_TYPE_LABELS[job.serviceType]} · {formatDate(job.jobDate)}
             </p>
+            <p className="text-[10px] font-mono text-slate-300 mt-1">{jobNumber(report.id)}</p>
           </div>
 
           {/* Customer summary */}

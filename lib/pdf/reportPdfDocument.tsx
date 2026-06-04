@@ -278,6 +278,11 @@ function Divider() {
 
 // ── Main document ────────────────────────────────────────────────────────────
 
+function jobNumber(id: string): string {
+  // Last 8 chars of the ID, uppercased — e.g. "JW-A1B2C3D4"
+  return "JW-" + id.slice(-8).toUpperCase();
+}
+
 export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocumentProps) {
   const { business, job, report: rpt } = report;
   const brandColor = safeBrandColor(business.brandColor);
@@ -334,6 +339,11 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
             <View style={s.infoHalf}>
               <Text style={s.infoLabel}>Customer</Text>
               <Text style={s.infoValue}>{job.customerName}</Text>
+            </View>
+
+            <View style={s.infoHalf}>
+              <Text style={s.infoLabel}>Job Number</Text>
+              <Text style={s.infoValue}>{jobNumber(report.id)}</Text>
             </View>
 
             <View style={s.infoHalf}>
