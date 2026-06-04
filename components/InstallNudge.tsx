@@ -19,8 +19,9 @@ export default function InstallNudge() {
     setDismissed(true);
   }
 
-  // Don't show if: already installed, not mobile, dismissed, or desktop
+  // Don't show if: already installed, not mobile, dismissed, or iOS but not Safari
   if (isInstalled || !isMobile || dismissed) return null;
+  if (platform === "ios" && !isIOSSafari) return null;
 
   return (
     <div className="fixed bottom-20 left-4 right-4 z-40 lg:hidden">
@@ -33,14 +34,10 @@ export default function InstallNudge() {
         />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-white">Add JobWrap to your home screen</p>
-          {platform === "ios" && isIOSSafari ? (
+          {platform === "ios" ? (
             <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
               Tap <Share className="inline w-3.5 h-3.5 mb-0.5" /> then{" "}
               <span className="text-white font-semibold">Add to Home Screen</span>
-            </p>
-          ) : platform === "ios" && !isIOSSafari ? (
-            <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
-              Open in <span className="text-white font-semibold">Safari</span> to add to your home screen
             </p>
           ) : canPromptInstall ? (
             <button
