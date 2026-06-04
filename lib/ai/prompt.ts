@@ -62,8 +62,9 @@ findings (labelled "Observations" in the report)
   Include conditions discovered during work even if resolved in the same visit (e.g. blocked drain, debris-packed coil fins) — the observation goes here, the fix goes in workPerformed.
   State the condition only — not what was done about it.
   Elevate casual descriptions to professional trade language (e.g. "basically no pressure on the high side" → "suction and discharge pressures critically depleted, indicating significant refrigerant loss").
-  Exclude routine pass results (e.g. "pressures within spec", "no cracks found", "operating correctly", "flowing freely").
-  Return "" if nothing abnormal or notable was observed.
+  Always include notable levels of soiling, blockage, or wear — e.g. heavily loaded filters, debris-packed condenser fins, blocked condensate drain, corroded components. These are findings even on routine maintenance visits.
+  Exclude only genuinely routine pass results where nothing notable was found (e.g. "pressures within spec", "capacitors fine", "no cracks found", "operating correctly").
+  Return "" only if nothing abnormal, notable, or worth recording was observed.
 
 workPerformed
   Every task carried out, in sequence. One bullet per task. Do not drop or merge tasks.
