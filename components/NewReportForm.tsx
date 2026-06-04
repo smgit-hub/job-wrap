@@ -332,7 +332,7 @@ export default function NewReportForm({ initialCustomer, onBack, onGenerate, onS
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex-1">New Job</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex-1">New Job</h1>
         </div>
         <StepIndicator steps={REPORT_STEPS} currentStep={1} />
 

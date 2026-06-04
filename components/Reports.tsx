@@ -169,7 +169,7 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
     <div className="min-h-screen bg-slate-100 animate-screen-enter">
       <main className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-10 lg:pt-8 pb-28 lg:pb-8 space-y-5">
 
-        <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Reports</h1>
+        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Reports</h1>
 
         {/* Search */}
         <div className="relative">

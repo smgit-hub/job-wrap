@@ -127,7 +127,7 @@ export default function CustomerSelectScreen({
             >
               <ChevronLeft className="w-5 h-5 text-slate-600" />
             </button>
-            <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex-1">
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex-1">
               {isNew ? "New Customer" : "Edit Customer"}
             </h1>
             {saved && <CheckCircle2 className="w-5 h-5 text-green-500 shrink-0" />}
@@ -275,7 +275,7 @@ export default function CustomerSelectScreen({
 
         {/* Page title */}
         <div className="pb-1">
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Customers</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Customers</h1>
         </div>
 
         {/* Search */}

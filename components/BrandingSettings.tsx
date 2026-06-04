@@ -147,7 +147,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
 
         {/* Page title */}
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">Settings</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Settings</h1>
           <div className="flex items-center gap-3">
             {saved && (
               <span className="text-sm text-green-600 flex items-center gap-1.5 font-semibold">
