@@ -140,7 +140,7 @@ export async function saveReportToDb(
 
   const { data, error } = await client
     .from("reports")
-    .upsert(insert, { onConflict: "local_id" })
+    .upsert(insert, { onConflict: "local_id,user_id" })
     .select()
     .single();
 
@@ -229,7 +229,7 @@ export async function migrateReportsToDb(
 
   const { error } = await client
     .from("reports")
-    .upsert(rows, { onConflict: "local_id" });
+    .upsert(rows, { onConflict: "local_id,user_id" });
 
   if (error) {
     console.error("[reports] migrateReportsToDb:", error.message);
