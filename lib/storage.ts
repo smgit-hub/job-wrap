@@ -4,7 +4,7 @@ const DRAFT_KEY = "jobwrap_draft";
 const REPORTS_KEY = "jobwrap_reports";
 const BUSINESS_KEY = "jobwrap_business";
 const CUSTOMERS_KEY = "jobwrap_customers";
-const SEEDED_KEY = "jobwrap_seeded_v4"; // bump version to re-seed when sample data changes
+const SEEDED_KEY = "jobwrap_seeded_v5"; // bump version to re-seed when sample data changes
 
 export const DEFAULT_BUSINESS: BusinessProfile = {
   businessName: "",
@@ -188,10 +188,8 @@ export async function seedSampleData(): Promise<void> {
   const { SAMPLE_REPORTS, SAMPLE_CUSTOMERS, SAMPLE_BUSINESS } = await import("@/lib/sampleData");
   SAMPLE_REPORTS.forEach((r) => saveReport(r));
   SAMPLE_CUSTOMERS.forEach((c) => saveCustomer(c));
-  // Only seed business profile if the user hasn't configured one yet
-  if (!getBusinessProfile().businessName) {
-    saveBusinessProfile(SAMPLE_BUSINESS);
-  }
+  // Always seed the sample business profile so it stays in sync with sample data
+  saveBusinessProfile(SAMPLE_BUSINESS);
   localStorage.setItem(SEEDED_KEY, "1");
 }
 

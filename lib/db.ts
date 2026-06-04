@@ -291,7 +291,7 @@ export function clearDemoSession(): void {
     "jobwrap_customers",
     "jobwrap_business",
     "jobwrap_draft",
-    "jobwrap_seeded_v4",
+    "jobwrap_seeded_v5",
     "jobwrap_migrated_v1",
     "jobwrap_last_sync",
     DEMO_FLAG_KEY,
