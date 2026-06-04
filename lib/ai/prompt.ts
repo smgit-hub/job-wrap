@@ -45,16 +45,10 @@ customerSummary
   Always use "we/our" for the technician and "you/your" for the customer. Every sentence must use active voice with "we" as the subject — never passive constructions (e.g. not "the filters were cleaned" or "the refrigerant was recharged" — instead "We cleaned the filters" and "We recharged the refrigerant"). Never use the customer's name or third-person constructions.
   Name the specific equipment. State the key findings and actions directly — what was found and what was done about it. Every notable finding must be named explicitly. Never summarise with vague process phrases.
 
-  BAD (do not write like this):
-  "We completed necessary cleaning, addressed filter loading issues, and conducted a refrigerant pressure check leading to a recharge."
-  "We identified and addressed the issue and the system is now operational."
-  "We carried out the required maintenance tasks."
+  BAD: "We completed necessary cleaning, addressed filter loading issues, and conducted a refrigerant pressure check leading to a recharge."
+  GOOD: "We serviced all three zones of your Mitsubishi multi-split, recharged the master bedroom circuit which was low on R32, and cleared a partial blockage in the living room condensate tray. All three zones are running correctly."
 
-  GOOD (write like this):
-  "We serviced all three zones of your Mitsubishi multi-split, recharged the master bedroom circuit which was low on R32, and cleared a partial blockage in the living room condensate tray. All three zones are running correctly."
-  "We found a cracked Schrader valve core on the high-side service port causing a full refrigerant loss, replaced it, pressure tested, vacuumed, and fully recharged the system. Cooling is restored."
-
-  Never use: "addressed this issue", "completed necessary cleaning", "carried out the necessary work", "performed the required tasks", "leading to a recharge", "addressed filter loading issues".
+  Never use vague process phrases like "addressed the issue", "carried out the necessary work", or "performed the required tasks".
   If recommendations exist in the notes, end with "We've noted [a couple of / a few] items below to keep in mind."
 
 findings (labelled "Observations" in the report)
