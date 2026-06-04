@@ -337,28 +337,29 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
         <div className="lg:pl-60">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer space-y-2">
 
-          {/* 2-across action row: Email | PDF (primary) */}
-          <div className="grid grid-cols-2 gap-2">
-            <ActionTile
-              icon={emailState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : <Mail className="w-5 h-5 text-slate-500" />}
-              label={emailState === "generating" ? "Preparing…" : "Send to Customer"}
-              onClick={handleEmail}
-              disabled={emailState === "generating"}
-            />
-            <button
-              onClick={handleExportPdf}
-              disabled={exportState === "generating"}
-              className="flex flex-col items-center justify-center gap-1.5 py-3 rounded-2xl bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:opacity-60 transition-colors shadow-md shadow-orange-200/50"
-            >
-              {exportState === "generating" ? (
-                <><Loader2 className="w-5 h-5 text-white animate-spin" /><span className="text-xs font-semibold text-white leading-none">Building…</span></>
-              ) : exportState === "done" ? (
-                <><CheckCircle2 className="w-5 h-5 text-white" /><span className="text-xs font-semibold text-white leading-none">PDF Saved!</span></>
-              ) : (
-                <><Download className="w-5 h-5 text-white" /><span className="text-xs font-semibold text-white leading-none">Download PDF</span></>
-              )}
-            </button>
-          </div>
+          {/* Primary: Download PDF */}
+          <button
+            onClick={handleExportPdf}
+            disabled={exportState === "generating"}
+            className="w-full h-14 rounded-2xl bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:opacity-60 transition-colors shadow-md shadow-orange-200/50 flex items-center justify-center gap-2"
+          >
+            {exportState === "generating" ? (
+              <><Loader2 className="w-5 h-5 text-white animate-spin" /><span className="text-base font-bold text-white">Building…</span></>
+            ) : exportState === "done" ? (
+              <><CheckCircle2 className="w-5 h-5 text-white" /><span className="text-base font-bold text-white">PDF Saved!</span></>
+            ) : (
+              <><Download className="w-5 h-5 text-white" /><span className="text-base font-bold text-white">Download PDF</span></>
+            )}
+          </button>
+          {/* Secondary: Send to Customer */}
+          <button
+            onClick={handleEmail}
+            disabled={emailState === "generating"}
+            className="w-full h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center gap-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 active:bg-slate-100 disabled:opacity-50 transition-colors"
+          >
+            {emailState === "generating" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+            {emailState === "generating" ? "Preparing…" : "Send to Customer"}
+          </button>
           {isNewReport && (
             <button
               onClick={onDone}
