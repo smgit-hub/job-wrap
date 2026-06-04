@@ -94,6 +94,15 @@ export default function Home() {
       })
       .then(() => { setSyncDone(true); setSyncVersion(v => v + 1); })
       .catch((err) => { console.warn("[page] startup sync failed:", err); setSyncDone(true); });
+
+    // Sync when the user returns to the app/tab
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        syncFromSupabase().then(() => setSyncVersion(v => v + 1));
+      }
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
   const [screen, setScreen] = useState<Screen>("dashboard");

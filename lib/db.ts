@@ -305,7 +305,7 @@ export function clearDemoSession(): void {
 // This is a one-way sync (cloud → local cache) — writes always go to both.
 
 const SYNC_KEY = "jobwrap_last_sync";
-const SYNC_INTERVAL_MS = 5 * 60 * 1000; // re-sync at most every 5 minutes
+const SYNC_INTERVAL_MS = 60 * 1000; // re-sync at most every 60 seconds
 
 export async function syncFromSupabase(): Promise<void> {
   if (typeof window === "undefined") return;

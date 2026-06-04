@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { FileText, Trash2, RotateCcw, Search, X } from "lucide-react";
+import { FileText, Trash2, RotateCcw, Search, X, RefreshCw } from "lucide-react";
 import type { ServiceReport } from "@/types/report";
 import { getReports, getDeletedReports, deleteReport, restoreReport, purgeReport } from "@/lib/storage";
+import { syncFromSupabase } from "@/lib/db";
 import { JobCard, formatJobDate } from "@/components/JobCard";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
 import { cn } from "@/lib/utils";
@@ -96,6 +97,14 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
   const [deleted, setDeleted] = useState<ServiceReport[]>([]);
   const [filter, setFilter] = useState<ReportsFilter>(initialFilter);
   const [search, setSearch] = useState("");
+  const [syncing, setSyncing] = useState(false);
+
+  async function handleRefresh() {
+    setSyncing(true);
+    await syncFromSupabase();
+    reload();
+    setSyncing(false);
+  }
 
   function reload() {
     setReports(getReports());
@@ -169,7 +178,17 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
     <div className="min-h-screen bg-slate-100 animate-screen-enter">
       <main className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-10 lg:pt-8 pb-28 lg:pb-8 space-y-5">
 
-        <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Reports</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Reports</h1>
+          <button
+            onClick={handleRefresh}
+            disabled={syncing}
+            aria-label="Refresh"
+            className="w-9 h-9 rounded-xl bg-white shadow-card flex items-center justify-center text-slate-500 hover:text-slate-700 active:bg-slate-50 transition-colors disabled:opacity-40"
+          >
+            <RefreshCw className={`w-4 h-4 ${syncing ? "animate-spin" : ""}`} />
+          </button>
+        </div>
 
         {/* Search */}
         <div className="relative">
