@@ -157,7 +157,7 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex-1">Edit Report</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex-1">Edit Report</h1>
         </div>
         {isNewReport && <StepIndicator steps={REPORT_STEPS} currentStep={3} />}
 

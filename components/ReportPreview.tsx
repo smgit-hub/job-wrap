@@ -181,7 +181,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
           >
             <ChevronLeft className="w-5 h-5 text-slate-600" />
           </button>
-          <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex-1">Service Report</h1>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight flex-1">Service Report</h1>
           {!isNewReport && (
             <button
               onClick={onEdit}
