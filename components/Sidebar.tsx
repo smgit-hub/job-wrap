@@ -24,7 +24,7 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ activeSection, onDashboard, onReports, onCustomers, onSettings }: SidebarProps) {
   const profile = getBusinessProfile();
-  const { isConfigured, isDemo, signOut } = useAuth();
+  const { isConfigured, signOut } = useAuth();
 
   const handlers: Record<ActiveSection, () => void> = {
     dashboard: onDashboard,
@@ -34,7 +34,7 @@ export default function Sidebar({ activeSection, onDashboard, onReports, onCusto
   };
 
   return (
-    <aside className={`hidden lg:flex flex-col fixed inset-y-0 left-0 w-60 bg-white border-r border-slate-100 z-30${isDemo ? " top-10" : ""}`}>
+    <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 w-60 bg-white border-r border-slate-100 z-30">
 
       {/* Brand mark */}
       <div className="px-4 pt-5 pb-4 border-b border-slate-100">
