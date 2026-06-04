@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { CheckCircle2, Upload, X, Palette, LogOut, Eye, EyeOff, Loader2 } from "lucide-react";
+import { CheckCircle2, Upload, X, Palette, LogOut, Eye, EyeOff, Loader2, ChevronDown, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
@@ -59,6 +59,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
   const logoInputRef = useRef<HTMLInputElement>(null);
   const { isConfigured, signOut } = useAuth();
   // ── Account: Change Password ─────────────────────────────────────────────
+  const [accountExpanded, setAccountExpanded] = useState(false);
   const [pwNew, setPwNew] = useState("");
   const [pwConfirm, setPwConfirm] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -169,13 +170,36 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         {/* ── Account ─────────────────────────────────────────────────────── */}
         {isConfigured && (
           <>
-            <div className="flex items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setAccountExpanded((v) => !v)}
+              className="w-full flex items-center gap-3 pt-2"
+            >
               <h2 className="text-xl font-bold text-slate-900 shrink-0">Account</h2>
               <div className="flex-1 h-px bg-slate-300" />
-            </div>
+              {accountExpanded ? <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />}
+            </button>
 
+            {accountExpanded && (
             <Card className="border border-slate-100 shadow-card">
               <CardContent className="px-4 pb-4 pt-4 space-y-5">
+
+                {/* Your name */}
+                <div className="space-y-3">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Your Name</p>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="account-name">Name shown on reports</Label>
+                    <Input
+                      id="account-name"
+                      value={form.technicianName}
+                      onChange={(e) => update("technicianName", e.target.value)}
+                      placeholder="e.g. Alex Morgan"
+                      className="h-11 text-base"
+                    />
+                  </div>
+                </div>
+
+                <div className="h-px bg-slate-100" />
 
                 {/* Change Password */}
                 <div className="space-y-3">
@@ -267,6 +291,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
 
               </CardContent>
             </Card>
+            )}
           </>
         )}
 
