@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ChevronLeft, CheckCircle2, Loader2, AlertCircle, Mail, Download, Link, Share2, Pencil } from "lucide-react";
+import { ChevronLeft, CheckCircle2, Loader2, AlertCircle, Mail, Download, Pencil } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 import type { ServiceReport, JobPhoto } from "@/types/report";
@@ -77,7 +77,6 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
 
   const [exportState, setExportState] = useState<ExportState>("idle");
   const [exportError, setExportError] = useState<string | null>(null);
-  const [linkState, setLinkState] = useState<"idle" | "generating" | "copied" | "error">("idle");
   const [emailState, setEmailState] = useState<"idle" | "generating" | "error">("idle");
   const [photos, setPhotos] = useState<JobPhoto[]>([]);
 
@@ -87,43 +86,6 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
     setPhotos(getPhotosForReport(report.id));
   }, [report.id]);
 
-  const canNativeShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
-
-  async function handleShareOrCopy() {
-    if (linkState === "generating") return;
-    setLinkState("generating");
-    try {
-      const res = await fetch("/api/share-report", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ report, photos }),
-      });
-      if (!res.ok) throw new Error("Failed");
-      const { url } = (await res.json()) as { url: string };
-
-      if (canNativeShare) {
-        // Mobile: open native share sheet
-        await navigator.share({
-          title: `Service Report – ${job.customerName || business.businessName}`,
-          url,
-        });
-        setLinkState("idle");
-      } else {
-        // Desktop: copy link to clipboard
-        await navigator.clipboard.writeText(url);
-        setLinkState("copied");
-        setTimeout(() => setLinkState("idle"), 3000);
-      }
-    } catch (err) {
-      // User dismissed share sheet — not an error
-      if (err instanceof Error && err.name === "AbortError") {
-        setLinkState("idle");
-        return;
-      }
-      setLinkState("error");
-      setTimeout(() => setLinkState("idle"), 3000);
-    }
-  }
 
 
   async function handleEmail() {
@@ -375,8 +337,8 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
         <div className="lg:pl-60">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer space-y-2">
 
-          {/* 3-across action row: Email | PDF (primary) | Share */}
-          <div className="grid grid-cols-3 gap-2">
+          {/* 2-across action row: Email | PDF (primary) */}
+          <div className="grid grid-cols-2 gap-2">
             <ActionTile
               icon={emailState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : <Mail className="w-5 h-5 text-slate-500" />}
               label={emailState === "generating" ? "Preparing…" : "Send to Customer"}
@@ -396,12 +358,6 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
                 <><Download className="w-5 h-5 text-white" /><span className="text-xs font-semibold text-white leading-none">Download PDF</span></>
               )}
             </button>
-            <ActionTile
-              icon={linkState === "generating" ? <Loader2 className="w-5 h-5 text-slate-500 animate-spin" /> : linkState === "copied" ? <CheckCircle2 className="w-5 h-5 text-green-500" /> : linkState === "error" ? <AlertCircle className="w-5 h-5 text-red-400" /> : canNativeShare ? <Share2 className="w-5 h-5 text-slate-500" /> : <Link className="w-5 h-5 text-slate-500" />}
-              label={linkState === "generating" ? "Getting Link…" : linkState === "copied" ? "Copied!" : linkState === "error" ? "Failed" : "Share Link"}
-              onClick={handleShareOrCopy}
-              disabled={linkState === "generating"}
-            />
           </div>
           {isNewReport && (
             <button
