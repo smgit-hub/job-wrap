@@ -19,7 +19,7 @@ export default function PrivacyPage() {
       <main className="max-w-lg mx-auto px-4 py-8 pb-16 space-y-8">
         <div>
           <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Privacy Policy</h1>
-          <p className="text-sm text-slate-500 mt-1">Last updated: May 2025</p>
+          <p className="text-sm text-slate-500 mt-1">Last updated: June 2026</p>
         </div>
 
         <Section title="What we collect">
@@ -28,18 +28,18 @@ export default function PrivacyPage() {
           </p>
           <ul>
             <li><strong>Your email address</strong> — used to create and secure your account.</li>
-            <li><strong>Job records</strong> (customer names, addresses, service notes, photos) — stored locally on your device. They never leave your device unless you use the Share Link feature.</li>
-            <li><strong>Business profile</strong> (business name, phone, logo, etc.) — stored locally on your device.</li>
-            <li><strong>Shared report links</strong> — if you choose to create a shareable link, the report content is stored securely on our servers solely to serve that link.</li>
+            <li><strong>Job records</strong> (customer names, addresses, service notes, photos) — synced securely to our servers so your data is available across devices.</li>
+            <li><strong>Business profile</strong> (business name, phone, logo, licence numbers, etc.) — stored on our servers and used to brand your reports.</li>
+            <li><strong>Shared report links</strong> — if you create a shareable link, the report content is stored on our servers to serve that link. Links expire after 90 days.</li>
           </ul>
         </Section>
 
         <Section title="AI report generation">
           <p>
-            When you tap <strong>Generate Report</strong>, your job notes — including the customer name, address, and work details you recorded — are sent to a third-party AI provider (Anthropic or OpenAI) to produce the report text.
+            When you tap <strong>Generate Report</strong>, your job notes — including the customer name, address, and work details you recorded — are sent to a third-party AI provider (Anthropic, Google, or OpenAI) to produce the report text.
           </p>
           <p>
-            This is the only time your job data leaves your device during normal use. AI providers process this data under their own privacy policies and do not retain it for training purposes under standard API terms.
+            AI providers process this data under their own privacy policies and do not retain it for model training purposes under standard API terms.
           </p>
           <p>
             If you prefer not to send job data to an AI service, do not use the Generate Report feature.
@@ -48,10 +48,10 @@ export default function PrivacyPage() {
 
         <Section title="How we store data">
           <p>
-            All reports, customers, photos, and settings are stored in your browser&apos;s local storage — on your device, not on our servers. Clearing your browser data or switching devices will remove this data.
+            Your reports, customers, photos, and business settings are stored securely in the cloud (Supabase) so you can access them from any device. Data is also cached locally on your device for fast access and offline use.
           </p>
           <p>
-            Account credentials are managed by Supabase, an industry-standard authentication platform, and are protected by encryption at rest and in transit.
+            Account credentials and all cloud data are managed by Supabase, protected by encryption at rest and in transit.
           </p>
         </Section>
 
@@ -60,8 +60,8 @@ export default function PrivacyPage() {
             We do not sell, rent, or share your personal data with third parties for marketing purposes. Data is only shared with:
           </p>
           <ul>
-            <li><strong>AI providers</strong> — for report generation, as described above.</li>
-            <li><strong>Supabase</strong> — for authentication and shared report link storage.</li>
+            <li><strong>AI providers</strong> (Anthropic, Google, OpenAI) — for report generation, as described above.</li>
+            <li><strong>Supabase</strong> — for authentication, data storage, and shared report link hosting.</li>
           </ul>
         </Section>
 
@@ -80,12 +80,12 @@ export default function PrivacyPage() {
           </p>
         </Section>
 
-        <div className="pt-4 border-t border-slate-200">
-          <Link
-            href="/login"
-            className="text-sm text-orange-500 font-semibold hover:underline"
-          >
+        <div className="pt-4 border-t border-slate-200 flex items-center justify-between">
+          <Link href="/login" className="text-sm text-orange-500 font-semibold hover:underline">
             ← Back to sign in
+          </Link>
+          <Link href="/terms" className="text-sm text-slate-500 hover:underline">
+            Terms of Service
           </Link>
         </div>
       </main>

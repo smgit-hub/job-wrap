@@ -250,6 +250,8 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
 
         <p className="text-center text-xs text-slate-500 mt-4">
           <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
+            {" · "}
+          <Link href="/terms" className="hover:underline">Terms of Service</Link>
         </p>
       </div>
     </div>
