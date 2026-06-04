@@ -4,7 +4,7 @@ const DRAFT_KEY = "jobwrap_draft";
 const REPORTS_KEY = "jobwrap_reports";
 const BUSINESS_KEY = "jobwrap_business";
 const CUSTOMERS_KEY = "jobwrap_customers";
-const SEEDED_KEY = "jobwrap_seeded_v3"; // bump version to re-seed when sample data changes
+const SEEDED_KEY = "jobwrap_seeded_v4"; // bump version to re-seed when sample data changes
 
 export const DEFAULT_BUSINESS: BusinessProfile = {
   businessName: "",
