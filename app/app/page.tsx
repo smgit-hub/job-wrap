@@ -199,7 +199,7 @@ export default function Home() {
 
     upsertCustomerFromJob(job);
     saveReport(report);          // localStorage — instant, synchronous
-    void dbSaveReport(report);   // Supabase — async, fire-and-forget
+    dbSaveReport(report).catch((err) => console.error("[handleGenerate] Supabase save failed:", err));
     clearDraft();
     setActiveReport(report);
     setIsNewReport(true);
