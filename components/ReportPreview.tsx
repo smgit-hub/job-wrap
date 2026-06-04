@@ -225,31 +225,31 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             <div className="grid grid-cols-2 gap-x-4 gap-y-3">
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Customer</p>
-                <p className="text-sm font-semibold text-slate-900">{job.customerName || "—"}</p>
+                <p className="text-sm font-bold text-slate-900">{job.customerName || "—"}</p>
                 {job.serviceAddress && <p className="text-xs text-slate-500 mt-0.5">{job.serviceAddress}</p>}
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Job Number</p>
-                <p className="text-sm font-mono text-slate-700">{"JW-" + report.id.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()}</p>
+                <p className="text-sm font-bold font-mono text-slate-900">{"JW-" + report.id.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Date of Service</p>
-                <p className="text-sm text-slate-700">{formatDate(job.jobDate)}</p>
+                <p className="text-sm font-bold text-slate-900">{formatDate(job.jobDate)}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Service Type</p>
-                <p className="text-sm text-slate-700">{SERVICE_TYPE_LABELS[job.serviceType]}</p>
+                <p className="text-sm font-bold text-slate-900">{SERVICE_TYPE_LABELS[job.serviceType]}</p>
               </div>
               {job.equipment?.trim() && (
                 <div className="col-span-2">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Equipment / System</p>
-                  <p className="text-sm text-slate-700">{job.equipment.trim()}</p>
+                  <p className="text-sm font-bold text-slate-900">{job.equipment.trim()}</p>
                 </div>
               )}
               {job.nextServiceDate && (
                 <div className="col-span-2">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Next Service Due</p>
-                  <p className="text-sm font-semibold text-slate-700">{formatDate(job.nextServiceDate)}</p>
+                  <p className="text-sm font-bold text-slate-900">{formatDate(job.nextServiceDate)}</p>
                 </div>
               )}
             </div>
@@ -320,14 +320,29 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
 
             <Separator />
 
-            <div className="text-xs text-gray-400 space-y-0.5">
-              <p className="font-semibold text-gray-600">{business.businessName}</p>
-              {business.technicianName && <p>Technician: {business.technicianName}</p>}
-              {business.licence1Label && business.licence1Number && <p>{business.licence1Label}: {business.licence1Number}</p>}
-              {business.licence2Label && business.licence2Number && <p>{business.licence2Label}: {business.licence2Number}</p>}
-              {business.phone && <p>{business.phone}</p>}
-              {business.email && <p>{business.email}</p>}
-              {business.website && <p>{business.website}</p>}
+            {/* Thank you line */}
+            <p className="text-xs text-slate-500 text-center leading-relaxed mb-3">
+              Thank you for choosing{" "}
+              <span className="font-bold text-slate-700">{business.businessName}</span>
+              . We appreciate your business and look forward to serving you again.
+            </p>
+
+            {/* Dot-separated contact footer */}
+            <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 border-t border-slate-100 pt-3">
+              {[
+                business.businessName,
+                business.technicianName ? `Technician: ${business.technicianName}` : null,
+                business.licence1Label && business.licence1Number ? `${business.licence1Label}: ${business.licence1Number}` : null,
+                business.licence2Label && business.licence2Number ? `${business.licence2Label}: ${business.licence2Number}` : null,
+                business.phone || null,
+                business.email || null,
+                business.website || null,
+              ].filter(Boolean).map((item, i, arr) => (
+                <span key={i} className="flex items-center gap-x-1.5">
+                  <span className="text-[10px] text-slate-400">{item}</span>
+                  {i < arr.length - 1 && <span className="text-[10px] text-slate-300">·</span>}
+                </span>
+              ))}
             </div>
           </div>
         </div>
