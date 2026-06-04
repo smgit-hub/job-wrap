@@ -7,7 +7,7 @@ import { useInstallPrompt } from "@/hooks/useInstallPrompt";
 const STORAGE_KEY = "jobwrap_install_nudge_dismissed";
 
 export default function InstallNudge() {
-  const { isInstalled, platform, isMobile, promptInstall, canPromptInstall } = useInstallPrompt();
+  const { isInstalled, platform, isMobile, isIOSSafari, promptInstall, canPromptInstall } = useInstallPrompt();
   const [dismissed, setDismissed] = useState(true); // start hidden to avoid flash
 
   useEffect(() => {
@@ -33,10 +33,14 @@ export default function InstallNudge() {
         />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-white">Add JobWrap to your home screen</p>
-          {platform === "ios" ? (
+          {platform === "ios" && isIOSSafari ? (
             <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
               Tap <Share className="inline w-3.5 h-3.5 mb-0.5" /> then{" "}
               <span className="text-white font-semibold">Add to Home Screen</span>
+            </p>
+          ) : platform === "ios" && !isIOSSafari ? (
+            <p className="text-xs text-slate-400 mt-0.5 leading-relaxed">
+              Open in <span className="text-white font-semibold">Safari</span> to add to your home screen
             </p>
           ) : canPromptInstall ? (
             <button

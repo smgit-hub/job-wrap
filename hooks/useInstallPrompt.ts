@@ -11,6 +11,8 @@ interface InstallPrompt {
   platform: Platform;
   /** True on mobile (iOS or Android) */
   isMobile: boolean;
+  /** True if on iOS Safari (the only browser that supports PWA install on iOS) */
+  isIOSSafari: boolean;
   /** Call this to trigger the native Android install prompt (no-op on iOS) */
   promptInstall: () => Promise<void>;
   /** True if the native Android prompt is available */
@@ -27,11 +29,15 @@ export function useInstallPrompt(): InstallPrompt {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [platform, setPlatform] = useState<Platform>("other");
+  const [isIOSSafari, setIsIOSSafari] = useState(false);
 
   useEffect(() => {
     const ua = navigator.userAgent;
     const isIOS = /iphone|ipad|ipod/i.test(ua);
     const isAndroid = /android/i.test(ua);
+    // iOS Safari: has WebKit but NOT Chrome/CriOS/Firefox
+    const iosSafari = isIOS && /safari/i.test(ua) && !/crios|fxios|chrome/i.test(ua);
+    setIsIOSSafari(iosSafari);
     setPlatform(isIOS ? "ios" : isAndroid ? "android" : "other");
 
     // Installed if running in standalone mode (PWA) or iOS standalone
@@ -57,5 +63,5 @@ export function useInstallPrompt(): InstallPrompt {
 
   const isMobile = platform === "ios" || platform === "android";
 
-  return { isInstalled, platform, isMobile, promptInstall, canPromptInstall: !!deferredPrompt };
+  return { isInstalled, platform, isMobile, isIOSSafari, promptInstall, canPromptInstall: !!deferredPrompt };
 }
