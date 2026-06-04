@@ -35,8 +35,9 @@ export function useInstallPrompt(): InstallPrompt {
     const ua = navigator.userAgent;
     const isIOS = /iphone|ipad|ipod/i.test(ua);
     const isAndroid = /android/i.test(ua);
-    // iOS Safari: has WebKit but NOT Chrome/CriOS/Firefox
-    const iosSafari = isIOS && /safari/i.test(ua) && !/crios|fxios|chrome/i.test(ua);
+    // iOS Safari: has Safari in UA but NOT any third-party browser token
+    // Covers Chrome (CriOS), Firefox (FxiOS), Edge (EdgiOS), Opera, Brave, DuckDuckGo etc.
+    const iosSafari = isIOS && /safari/i.test(ua) && !/crios|fxios|edgios|opios|brave|ddg/i.test(ua);
     setIsIOSSafari(iosSafari);
     setPlatform(isIOS ? "ios" : isAndroid ? "android" : "other");
 
