@@ -230,26 +230,26 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Job Number</p>
-                <p className="text-sm font-bold font-mono text-slate-900">{"JW-" + report.id.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()}</p>
+                <p className="text-sm font-medium font-mono text-slate-700">{"JW-" + report.id.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Date of Service</p>
-                <p className="text-sm font-bold text-slate-900">{formatDate(job.jobDate)}</p>
+                <p className="text-sm font-medium text-slate-700">{formatDate(job.jobDate)}</p>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Service Type</p>
-                <p className="text-sm font-bold text-slate-900">{SERVICE_TYPE_LABELS[job.serviceType]}</p>
+                <p className="text-sm font-medium text-slate-700">{SERVICE_TYPE_LABELS[job.serviceType]}</p>
               </div>
               {job.equipment?.trim() && (
                 <div className="col-span-2">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Equipment / System</p>
-                  <p className="text-sm font-bold text-slate-900">{job.equipment.trim()}</p>
+                  <p className="text-sm font-medium text-slate-700">{job.equipment.trim()}</p>
                 </div>
               )}
               {job.nextServiceDate && (
                 <div className="col-span-2">
                   <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Next Service Due</p>
-                  <p className="text-sm font-bold text-slate-900">{formatDate(job.nextServiceDate)}</p>
+                  <p className="text-sm font-medium text-slate-700">{formatDate(job.nextServiceDate)}</p>
                 </div>
               )}
             </div>
