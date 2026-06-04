@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, Eye, AlertTriangle, RefreshCw, Loader2, Sparkles } from "lucide-react";
+import { ChevronLeft, Eye, AlertTriangle, RefreshCw, Loader2, Sparkles, Calendar } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -360,25 +360,29 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
               )}
             </div>
 
-            {/* Date / Next Service */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-1.5">
-                <Label htmlFor="ed-date">Date</Label>
-                <DatePicker
-                  id="ed-date"
-                  value={draft.job.jobDate}
-                  onChange={(iso) => updateJobField("jobDate", iso)}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="ed-next-service">Next Service</Label>
-                <DatePicker
-                  id="ed-next-service"
-                  value={draft.job.nextServiceDate ?? ""}
-                  onChange={(iso) => updateJobField("nextServiceDate", iso)}
-                  placeholder="Optional"
-                />
-              </div>
+            {/* Job Date */}
+            <div className="space-y-1.5">
+              <Label htmlFor="ed-date">Date</Label>
+              <DatePicker
+                id="ed-date"
+                value={draft.job.jobDate}
+                onChange={(iso) => updateJobField("jobDate", iso)}
+              />
+            </div>
+
+            {/* Next Service Date — full width, prominent */}
+            <div className="space-y-1.5">
+              <Label htmlFor="ed-next-service" className="flex items-center gap-1.5 text-slate-700 font-semibold">
+                <Calendar className="w-3.5 h-3.5 text-orange-400" />
+                Next Service Date
+                <span className="text-slate-400 font-normal text-xs">(optional)</span>
+              </Label>
+              <DatePicker
+                id="ed-next-service"
+                value={draft.job.nextServiceDate ?? ""}
+                onChange={(iso) => updateJobField("nextServiceDate", iso)}
+                placeholder="Set a reminder date for the next visit"
+              />
             </div>
 
             {/* Service type */}
