@@ -24,8 +24,6 @@ import {
   generateId,
   upsertCustomerFromJob,
   purgeExpiredDeletedReports,
-  seedSampleData,
-  getReports,
 } from "@/lib/storage";
 import { dbSaveReport, syncFromSupabase, migrateLocalStorageToSupabase } from "@/lib/db";
 
@@ -66,7 +64,7 @@ export default function Home() {
   //   5. Redeploy and click "Run integration check" in the wizard
   // ── end AppGild TODO ────────────────────────────────────────────────────────
 
-  const { user, signOut, loading: authLoading } = useAuth();
+  const { signOut, loading: authLoading } = useAuth();
 
   // Purge reports that have been in trash for more than 7 days
   useState(() => { purgeExpiredDeletedReports(); });
@@ -82,17 +80,6 @@ export default function Home() {
   useEffect(() => {
     migrateLocalStorageToSupabase()
       .then(() => syncFromSupabase())
-      .then(async () => {
-        // Only seed sample data for the demo account — never for real users
-        if (user?.email === "demo@jobwrap.app") {
-          await seedSampleData();
-          // Push any newly seeded reports to Supabase
-          const seeded = getReports();
-          if (seeded.length > 0) {
-            await Promise.all(seeded.map((r) => dbSaveReport(r)));
-          }
-        }
-      })
       .then(() => { setSyncDone(true); setSyncVersion(v => v + 1); })
       .catch((err) => { console.warn("[page] startup sync failed:", err); setSyncDone(true); });
   }, []);
