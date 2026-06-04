@@ -52,26 +52,17 @@ import type { ServiceReport, JobPhoto, Customer, BusinessProfile } from "@/types
 
 // ── Session helper ────────────────────────────────────────────────────────────
 
-const DEMO_EMAIL = "demo@jobwrap.app";
-
-/** Returns the user ID for write operations. Returns null for demo accounts (read-only). */
+/** Returns the authenticated user ID, or null if not signed in. */
 async function getUserId(): Promise<string | null> {
   const client = getSupabaseBrowserClient();
   if (!client) return null;
   const { data } = await client.auth.getUser();
-  const user = data.user;
-  if (!user) return null;
-  // Demo account is read-only — never write to Supabase from it
-  if (user.email === DEMO_EMAIL) return null;
-  return user.id;
+  return data.user?.id ?? null;
 }
 
-/** Returns the user ID for read operations. Includes demo accounts. */
+/** Alias for getUserId — kept for compatibility. */
 async function getUserIdForRead(): Promise<string | null> {
-  const client = getSupabaseBrowserClient();
-  if (!client) return null;
-  const { data } = await client.auth.getUser();
-  return data.user?.id ?? null;
+  return getUserId();
 }
 
 // ── Reports ───────────────────────────────────────────────────────────────────
