@@ -2,15 +2,9 @@
 // JobWrap — Root Layout
 //
 // ── AppGild licence snippet (Layer 1 access control) ─────────────────────────
-// The AppGild snippet goes in the <body> below — it gates the entire app
-// behind a valid licence key before anything else runs.
-//
-// To add it:
-//   1. Complete Step 5 of the AppGild upload wizard
-//   2. Copy the ~20 line JS snippet provided
-//   3. Add it as a <Script> tag inside the <body> below
-//   4. The snippet calls /api/license/verify to confirm the licence
-//   5. All routes are gated — no public exceptions (see middleware.ts)
+// Implemented via <AppGildGate /> component — gates the entire app behind a
+// valid AppGild licence key. See components/AppGildGate.tsx for the snippet.
+// All routes are gated — no public exceptions (see middleware.ts for Layer 2).
 //
 // TODO(error-handling): wrap AuthProvider (or the entire body) in an error
 // boundary component so unhandled React render errors show a graceful fallback
@@ -24,6 +18,7 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { Analytics } from "@vercel/analytics/next";
+import AppGildGate from "@/components/AppGildGate";
 import "./globals.css";
 
 const font = Plus_Jakarta_Sans({
@@ -73,6 +68,8 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${font.variable} h-full antialiased`}>
       <body className="min-h-full bg-gray-50 font-sans">
+        {/* AppGild licence gate — Layer 1 access control (see component for details) */}
+        <AppGildGate />
         <AuthProvider>{children}</AuthProvider>
         <Analytics />
       </body>
