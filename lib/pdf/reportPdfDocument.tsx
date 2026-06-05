@@ -444,6 +444,22 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
             </>
           )}
 
+          {/* Job Photos */}
+          {photos.length > 0 && (
+            <>
+              <Divider />
+              <Text style={s.sectionLabel}>Job Photos</Text>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 10 }}>
+                {photos.map((photo) => (
+                  <View key={photo.id} style={{ width: "47%", height: 180, borderRadius: 6, overflow: "hidden" }}>
+                    {/* eslint-disable-next-line jsx-a11y/alt-text */}
+                    <Image src={photo.dataUrl} style={{ width: "100%", height: 180, objectFit: "cover" }} />
+                  </View>
+                ))}
+              </View>
+            </>
+          )}
+
           {/* Thank you line */}
           <Divider />
           <Text style={s.thankYou}>
@@ -454,23 +470,6 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
 
         </View>
       </Page>
-
-      {/* ── Photos page ────────────────────────────────────────────────── */}
-      {photos.length > 0 && (
-        <Page size="A4" style={s.page}>
-          <View style={{ paddingHorizontal: 40, paddingTop: 32 }}>
-            <Text style={s.sectionLabel}>Job Photos</Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 10 }}>
-              {photos.map((photo) => (
-                <View key={photo.id} style={{ width: "47%", height: 200, borderRadius: 6, overflow: "hidden" }}>
-                  {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                  <Image src={photo.dataUrl} style={{ width: "100%", height: 200, objectFit: "cover" }} />
-                </View>
-              ))}
-            </View>
-          </View>
-        </Page>
-      )}
     </Document>
   );
 }
