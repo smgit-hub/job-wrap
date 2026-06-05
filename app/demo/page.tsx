@@ -6,7 +6,7 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const DEMO_EMAIL = "demo@jobwrap.app";
-const DEMO_PASSWORD = "demo1234";
+const DEMO_PASSWORD = "JobWrap2026!";
 
 export default function DemoPage() {
   const { user, loading } = useAuth();
