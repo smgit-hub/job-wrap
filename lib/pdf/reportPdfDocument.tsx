@@ -175,11 +175,12 @@ const s = StyleSheet.create({
     width: "31%",
     height: 150,
     position: "relative",
+    overflow: "hidden",
+    borderRadius: 6,
   },
   photoImg: {
     width: "100%",
     height: "100%",
-    borderRadius: 6,
     objectFit: "cover",
   },
   photoLabelWrap: {
