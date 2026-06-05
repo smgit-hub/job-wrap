@@ -326,7 +326,18 @@ export async function syncFromSupabase(force = false): Promise<void> {
 
     if (reportRows) {
       const { saveReport: lsSave } = await import("@/lib/storage");
-      reportRows.forEach((row) => lsSave(rowToReport(row)));
+      const { savePhotosForReport } = await import("@/lib/photoStorage");
+      for (const row of reportRows) {
+        lsSave(rowToReport(row));
+        // Restore photos from Supabase Storage into localStorage cache
+        const data = row.report_data as { storedPhotos?: StoredPhoto[] };
+        if (data?.storedPhotos?.length) {
+          const resolved = await resolvePhotos(data.storedPhotos);
+          if (resolved.length > 0) {
+            savePhotosForReport(row.local_id ?? row.id, resolved);
+          }
+        }
+      }
     }
 
     if (customers) {
