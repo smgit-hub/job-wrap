@@ -235,6 +235,24 @@ const s = StyleSheet.create({
     marginTop: 6,
   },
 
+  // ── Fixed footer (bottom of every page) ───────────────────────────────────
+  fixedFooter: {
+    position: "absolute",
+    bottom: 12,
+    left: 40,
+    right: 40,
+  },
+  fixedFooterTop: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "center",
+    gap: 3,
+    borderTopWidth: 1,
+    borderTopColor: "#e5e7eb",
+    paddingTop: 5,
+    marginBottom: 3,
+  },
+
   // ── Fixed page-number bar (bottom of every page) ───────────────────────────
   pageBar: {
     position: "absolute",
@@ -305,15 +323,25 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
     <Document>
       <Page size="A4" style={s.page}>
 
-        {/* ── Fixed page-number bar ─────────────────────────────────────── */}
-        <View style={s.pageBar} fixed>
-          <Text style={s.pageBarBrand}>JobWrap</Text>
-          <Text
-            style={s.pageBarNum}
-            render={({ pageNumber, totalPages }) =>
-              totalPages > 1 ? `Page ${pageNumber} of ${totalPages}` : ""
-            }
-          />
+        {/* ── Fixed footer — repeats on every page ─────────────────────── */}
+        <View style={s.fixedFooter} fixed>
+          <View style={s.fixedFooterTop}>
+            {footerItems.map((item, i) => (
+              <React.Fragment key={i}>
+                {i > 0 && <Text style={s.footerSep}>·</Text>}
+                <Text style={s.footerItem}>{item}</Text>
+              </React.Fragment>
+            ))}
+          </View>
+          <View style={[s.pageBar, { position: "relative", bottom: 0, left: 0, right: 0, marginTop: 2 }]}>
+            <Text style={s.pageBarBrand}>{`Report generated ${new Date().toLocaleDateString("en-CA")}`}</Text>
+            <Text
+              style={s.pageBarNum}
+              render={({ pageNumber, totalPages }) =>
+                totalPages > 1 ? `Page ${pageNumber} of ${totalPages}` : ""
+              }
+            />
+          </View>
         </View>
 
         {/* ── Header ────────────────────────────────────────────────────── */}
@@ -416,26 +444,12 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
             </>
           )}
 
-          {/* In-flow footer */}
+          {/* Thank you line */}
           <Divider />
-
           <Text style={s.thankYou}>
             {"Thank you for choosing "}
             <Text style={s.thankYouBiz}>{business.businessName}</Text>
             {". We appreciate your business and look forward to serving you again."}
-          </Text>
-
-          <View style={s.footerRow}>
-            {footerItems.map((item, i) => (
-              <React.Fragment key={i}>
-                {i > 0 && <Text style={s.footerSep}>·</Text>}
-                <Text style={s.footerItem}>{item}</Text>
-              </React.Fragment>
-            ))}
-          </View>
-
-          <Text style={s.generated}>
-            {`Report generated ${new Date().toLocaleDateString("en-CA")}`}
           </Text>
 
         </View>
@@ -444,10 +458,6 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
       {/* ── Photos page ────────────────────────────────────────────────── */}
       {photos.length > 0 && (
         <Page size="A4" style={s.page}>
-          <View style={s.pageBar} fixed>
-            <Text style={s.pageBarBrand}>JobWrap</Text>
-            <Text style={s.pageBarNum} render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
-          </View>
           <View style={{ paddingHorizontal: 40, paddingTop: 32 }}>
             <Text style={s.sectionLabel}>Job Photos</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 10 }}>
