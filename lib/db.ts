@@ -110,7 +110,22 @@ export async function dbSaveReport(
       storedPhotos = [...existingStored, ...uploaded];
     }
 
-    console.log(`[dbSaveReport] Saving report ${report.id} with ${storedPhotos.length} storedPhotos`, new Error().stack?.split('\n')[2]);
+    console.log(`[dbSaveReport] Saving report ${report.id} with ${storedPhotos.length} storedPhotos`);
+    // Guard: if we have no photos to save, check if DB already has some and preserve them
+    if (storedPhotos.length === 0 && photos.length === 0) {
+      const client = getSupabaseBrowserClient();
+      if (client) {
+        const { data } = await client.from("reports").select("report_data").eq("local_id", report.id).eq("user_id", userId).single();
+        if (data) {
+          const existing = (data.report_data as { storedPhotos?: StoredPhoto[] }).storedPhotos ?? [];
+          if (existing.length > 0) {
+            console.log(`[dbSaveReport] Preserving ${existing.length} existing storedPhotos`);
+            await saveReportToDb(report, userId, existing);
+            return;
+          }
+        }
+      }
+    }
     await saveReportToDb(report, userId, storedPhotos);
   }
 }
