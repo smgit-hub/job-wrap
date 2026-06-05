@@ -99,7 +99,9 @@ Technician: ${technician}
 Date: ${input.jobDate}${equipmentLine ? `\nEquipment: ${equipmentLine}` : ""}
 
 TECHNICIAN'S JOB NOTES:
+<notes>
 ${jobNotes}
+</notes>
 
 Return ONLY a valid JSON object — no markdown fences, no explanation:
 {

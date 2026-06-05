@@ -60,10 +60,8 @@ async function getUserId(): Promise<string | null> {
   return data.user?.id ?? null;
 }
 
-/** Alias for getUserId — kept for compatibility. */
-async function getUserIdForRead(): Promise<string | null> {
-  return getUserId();
-}
+// Alias — both reads and writes use the same auth check
+const getUserIdForRead = getUserId;
 
 // ── Reports ───────────────────────────────────────────────────────────────────
 
@@ -221,8 +219,8 @@ export async function migrateLocalStorageToSupabase(): Promise<void> {
   if (typeof window === "undefined") return;
   if (localStorage.getItem(MIGRATION_KEY)) return; // already done
 
-  const userId = await getUserId(); // write-safe — skips demo account
-  if (!userId) return; // not logged in, or demo account
+  const userId = await getUserId();
+  if (!userId) return; // not signed in
 
   // Strip out any stale sample/demo reports left over from the old
   // auto-seed that used to run in Dashboard. These should never be

@@ -67,7 +67,7 @@ export async function saveCustomerToDb(
   // Upsert on local_id so re-saving an edited customer updates rather than duplicates
   const { data, error } = await client
     .from("customers")
-    .upsert(insert, { onConflict: "local_id" })
+    .upsert(insert, { onConflict: "local_id,user_id" })
     .select()
     .single();
 
@@ -114,7 +114,7 @@ export async function migrateCustomersToDb(
 
   const { error } = await client
     .from("customers")
-    .upsert(rows, { onConflict: "local_id" });
+    .upsert(rows, { onConflict: "local_id,user_id" });
 
   if (error) {
     console.error("[customers] migrateCustomersToDb:", error.message);

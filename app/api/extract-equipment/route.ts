@@ -73,11 +73,20 @@ async function withOpenAI(base64: string, mime: string): Promise<string> {
 export async function POST(request: Request) {
   // Auth check — must be a signed-in user
   const supabase = await getSupabaseServerClient();
-  if (supabase) {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+  if (!supabase) {
+    return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
+  }
+  let user = (await supabase.auth.getUser()).data.user;
+  if (!user) {
+    const authHeader = request.headers.get("authorization");
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    if (token) {
+      const { data } = await supabase.auth.getUser(token);
+      user = data.user;
     }
+  }
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   }
 
   let formData: FormData;

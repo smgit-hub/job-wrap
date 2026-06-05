@@ -14,6 +14,7 @@ import { renderToBuffer } from "@react-pdf/renderer";
 import type { DocumentProps } from "@react-pdf/renderer";
 import ReportPdfDocument from "@/lib/pdf/reportPdfDocument";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { readBodyWithLimit } from "@/lib/api/readBody";
 import type { ServiceReport, JobPhoto } from "@/types/report";
 
 function generateFilename(customerName: string, jobDate: string): string {
@@ -56,30 +57,29 @@ function isValidReportPayload(body: unknown): body is { report: ServiceReport; p
 export async function POST(request: Request) {
   // Auth check — must be a signed-in user
   const supabase = await getSupabaseServerClient();
-  if (supabase) {
-    let user = (await supabase.auth.getUser()).data.user;
-    if (!user) {
-      const authHeader = request.headers.get("authorization");
-      const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
-      if (token) {
-        const { data } = await supabase.auth.getUser(token);
-        user = data.user;
-      }
-    }
-    if (!user) {
-      return Response.json({ error: "Unauthorised" }, { status: 401 });
+  if (!supabase) {
+    return Response.json({ error: "Service unavailable" }, { status: 503 });
+  }
+  let user = (await supabase.auth.getUser()).data.user;
+  if (!user) {
+    const authHeader = request.headers.get("authorization");
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    if (token) {
+      const { data } = await supabase.auth.getUser(token);
+      user = data.user;
     }
   }
-
-  // Guard against oversized bodies before parsing JSON
-  const contentLength = request.headers.get("content-length");
-  if (contentLength && parseInt(contentLength, 10) > MAX_BODY_BYTES) {
-    return Response.json({ error: "Request body too large" }, { status: 413 });
+  if (!user) {
+    return Response.json({ error: "Unauthorised" }, { status: 401 });
   }
 
+  const bodyResult = await readBodyWithLimit(request, MAX_BODY_BYTES);
+  if ("error" in bodyResult) {
+    return Response.json({ error: bodyResult.error }, { status: bodyResult.status });
+  }
   let parsedBody: unknown;
   try {
-    parsedBody = await request.json();
+    parsedBody = JSON.parse(bodyResult.text);
   } catch {
     return Response.json({ error: "Invalid request body" }, { status: 400 });
   }
@@ -89,6 +89,16 @@ export async function POST(request: Request) {
   }
 
   const { report, photos = [] } = parsedBody;
+
+  // SSRF guard — only allow base64 data URLs or Supabase Storage signed URLs
+  const ALLOWED_PHOTO_ORIGINS = ["data:image/", "https://"];
+  const invalidPhoto = photos.find((p: { dataUrl?: unknown }) => {
+    if (typeof p.dataUrl !== "string") return true;
+    return !ALLOWED_PHOTO_ORIGINS.some((prefix) => (p.dataUrl as string).startsWith(prefix));
+  });
+  if (invalidPhoto) {
+    return Response.json({ error: "Invalid photo data" }, { status: 400 });
+  }
 
   try {
     const buffer = await renderToBuffer(

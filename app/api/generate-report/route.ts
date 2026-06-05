@@ -12,6 +12,7 @@ export const runtime = "nodejs";
 import { NextResponse } from "next/server";
 import { generateReport } from "@/lib/ai/generateReport";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { readBodyWithLimit } from "@/lib/api/readBody";
 import type { ServiceType } from "@/types/report";
 
 const VALID_SERVICE_TYPES = new Set<ServiceType>([
@@ -38,33 +39,29 @@ export async function POST(request: Request) {
   // Accepts either a session cookie (standard) or a Bearer token in the
   // Authorization header (fallback for iOS PWA where cookies may not persist).
   const supabase = await getSupabaseServerClient();
-  if (supabase) {
-    let user = (await supabase.auth.getUser()).data.user;
-
-    // Fallback: check Authorization header bearer token
-    if (!user) {
-      const authHeader = request.headers.get("authorization");
-      const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
-      if (token) {
-        const { data } = await supabase.auth.getUser(token);
-        user = data.user;
-      }
-    }
-
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+  if (!supabase) {
+    return NextResponse.json({ error: "Service unavailable" }, { status: 503 });
+  }
+  let user = (await supabase.auth.getUser()).data.user;
+  if (!user) {
+    const authHeader = request.headers.get("authorization");
+    const token = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
+    if (token) {
+      const { data } = await supabase.auth.getUser(token);
+      user = data.user;
     }
   }
-
-  // Guard against oversized bodies before parsing
-  const contentLength = request.headers.get("content-length");
-  if (contentLength && parseInt(contentLength, 10) > MAX_BODY_BYTES) {
-    return NextResponse.json({ error: "Request body too large" }, { status: 413 });
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   }
 
+  const bodyResult = await readBodyWithLimit(request, MAX_BODY_BYTES);
+  if ("error" in bodyResult) {
+    return NextResponse.json({ error: bodyResult.error }, { status: bodyResult.status });
+  }
   let body: Record<string, unknown>;
   try {
-    body = (await request.json()) as Record<string, unknown>;
+    body = JSON.parse(bodyResult.text) as Record<string, unknown>;
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
