@@ -17,6 +17,7 @@ export const SAMPLE_BUSINESS = {
   brandColor: "#0f172a",
   tagline: "Comfort you can count on",
   website: "arcticairhvac.com",
+  logoUrl: "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIj48cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgcng9IjQwIiBmaWxsPSIjMGYxNzJhIi8+PHRleHQgeD0iMTAwIiB5PSIxMjUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSI3MCIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmOTczMTYiIHRleHQtYW5jaG9yPSJtaWRkbGUiPkFBPC90ZXh0Pjwvc3ZnPg==",
 };
 
 export const SAMPLE_REPORTS: ServiceReport[] = [
