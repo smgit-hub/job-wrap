@@ -39,18 +39,7 @@ function run(name: string, fn: ProviderFn, parts: PromptParts): Promise<Generate
 
 function applyFallbacks(report: GeneratedReport): GeneratedReport {
   const recommendations = report.recommendations || RECOMMENDATIONS_FALLBACK;
-
-  // If recommendations exist but the AI omitted the closing sentence from the summary,
-  // append it deterministically.
-  // Only match when "below" appears — specific enough to catch the closer without
-  // false-matching unrelated sentences like "We noted the refrigerant pressure was low."
-  const summaryHasCloser = /\bbelow\b/i.test(report.customerSummary);
-  const customerSummary =
-    recommendations && report.customerSummary && !summaryHasCloser
-      ? `${report.customerSummary.trimEnd()} We've noted some items below to keep in mind.`
-      : report.customerSummary;
-
-  return { ...report, recommendations, customerSummary };
+  return { ...report, recommendations };
 }
 
 // ── Main export ───────────────────────────────────────────────────────────────
