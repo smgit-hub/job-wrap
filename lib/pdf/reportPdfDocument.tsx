@@ -49,9 +49,9 @@ const s = StyleSheet.create({
     gap: 14,
   },
   logo: {
-    width: 44,
-    height: 44,
-    borderRadius: 8,
+    width: 64,
+    height: 64,
+    borderRadius: 10,
   },
   // "SERVICE REPORT" label — small, above the business name
   headerLabel: {
