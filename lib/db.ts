@@ -104,10 +104,13 @@ export async function dbSaveReport(
 
     let storedPhotos: StoredPhoto[] = existingStored;
     if (newPhotos.length > 0) {
+      console.log(`[dbSaveReport] Uploading ${newPhotos.length} new photo(s) for report ${report.id}`);
       const uploaded = await uploadPhotosForReport(userId, report.id, newPhotos);
+      console.log(`[dbSaveReport] Uploaded ${uploaded.length} photo(s):`, uploaded);
       storedPhotos = [...existingStored, ...uploaded];
     }
 
+    console.log(`[dbSaveReport] Saving report with ${storedPhotos.length} storedPhotos`);
     await saveReportToDb(report, userId, storedPhotos);
   }
 }
