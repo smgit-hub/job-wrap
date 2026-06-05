@@ -444,9 +444,9 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
             </>
           )}
 
-          {/* Job Photos */}
+          {/* Job Photos — wrap={false} prevents photos being split across pages */}
           {photos.length > 0 && (
-            <>
+            <View wrap={false}>
               <Divider />
               <Text style={s.sectionLabel}>Job Photos</Text>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 10 }}>
@@ -457,16 +457,18 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
                   </View>
                 ))}
               </View>
-            </>
+            </View>
           )}
 
           {/* Thank you line */}
-          <Divider />
-          <Text style={s.thankYou}>
-            {"Thank you for choosing "}
-            <Text style={s.thankYouBiz}>{business.businessName}</Text>
-            {". We appreciate your business and look forward to serving you again."}
-          </Text>
+          <View wrap={false}>
+            <Divider />
+            <Text style={s.thankYou}>
+              {"Thank you for choosing "}
+              <Text style={s.thankYouBiz}>{business.businessName}</Text>
+              {". We appreciate your business and look forward to serving you again."}
+            </Text>
+          </View>
 
         </View>
       </Page>
