@@ -312,7 +312,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
               <img
                 src={form.logoUrl}
                 alt="Logo"
-                className="w-16 h-16 rounded-xl object-contain bg-white/10"
+                className="w-16 h-16 rounded-xl object-contain"
               />
             )}
             <div>

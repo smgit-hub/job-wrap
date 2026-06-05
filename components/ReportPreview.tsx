@@ -213,7 +213,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
                 <img
                   src={business.logoUrl}
                   alt=""
-                  className="w-10 h-10 rounded-xl object-contain bg-white/10 shrink-0"
+                  className="w-16 h-16 rounded-xl object-contain shrink-0"
                 />
               )}
               <div>
