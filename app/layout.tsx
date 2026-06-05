@@ -1,12 +1,24 @@
+// ---------------------------------------------------------------------------
+// JobWrap — Root Layout
+//
+// ── AppGild licence snippet (Layer 1 access control) ─────────────────────────
+// The AppGild snippet goes in the <body> below — it gates the entire app
+// behind a valid licence key before anything else runs.
+//
+// To add it:
+//   1. Complete Step 5 of the AppGild upload wizard
+//   2. Copy the ~20 line JS snippet provided
+//   3. Add it as a <Script> tag inside the <body> below
+//   4. The snippet calls /api/license/verify to confirm the licence
+//   5. All routes are gated — no public exceptions (see middleware.ts)
+//
 // TODO(error-handling): wrap AuthProvider (or the entire body) in an error
 // boundary component so unhandled React render errors show a graceful fallback
-// instead of a blank white screen. React 19 added improved error recovery but
-// an explicit boundary is still required for production.
+// instead of a blank white screen.
 //
-// TODO(offline): there is currently no offline detection or SW-based caching.
-// Consider adding a basic service worker (Next.js PWA plugin or custom SW) that
-// caches the app shell so the app is usable when the device has no network.
-//
+// TODO(offline): consider adding a basic service worker that caches the app
+// shell so the app is usable when the device has no network.
+// ---------------------------------------------------------------------------
 
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";

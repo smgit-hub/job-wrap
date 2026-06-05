@@ -1,10 +1,37 @@
+// ---------------------------------------------------------------------------
+// JobWrap — Auth Middleware (Layer 2 of 2)
+//
+// ── Access control architecture ──────────────────────────────────────────────
+//
+// Layer 1 — AppGild licence snippet (app/layout.tsx, Step 5 of upload wizard)
+//   • Gates the ENTIRE app behind a valid AppGild licence key
+//   • No public routes — no whitelist, no exceptions
+//   • /demo, /privacy, /terms are all behind the licence gate
+//   • The AppGild reviewer uses their private bypass to access /demo
+//   • Buyers access the app via My Purchases → Open after subscribing
+//   • DO NOT add public route exclusions expecting them to work — the
+//     AppGild snippet runs before anything else and blocks unlicensed visitors
+//
+// Layer 2 — This file (Supabase session auth)
+//   • Runs AFTER the AppGild snippet confirms a valid licence
+//   • Checks the user has a JobWrap account and is signed in
+//   • Redirects unauthenticated users to /login
+//   • Redirects authenticated users away from /login and /signup
+//
+// ── What is excluded from this middleware ────────────────────────────────────
+//
+// The matcher below excludes routes that must bypass THIS layer only:
+//   _next/static, _next/image  — Next.js internals (must always be reachable)
+//   favicon.ico, manifest.json, icons/  — PWA assets
+//   api/  — API routes handle their own Supabase auth (Bearer token + cookie)
+//
+// Note: /r/, /demo, /privacy, /terms are listed in the matcher exclusion only
+// as a legacy remnant. They are all gated by the AppGild snippet at Layer 1.
+// ---------------------------------------------------------------------------
+
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
-
-// Auth middleware — only active when Supabase credentials are configured.
-// Without NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY the app
-// runs in localStorage-only mode and no redirect occurs.
 
 export async function middleware(request: NextRequest) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -23,6 +50,7 @@ export async function middleware(request: NextRequest) {
     console.warn("[middleware] BYPASS_AUTH=true — all auth checks skipped. Dev only.");
     return NextResponse.next();
   }
+
   if (!url || !key) {
     return NextResponse.next();
   }
@@ -65,7 +93,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Run on all routes except static assets, API routes, and public share links (/r/*)
+  // Excludes Next.js internals, PWA assets, and API routes (which auth themselves).
+  // All other routes pass through this middleware for Supabase session checks.
   matcher: ["/((?!_next/static|_next/image|favicon.ico|manifest.json|icons/|api/|r/|privacy|terms|demo).*)"],
-  // Note: /api/ routes are excluded from middleware auth — they handle their own auth internally
 };
