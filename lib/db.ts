@@ -110,7 +110,7 @@ export async function dbSaveReport(
       storedPhotos = [...existingStored, ...uploaded];
     }
 
-    console.log(`[dbSaveReport] Saving report with ${storedPhotos.length} storedPhotos`);
+    console.log(`[dbSaveReport] Saving report ${report.id} with ${storedPhotos.length} storedPhotos`, new Error().stack?.split('\n')[2]);
     await saveReportToDb(report, userId, storedPhotos);
   }
 }
