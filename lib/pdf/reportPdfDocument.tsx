@@ -201,11 +201,11 @@ const s = StyleSheet.create({
 
   // ── In-flow footer (thank you + contacts) ──────────────────────────────────
   thankYou: {
-    fontSize: 10.5,
+    fontSize: 9.5,
     color: "#6b7280",
     textAlign: "center",
-    lineHeight: 1.55,
-    marginBottom: 8,
+    lineHeight: 1.4,
+    marginBottom: 6,
   },
   thankYouBiz: {
     fontFamily: "Helvetica-Bold",
@@ -221,11 +221,11 @@ const s = StyleSheet.create({
     paddingTop: 8,
   },
   footerItem: {
-    fontSize: 8.5,
+    fontSize: 7.5,
     color: "#9ca3af",
   },
   footerSep: {
-    fontSize: 8.5,
+    fontSize: 7.5,
     color: "#d1d5db",
   },
   generated: {
