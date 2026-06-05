@@ -6,7 +6,6 @@ import { useAuth } from "@/components/auth/AuthProvider";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 
 const DEMO_EMAIL = "demo@jobwrap.app";
-const DEMO_PASSWORD = process.env.NEXT_PUBLIC_DEMO_PASSWORD ?? "";
 
 export default function DemoPage() {
   const { user, loading } = useAuth();
@@ -28,22 +27,28 @@ export default function DemoPage() {
       return;
     }
 
-    // Not signed in — sign in as demo
+    // Not signed in — call server-side demo login (password never reaches client)
     const client = getSupabaseBrowserClient();
     if (!client) {
-      // Use a microtask to avoid synchronous setState inside an effect
       Promise.resolve().then(() => setError("Demo unavailable — please try again later."));
       return;
     }
 
-    client.auth
-      .signInWithPassword({ email: DEMO_EMAIL, password: DEMO_PASSWORD })
-      .then(({ error: signInError }) => {
-        if (signInError) {
+    fetch("/api/demo-login", { method: "POST" })
+      .then((res) => res.json())
+      .then(async (data: { access_token?: string; refresh_token?: string; error?: string }) => {
+        if (!data.access_token || !data.refresh_token) {
           setError("Demo unavailable — please try again later.");
-        } else {
-          router.replace("/app");
+          return;
         }
+        await client.auth.setSession({
+          access_token: data.access_token,
+          refresh_token: data.refresh_token,
+        });
+        router.replace("/app");
+      })
+      .catch(() => {
+        setError("Demo unavailable — please try again later.");
       });
   }, [user, loading, router]);
 
