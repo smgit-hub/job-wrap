@@ -99,9 +99,8 @@ const s = StyleSheet.create({
     width: "100%",
   },
   infoLabel: {
-    fontSize: 7.5,
+    fontSize: 7,
     fontFamily: "Helvetica-Bold",
-    color: "#9ca3af",
     textTransform: "uppercase",
     letterSpacing: 0.8,
     marginBottom: 2,
@@ -117,15 +116,14 @@ const s = StyleSheet.create({
   divider: {
     borderTopWidth: 1,
     borderTopColor: "#e5e7eb",
-    marginTop: 8,
+    marginTop: 10,
     marginBottom: 8,
   },
 
   // ── Section label ──────────────────────────────────────────────────────────
   sectionLabel: {
-    fontSize: 7.5,
+    fontSize: 7,
     fontFamily: "Helvetica-Bold",
-    color: "#9ca3af",
     textTransform: "uppercase",
     letterSpacing: 0.8,
     marginBottom: 6,
@@ -135,8 +133,9 @@ const s = StyleSheet.create({
   summaryBlock: {
     backgroundColor: "#f8fafc",
     borderRadius: 5,
-    padding: 11,
+    padding: 12,
     marginTop: 10,
+    borderLeftWidth: 3,
   },
   summaryText: {
     fontSize: 10.5,
@@ -368,42 +367,42 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
           {/* Customer / job info */}
           <View style={s.infoGrid}>
             <View style={s.infoHalf}>
-              <Text style={s.infoLabel}>Customer</Text>
+              <Text style={[s.infoLabel, { color: brandColor }]}>Customer</Text>
               <Text style={s.infoValue}>{job.customerName}</Text>
             </View>
 
             <View style={s.infoHalf}>
-              <Text style={s.infoLabel}>Job Number</Text>
+              <Text style={[s.infoLabel, { color: brandColor }]}>Job Number</Text>
               <Text style={s.infoValue}>{jobNumber(report.id)}</Text>
             </View>
 
             <View style={s.infoHalf}>
-              <Text style={s.infoLabel}>Date of Service</Text>
+              <Text style={[s.infoLabel, { color: brandColor }]}>Date of Service</Text>
               <Text style={s.infoValue}>{formatDate(job.jobDate)}</Text>
             </View>
 
             {Boolean(job.serviceAddress) ? (
               <View style={s.infoHalf}>
-                <Text style={s.infoLabel}>Service Address</Text>
+                <Text style={[s.infoLabel, { color: brandColor }]}>Service Address</Text>
                 <Text style={s.infoValue}>{job.serviceAddress}</Text>
               </View>
             ) : null}
 
             <View style={job.serviceAddress ? s.infoHalf : s.infoFull}>
-              <Text style={s.infoLabel}>Service Type</Text>
+              <Text style={[s.infoLabel, { color: brandColor }]}>Service Type</Text>
               <Text style={s.infoValue}>{SERVICE_TYPE_LABELS[job.serviceType]}</Text>
             </View>
 
             {Boolean(equipmentStr) && (
               <View style={s.infoFull}>
-                <Text style={s.infoLabel}>Equipment / System</Text>
+                <Text style={[s.infoLabel, { color: brandColor }]}>Equipment / System</Text>
                 <Text style={s.infoValue}>{equipmentStr}</Text>
               </View>
             )}
 
             {Boolean(job.nextServiceDate) && (
               <View style={s.infoHalf}>
-                <Text style={s.infoLabel}>Next Service Due</Text>
+                <Text style={[s.infoLabel, { color: brandColor }]}>Next Service Due</Text>
                 <Text style={s.infoValue}>{formatDate(job.nextServiceDate!)}</Text>
               </View>
             )}
@@ -411,8 +410,8 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
 
           {/* Customer summary */}
           {Boolean(rpt.customerSummary) && (
-            <View style={s.summaryBlock}>
-              <Text style={s.sectionLabel}>Summary</Text>
+            <View style={[s.summaryBlock, { borderLeftColor: brandColor }]}>
+              <Text style={[s.sectionLabel, { color: brandColor }]}>Summary</Text>
               <Text style={s.summaryText}>{rpt.customerSummary}</Text>
             </View>
           )}
@@ -421,7 +420,7 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
           {Boolean(rpt.findings) && (
             <>
               <Divider />
-              <Text style={s.sectionLabel}>Observations</Text>
+              <Text style={[s.sectionLabel, { color: brandColor }]}>Observations</Text>
               <BulletList text={rpt.findings} />
             </>
           )}
@@ -430,7 +429,7 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
           {Boolean(rpt.workPerformed) && (
             <>
               <Divider />
-              <Text style={s.sectionLabel}>Work Performed</Text>
+              <Text style={[s.sectionLabel, { color: brandColor }]}>Work Performed</Text>
               <BulletList text={rpt.workPerformed} />
             </>
           )}
@@ -439,7 +438,7 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
           {Boolean(rpt.recommendations) && (
             <>
               <Divider />
-              <Text style={s.sectionLabel}>Recommendations</Text>
+              <Text style={[s.sectionLabel, { color: brandColor }]}>Recommendations</Text>
               <BulletList text={rpt.recommendations} />
             </>
           )}
@@ -448,7 +447,7 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
           {photos.length > 0 && (
             <View wrap={false}>
               <Divider />
-              <Text style={s.sectionLabel}>Job Photos</Text>
+              <Text style={[s.sectionLabel, { color: brandColor }]}>Job Photos</Text>
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 10 }}>
                 {photos.map((photo) => (
                   <View key={photo.id} style={{ width: "47%", height: 180, borderRadius: 6, overflow: "hidden" }}>
