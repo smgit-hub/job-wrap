@@ -90,6 +90,14 @@ export default function Home() {
           SAMPLE_CUSTOMERS.forEach((c) => saveCustomer(c));
           saveBusinessProfile(SAMPLE_BUSINESS);
           await Promise.all(SAMPLE_REPORTS.map((r) => dbSaveReport(r)));
+          // Also push business settings to Supabase
+          const { saveBusinessSettingsToDb } = await import("@/lib/supabase/queries/businessSettings");
+          const { getSupabaseBrowserClient } = await import("@/lib/supabase/client");
+          const sbClient = getSupabaseBrowserClient();
+          if (sbClient) {
+            const { data: { user: u } } = await sbClient.auth.getUser();
+            if (u) await saveBusinessSettingsToDb(SAMPLE_BUSINESS, u.id);
+          }
         }
       })
       .then(() => { setSyncDone(true); setSyncVersion(v => v + 1); })
