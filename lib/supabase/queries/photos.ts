@@ -95,7 +95,7 @@ export async function resolvePhotos(storedPhotos: StoredPhoto[]): Promise<JobPho
   for (const sp of storedPhotos) {
     const url = await getSignedUrl(sp.path);
     if (url) {
-      resolved.push({ id: sp.id, dataUrl: url, capturedAt: sp.capturedAt });
+      resolved.push({ id: sp.id, dataUrl: url, storagePath: sp.path, capturedAt: sp.capturedAt });
     }
   }
   return resolved;

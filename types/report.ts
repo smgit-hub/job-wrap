@@ -15,7 +15,8 @@ export type ReportStatus = "draft" | "complete";
 export interface JobPhoto {
   id: string;
   label?: "before" | "after";
-  dataUrl: string; // compressed base64 JPEG
+  dataUrl: string; // compressed base64 JPEG or signed URL when loaded from storage
+  storagePath?: string; // original Supabase Storage path — set when loaded from cloud
   capturedAt: string;
 }
 

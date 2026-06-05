@@ -97,9 +97,10 @@ export async function dbSaveReport(
   if (userId) {
     // Upload any new base64 photos to storage, get back storage paths
     const newPhotos = photos.filter((p) => p.dataUrl.startsWith("data:"));
+    // Existing photos loaded from storage have storagePath set — use that, not the signed URL
     const existingStored = photos
-      .filter((p) => !p.dataUrl.startsWith("data:"))
-      .map((p) => ({ id: p.id, path: p.dataUrl, capturedAt: p.capturedAt } as StoredPhoto));
+      .filter((p) => !p.dataUrl.startsWith("data:") && p.storagePath)
+      .map((p) => ({ id: p.id, path: p.storagePath!, capturedAt: p.capturedAt } as StoredPhoto));
 
     let storedPhotos: StoredPhoto[] = existingStored;
     if (newPhotos.length > 0) {
