@@ -316,7 +316,7 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
 
         {/* ── Header ────────────────────────────────────────────────────── */}
         <View style={[s.header, { backgroundColor: brandColor }]}>
-          {business.logoUrl && (
+          {business.logoUrl && !business.logoUrl.includes("image/svg") && (
             // eslint-disable-next-line jsx-a11y/alt-text
             <Image src={business.logoUrl} style={s.logo} />
           )}
