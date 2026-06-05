@@ -88,15 +88,20 @@ export default function Home() {
           const { SAMPLE_REPORTS, SAMPLE_CUSTOMERS, SAMPLE_BUSINESS } = await import("@/lib/sampleData");
           SAMPLE_REPORTS.forEach((r) => saveReport(r));
           SAMPLE_CUSTOMERS.forEach((c) => saveCustomer(c));
-          saveBusinessProfile(SAMPLE_BUSINESS);
           await Promise.all(SAMPLE_REPORTS.map((r) => dbSaveReport(r)));
-          // Also push business settings to Supabase
-          const { saveBusinessSettingsToDb } = await import("@/lib/supabase/queries/businessSettings");
+          // Only seed business settings if not already configured
           const { getSupabaseBrowserClient } = await import("@/lib/supabase/client");
           const sbClient = getSupabaseBrowserClient();
           if (sbClient) {
             const { data: { user: u } } = await sbClient.auth.getUser();
-            if (u) await saveBusinessSettingsToDb(SAMPLE_BUSINESS, u.id);
+            if (u) {
+              const { loadBusinessSettingsFromDb, saveBusinessSettingsToDb } = await import("@/lib/supabase/queries/businessSettings");
+              const existing = await loadBusinessSettingsFromDb(u.id);
+              if (!existing?.businessName) {
+                saveBusinessProfile(SAMPLE_BUSINESS);
+                await saveBusinessSettingsToDb(SAMPLE_BUSINESS, u.id);
+              }
+            }
           }
         }
       })
