@@ -41,10 +41,14 @@ export default function ReportEditor({ report, isNewReport, onBack, onPreview, o
   const latestDraft = useRef<ServiceReport>(draft);
   useEffect(() => { latestDraft.current = draft; }, [draft]);
 
+  // Keep a ref to the latest photos so auto-save always has current value
+  const latestPhotos = useRef<JobPhoto[]>(photos);
+  useEffect(() => { latestPhotos.current = photos; }, [photos]);
+
   // Auto-save on every draft change — localStorage instantly, Supabase async
   useEffect(() => {
     saveReport(draft);
-    dbSaveReport(draft, photos).catch((err) => console.error("[handleSave] Supabase save failed:", err));
+    dbSaveReport(draft, latestPhotos.current).catch((err) => console.error("[handleSave] Supabase save failed:", err));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draft]);
 
