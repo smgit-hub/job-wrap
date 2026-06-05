@@ -200,15 +200,22 @@ const s = StyleSheet.create({
 
   // ── In-flow footer (thank you + contacts) ──────────────────────────────────
   thankYou: {
-    fontSize: 9.5,
-    color: "#6b7280",
+    fontSize: 11,
+    color: "#374151",
     textAlign: "center",
-    lineHeight: 1.4,
-    marginBottom: 6,
+    lineHeight: 1.5,
+    marginBottom: 4,
+    marginTop: 4,
   },
   thankYouBiz: {
     fontFamily: "Helvetica-Bold",
     color: "#111827",
+  },
+  thankYouSub: {
+    fontSize: 9.5,
+    color: "#9ca3af",
+    textAlign: "center",
+    lineHeight: 1.4,
   },
   footerRow: {
     flexDirection: "row",
@@ -465,8 +472,9 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
             <Text style={s.thankYou}>
               {"Thank you for choosing "}
               <Text style={s.thankYouBiz}>{business.businessName}</Text>
-              {". We appreciate your business and look forward to serving you again."}
+              {"."}
             </Text>
+            <Text style={s.thankYouSub}>We appreciate your business and look forward to serving you again.</Text>
           </View>
 
         </View>
