@@ -67,15 +67,15 @@ export default function PrivacyPage() {
 
         <Section title="Your rights">
           <p>
-            You can delete your account and all associated server-side data at any time by contacting us. Device-stored data (reports, photos, customers) can be removed by clearing your browser&apos;s local storage.
+            You can delete your account and all associated server-side data at any time by <a href="mailto:jobwrap@atomicmail.io" className="text-orange-500 hover:underline font-medium">contacting us</a>. Device-stored data (reports, photos, customers) can be removed by clearing your browser&apos;s local storage.
           </p>
         </Section>
 
         <Section title="Contact">
           <p>
-            Questions? Email us at{" "}
-            <a href="mailto:hello@jobwrap.app" className="text-orange-500 hover:underline font-medium">
-              hello@jobwrap.app
+            Questions?{" "}
+            <a href="mailto:jobwrap@atomicmail.io" className="text-orange-500 hover:underline font-medium">
+              Contact us
             </a>
           </p>
         </Section>

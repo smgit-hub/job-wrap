@@ -48,10 +48,7 @@ export default function TermsPage() {
             You own your data. Your reports, customers, and business information belong to you. We store them securely to provide the service, and we do not use them for any other purpose.
           </p>
           <p>
-            You can request deletion of your account and all associated data at any time by contacting us at{" "}
-            <a href="mailto:hello@jobwrap.app" className="text-orange-500 hover:underline font-medium">
-              hello@jobwrap.app
-            </a>.
+            You can request deletion of your account and all associated data at any time by <a href="mailto:jobwrap@atomicmail.io" className="text-orange-500 hover:underline font-medium">contacting us</a>.
           </p>
         </Section>
 
@@ -107,8 +104,8 @@ export default function TermsPage() {
         <Section title="Contact">
           <p>
             Questions about these terms? Email us at{" "}
-            <a href="mailto:hello@jobwrap.app" className="text-orange-500 hover:underline font-medium">
-              hello@jobwrap.app
+            <a href="mailto:jobwrap@atomicmail.io" className="text-orange-500 hover:underline font-medium">
+              Contact us
             </a>
           </p>
         </Section>

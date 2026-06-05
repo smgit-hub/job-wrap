@@ -488,6 +488,24 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
 
 
 
+        {/* Support & legal links */}
+        <div className="flex items-center justify-center gap-4 pb-4 pt-2">
+          <a
+            href="mailto:jobwrap@atomicmail.io"
+            className="text-sm text-slate-500 hover:text-orange-500 transition-colors font-medium"
+          >
+            Contact support
+          </a>
+          <span className="text-slate-300">·</span>
+          <a href="/privacy" target="_blank" className="text-sm text-slate-500 hover:text-orange-500 transition-colors">
+            Privacy Policy
+          </a>
+          <span className="text-slate-300">·</span>
+          <a href="/terms" target="_blank" className="text-sm text-slate-500 hover:text-orange-500 transition-colors">
+            Terms
+          </a>
+        </div>
+
       </main>
 
     </div>
