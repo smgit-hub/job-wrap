@@ -69,27 +69,36 @@ export function compressImage(file: File): Promise<string> {
     img.onload = () => {
       URL.revokeObjectURL(objectUrl);
 
-      let { width, height } = img;
-      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-        if (width >= height) {
-          height = Math.round((height / width) * MAX_DIMENSION);
-          width = MAX_DIMENSION;
-        } else {
-          width = Math.round((width / height) * MAX_DIMENSION);
-          height = MAX_DIMENSION;
-        }
+      // Crop to 4:3 landscape — centre crop so photos fit the PDF grid cleanly
+      const TARGET_RATIO = 4 / 3;
+      let srcX = 0, srcY = 0, srcW = img.width, srcH = img.height;
+      const imgRatio = img.width / img.height;
+      if (imgRatio > TARGET_RATIO) {
+        // Too wide — crop sides
+        srcW = Math.round(img.height * TARGET_RATIO);
+        srcX = Math.round((img.width - srcW) / 2);
+      } else if (imgRatio < TARGET_RATIO) {
+        // Too tall — crop top/bottom
+        srcH = Math.round(img.width / TARGET_RATIO);
+        srcY = Math.round((img.height - srcH) / 2);
+      }
+
+      // Scale to MAX_DIMENSION on the longest edge
+      let outW = srcW, outH = srcH;
+      if (outW > MAX_DIMENSION) {
+        outH = Math.round((outH / outW) * MAX_DIMENSION);
+        outW = MAX_DIMENSION;
       }
 
       const canvas = document.createElement("canvas");
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = outW;
+      canvas.height = outH;
       const ctx = canvas.getContext("2d");
       if (!ctx) {
-        // Canvas unavailable — fall back to raw data URL
         readAsDataUrl(file, resolve, reject);
         return;
       }
-      ctx.drawImage(img, 0, 0, width, height);
+      ctx.drawImage(img, srcX, srcY, srcW, srcH, 0, 0, outW, outH);
       resolve(canvas.toDataURL("image/jpeg", JPEG_QUALITY));
     };
 

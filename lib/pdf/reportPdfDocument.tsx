@@ -173,15 +173,16 @@ const s = StyleSheet.create({
   },
   photoWrap: {
     width: "31%",
-    height: 150,
+    height: 120,
     position: "relative",
-    overflow: "hidden",
     borderRadius: 6,
+    overflow: "hidden",
   },
   photoImg: {
     width: "100%",
-    height: "100%",
+    height: 120,
     objectFit: "cover",
+    objectPositionY: "center",
   },
   photoLabelWrap: {
     position: "absolute",
