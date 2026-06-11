@@ -27,6 +27,8 @@ import { EMPTY_VOICE_NOTES } from "@/types/report";
 import { saveDraft } from "@/lib/storage";
 import { cn } from "@/lib/utils";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
+import { useDemoGuard } from "@/lib/hooks/useDemoGuard";
+import DemoSignupWall from "@/components/DemoSignupWall";
 
 const CUES = [
   "What you found — faults, observations, readings",
@@ -48,6 +50,7 @@ export default function FreeformRecordingFlow({
   const [notes, setNotes] = useState(job.voiceNotes.jobNotes);
   const [confirmBack, setConfirmBack] = useState(false);
   const speech = useSpeechRecognition();
+  const { isDemo, wallVisible, wallReason, hideWall, guardAction, checkDemoGenLimit } = useDemoGuard();
 
   const textBeforeRecordingRef = useRef("");
 
@@ -273,7 +276,7 @@ export default function FreeformRecordingFlow({
         <div className="lg:pl-60">
         <div className="max-w-lg lg:max-w-4xl mx-auto px-4 pt-3 sticky-footer">
           <button
-            onClick={handleDone}
+            onClick={() => { if (isDemo && !checkDemoGenLimit()) return; handleDone(); }}
             disabled={!hasEnoughText || isStopping}
             className={cn(
               "w-full h-14 rounded-2xl text-base font-bold text-white flex items-center justify-center gap-2 transition-all",
@@ -288,6 +291,11 @@ export default function FreeformRecordingFlow({
         </div>
         </div>
       </div>
+
+      {/* Demo signup wall */}
+      {wallVisible && (
+        <DemoSignupWall action="record" reason={wallReason} onClose={hideWall} />
+      )}
     </>
   );
 }

@@ -7,6 +7,8 @@ import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 import type { ServiceReport, JobPhoto } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
 import { getPhotosForReport } from "@/lib/photoStorage";
+import { useDemoGuard } from "@/lib/hooks/useDemoGuard";
+import DemoSignupWall from "@/components/DemoSignupWall";
 
 interface ReportPreviewProps {
   report: ServiceReport;
@@ -77,6 +79,8 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
 
   const [exportState, setExportState] = useState<ExportState>("idle");
   const [exportError, setExportError] = useState<string | null>(null);
+  const { wallVisible, wallReason, hideWall, guardAction } = useDemoGuard();
+  const [demoWallAction, setDemoWallAction] = useState<"download" | "send">("download");
   const [emailState, setEmailState] = useState<"idle" | "generating" | "error">("idle");
   const [photos, setPhotos] = useState<JobPhoto[]>([]);
 
@@ -376,7 +380,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
 
           {/* Primary: Download PDF */}
           <button
-            onClick={handleExportPdf}
+            onClick={() => { setDemoWallAction("download"); guardAction(handleExportPdf); }}
             disabled={exportState === "generating"}
             className="w-full h-14 rounded-2xl bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:opacity-60 transition-colors shadow-md shadow-orange-200/50 flex items-center justify-center gap-2"
           >
@@ -390,7 +394,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
           </button>
           {/* Secondary: Send to Customer */}
           <button
-            onClick={handleEmail}
+            onClick={() => { setDemoWallAction("send"); guardAction(handleEmail); }}
             disabled={emailState === "generating"}
             className="w-full h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center gap-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 active:bg-slate-100 disabled:opacity-50 transition-colors"
           >
@@ -409,6 +413,11 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
         </div>
         </div>
       </div>
+
+      {/* Demo signup wall — shown when demo user taps Download or Send */}
+      {wallVisible && (
+        <DemoSignupWall action={demoWallAction} reason={wallReason} onClose={hideWall} />
+      )}
     </>
   );
 }

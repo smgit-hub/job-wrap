@@ -28,6 +28,7 @@ import {
   getReports,
 } from "@/lib/storage";
 import { dbSaveReport, syncFromSupabase, migrateLocalStorageToSupabase } from "@/lib/db";
+import { incrementDemoGenCount } from "@/lib/hooks/useDemoGuard";
 
 type Screen = "dashboard" | "reports" | "customers" | "customer-profile" | "new-report" | "editor" | "preview" | "settings";
 
@@ -221,6 +222,7 @@ export default function Home() {
 
   async function handleGenerate(job: JobDetails): Promise<void> {
     const generatedReport = await callGenerateApi(job);
+    if (user?.email === "demo@jobwrap.app") incrementDemoGenCount();
 
     const report: ServiceReport = {
       id: generateId(),
@@ -298,8 +300,8 @@ export default function Home() {
         onSettings={() => goToScreen("settings")}
       />
 
-      {/* Content — offset right of sidebar on desktop, pushed down by demo banner */}
-      <div className="lg:pl-60">
+      {/* Content — offset right of sidebar on desktop, pushed down by top banner */}
+      <div className="lg:pl-60 pt-10">
 
       {screen === "dashboard" && (
         <Dashboard
