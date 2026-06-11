@@ -258,45 +258,51 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             </div>
           </div>
 
-          {/* Info grid — mirrors PDF layout */}
+          {/* Info grid */}
           <div className="px-5 pt-5 pb-4 border-b border-slate-100">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-4">
               <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Customer</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: HEADER_COLOR }}>Customer</p>
                 <p className="text-sm font-bold text-slate-900">{job.customerName || "—"}</p>
                 {job.serviceAddress && <p className="text-xs text-slate-500 mt-0.5">{job.serviceAddress}</p>}
               </div>
               <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Job Number</p>
-                <p className="text-sm font-medium font-mono text-slate-700">{"JW-" + report.id.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: HEADER_COLOR }}>Job Number</p>
+                <p className="text-sm font-mono font-semibold text-slate-700">{"JW-" + report.id.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()}</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Date of Service</p>
-                <p className="text-sm font-medium text-slate-700">{formatDate(job.jobDate)}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: HEADER_COLOR }}>Date of Service</p>
+                <p className="text-sm font-semibold text-slate-700">{formatDate(job.jobDate)}</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Service Type</p>
-                <p className="text-sm font-medium text-slate-700">{SERVICE_TYPE_LABELS[job.serviceType]}</p>
+                <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: HEADER_COLOR }}>Service Type</p>
+                <p className="text-sm font-semibold text-slate-700">{SERVICE_TYPE_LABELS[job.serviceType]}</p>
               </div>
-              {job.equipment?.trim() && (
-                <div className="col-span-2">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Equipment / System</p>
-                  <p className="text-sm font-medium text-slate-700">{job.equipment.trim()}</p>
+              {job.nextServiceDate && (
+                <div
+                  className="col-span-2 rounded-lg px-3 py-2.5 border"
+                  style={{ backgroundColor: `${HEADER_COLOR}12`, borderColor: `${HEADER_COLOR}40` }}
+                >
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: HEADER_COLOR }}>Next Service Due</p>
+                  <p className="text-sm font-bold" style={{ color: HEADER_COLOR }}>{formatDate(job.nextServiceDate)}</p>
                 </div>
               )}
-              {job.nextServiceDate && (
+              {job.equipment?.trim() && (
                 <div className="col-span-2">
-                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Next Service Due</p>
-                  <p className="text-sm font-medium text-slate-700">{formatDate(job.nextServiceDate)}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: HEADER_COLOR }}>Equipment / System</p>
+                  <p className="text-sm font-semibold text-slate-600">{job.equipment.trim()}</p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Customer summary — plain-English intro */}
+          {/* Summary */}
           {rpt.customerSummary && (
-            <div className="px-5 py-4 bg-slate-50 border-b border-slate-100">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2">Summary</p>
+            <div
+              className="px-5 py-4 border-b border-slate-100 border-l-4"
+              style={{ borderLeftColor: HEADER_COLOR, backgroundColor: "#f1f5f9" }}
+            >
+              <p className="text-[10px] font-bold uppercase tracking-widest mb-2" style={{ color: HEADER_COLOR }}>Summary</p>
               <p className="text-sm text-slate-700 leading-relaxed">{rpt.customerSummary}</p>
             </div>
           )}
@@ -305,7 +311,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
           <div className="px-5 py-5 space-y-5">
             {rpt.findings && (
               <div>
-                <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
+                <h3 className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: HEADER_COLOR }}>
                   Observations
                 </h3>
                 <BulletSection text={rpt.findings} />
@@ -316,7 +322,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
               <>
                 {rpt.findings && <Separator />}
                 <div>
-                  <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
+                  <h3 className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: HEADER_COLOR }}>
                     Work Performed
                   </h3>
                   <BulletSection text={rpt.workPerformed} />
@@ -328,7 +334,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
               <>
                 <Separator />
                 <div>
-                  <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
+                  <h3 className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: HEADER_COLOR }}>
                     Recommendations
                   </h3>
                   <BulletSection text={rpt.recommendations} />
@@ -341,12 +347,12 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
               <>
                 <Separator />
                 <div>
-                  <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
+                  <h3 className="text-[11px] font-bold uppercase tracking-widest mb-3" style={{ color: HEADER_COLOR }}>
                     Job Photos
                   </h3>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     {photos.map((photo) => (
-                      <div key={photo.id} className="relative aspect-square rounded-xl overflow-hidden bg-slate-100">
+                      <div key={photo.id} className="relative aspect-video rounded-xl overflow-hidden bg-slate-100">
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img src={photo.dataUrl} alt="" className="w-full h-full object-cover" />
                       </div>
@@ -358,12 +364,14 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
 
             <Separator />
 
-            {/* Thank you line */}
-            <p className="text-xs text-slate-500 text-center leading-relaxed mb-3">
-              Thank you for choosing{" "}
-              <span className="font-bold text-slate-700">{business.businessName}</span>
-              . We appreciate your business and look forward to serving you again.
-            </p>
+            {/* Thank you */}
+            <div className="text-center py-2">
+              <p className="text-base font-semibold text-slate-700">
+                Thank you for choosing{" "}
+                <span className="font-bold text-slate-900">{business.businessName}</span>.
+              </p>
+              <p className="text-sm text-slate-400 mt-1">We appreciate your business and look forward to serving you again.</p>
+            </div>
 
             {/* Dot-separated contact footer */}
             <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 border-t border-slate-100 pt-3">
