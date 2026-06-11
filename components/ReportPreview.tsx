@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ChevronLeft, CheckCircle2, Loader2, AlertCircle, Mail, Download, Pencil } from "lucide-react";
+import { ChevronLeft, CheckCircle2, Loader2, AlertCircle, Mail, Download, Pencil, Link2 } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import StepIndicator, { REPORT_STEPS } from "@/components/StepIndicator";
 import type { ServiceReport, JobPhoto } from "@/types/report";
@@ -82,6 +82,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
   const { wallVisible, wallReason, hideWall, guardAction } = useDemoGuard();
   const [demoWallAction, setDemoWallAction] = useState<"download" | "send">("download");
   const [emailState, setEmailState] = useState<"idle" | "generating" | "error">("idle");
+  const [shareState, setShareState] = useState<"idle" | "generating" | "done" | "error">("idle");
   const [photos, setPhotos] = useState<JobPhoto[]>([]);
 
 
@@ -177,6 +178,30 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
       const msg = err instanceof Error ? err.message : "PDF export failed";
       setExportError(msg);
       setExportState("error");
+    }
+  }
+
+  async function handleShareLink() {
+    if (shareState === "generating") return;
+    setShareState("generating");
+    try {
+      const authHeaders = await getAuthHeaders();
+      const res = await fetch("/api/share-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders },
+        body: JSON.stringify({ report, photos }),
+      });
+      if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { error?: string };
+        throw new Error(data.error ?? "Failed to create share link");
+      }
+      const { url } = (await res.json()) as { url: string };
+      await navigator.clipboard.writeText(url);
+      setShareState("done");
+      setTimeout(() => setShareState("idle"), 3000);
+    } catch {
+      setShareState("error");
+      setTimeout(() => setShareState("idle"), 3000);
     }
   }
 
@@ -392,15 +417,25 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
               <><Download className="w-5 h-5 text-white" /><span className="text-base font-bold text-white">Download PDF</span></>
             )}
           </button>
-          {/* Secondary: Send to Customer */}
-          <button
-            onClick={() => { setDemoWallAction("send"); guardAction(handleEmail); }}
-            disabled={emailState === "generating"}
-            className="w-full h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center gap-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 active:bg-slate-100 disabled:opacity-50 transition-colors"
-          >
-            {emailState === "generating" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
-            {emailState === "generating" ? "Preparing…" : "Send to Customer"}
-          </button>
+          {/* Secondary row: Send to Customer + Share Link */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => { setDemoWallAction("send"); guardAction(handleEmail); }}
+              disabled={emailState === "generating"}
+              className="h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center gap-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 active:bg-slate-100 disabled:opacity-50 transition-colors"
+            >
+              {emailState === "generating" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Mail className="w-4 h-4" />}
+              {emailState === "generating" ? "Preparing…" : "Send"}
+            </button>
+            <button
+              onClick={() => guardAction(handleShareLink)}
+              disabled={shareState === "generating"}
+              className="h-11 rounded-2xl bg-white border border-slate-200 flex items-center justify-center gap-2 text-sm font-semibold text-slate-600 hover:bg-slate-50 active:bg-slate-100 disabled:opacity-50 transition-colors"
+            >
+              {shareState === "generating" ? <Loader2 className="w-4 h-4 animate-spin" /> : shareState === "done" ? <CheckCircle2 className="w-4 h-4 text-green-500" /> : <Link2 className="w-4 h-4" />}
+              {shareState === "generating" ? "Creating…" : shareState === "done" ? "Copied!" : shareState === "error" ? "Failed" : "Share Link"}
+            </button>
+          </div>
           {isNewReport && (
             <button
               onClick={onDone}
