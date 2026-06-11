@@ -197,22 +197,22 @@ const s = StyleSheet.create({
 
   // ── Thank you ──────────────────────────────────────────────────────────────
   thankYou: {
-    fontSize: 11,
+    fontSize: 14,
     color: "#374151",
     textAlign: "center",
-    lineHeight: 1.5,
-    marginBottom: 4,
-    marginTop: 4,
+    lineHeight: 1.6,
+    marginBottom: 5,
+    marginTop: 8,
   },
   thankYouBiz: {
     fontFamily: "Helvetica-Bold",
     color: "#111827",
   },
   thankYouSub: {
-    fontSize: 9.5,
+    fontSize: 10.5,
     color: "#9ca3af",
     textAlign: "center",
-    lineHeight: 1.4,
+    lineHeight: 1.5,
   },
 
   // ── Fixed footer (bottom of every page) ───────────────────────────────────
@@ -451,36 +451,30 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
             </>
           )}
 
-          {/* Job Photos + Thank you — kept together to avoid orphaned content */}
-          {photos.length > 0 ? (
+          {/* Thank you — always on page 1, closes the report content */}
+          <View wrap={false}>
+            <Divider />
+            <Text style={s.thankYou}>
+              {"Thank you for choosing "}
+              <Text style={s.thankYouBiz}>{business.businessName}</Text>
+              {"."}
+            </Text>
+            <Text style={s.thankYouSub}>We appreciate your business and look forward to serving you again.</Text>
+          </View>
+
+          {/* Job Photos — own wrap={false} block, pushed to page 2 if needed */}
+          {photos.length > 0 && (
             <View wrap={false}>
               <Divider />
               <Text style={[s.sectionLabel, { color: brandColor }]}>Job Photos</Text>
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 6 }}>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12, marginTop: 8 }}>
                 {photos.map((photo) => (
-                  <View key={photo.id} style={{ width: "47%", height: 220, borderRadius: 6, overflow: "hidden" }}>
+                  <View key={photo.id} style={{ width: "47%", height: 300, borderRadius: 6, overflow: "hidden" }}>
                     {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                    <Image src={photo.dataUrl} style={{ width: "100%", height: 220, objectFit: "cover" }} />
+                    <Image src={photo.dataUrl} style={{ width: "100%", height: 300, objectFit: "cover" }} />
                   </View>
                 ))}
               </View>
-              <Divider />
-              <Text style={s.thankYou}>
-                {"Thank you for choosing "}
-                <Text style={s.thankYouBiz}>{business.businessName}</Text>
-                {"."}
-              </Text>
-              <Text style={s.thankYouSub}>We appreciate your business and look forward to serving you again.</Text>
-            </View>
-          ) : (
-            <View wrap={false}>
-              <Divider />
-              <Text style={s.thankYou}>
-                {"Thank you for choosing "}
-                <Text style={s.thankYouBiz}>{business.businessName}</Text>
-                {"."}
-              </Text>
-              <Text style={s.thankYouSub}>We appreciate your business and look forward to serving you again.</Text>
             </View>
           )}
 
