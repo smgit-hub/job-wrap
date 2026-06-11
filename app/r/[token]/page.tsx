@@ -42,6 +42,25 @@ function BulletSection({ text }: { text: string }) {
   );
 }
 
+function InfoLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[10px] font-bold uppercase tracking-widest mb-1 text-slate-400">
+      {children}
+    </p>
+  );
+}
+
+function SectionHeading({ children, color }: { children: React.ReactNode; color: string }) {
+  return (
+    <h3
+      className="text-[11px] font-bold uppercase tracking-widest mb-3"
+      style={{ color }}
+    >
+      {children}
+    </h3>
+  );
+}
+
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export async function generateMetadata({
@@ -98,24 +117,23 @@ export default async function SharedReportPage({
   const report = data.report_data as unknown as ServiceReport;
   const photos = (data.photos ?? []) as JobPhoto[];
   const { business, job, report: rpt } = report;
-  const headerColor = safeBrandColor(business.brandColor);
+  const brandColor = safeBrandColor(business.brandColor);
 
   return (
     <div className="min-h-screen bg-slate-100 py-6 px-4">
       <div className="max-w-lg mx-auto space-y-0">
 
-        {/* Report card */}
         <div className="bg-white rounded-2xl shadow-md overflow-hidden border border-slate-100">
 
           {/* Branded header */}
-          <div className="px-5 py-5" style={{ backgroundColor: headerColor }}>
+          <div className="px-5 py-5" style={{ backgroundColor: brandColor }}>
             <div className="flex items-center gap-3">
               {business.logoUrl && (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={business.logoUrl}
                   alt=""
-                  className="w-10 h-10 rounded-xl object-contain bg-white/10 shrink-0"
+                  className="w-16 h-16 rounded-xl object-contain shrink-0"
                 />
               )}
               <div>
@@ -137,38 +155,84 @@ export default async function SharedReportPage({
             </div>
           </div>
 
-          {/* Prepared for */}
+          {/* Info grid */}
           <div className="px-5 pt-5 pb-4 border-b border-slate-100">
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">
-              Prepared for
-            </p>
-            <p className="text-2xl font-bold text-slate-900 leading-tight">
-              {job.customerName || "—"}
-            </p>
-            {job.serviceAddress && (
-              <p className="text-sm text-slate-500 mt-1">{job.serviceAddress}</p>
-            )}
-            <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mt-3">
-              {SERVICE_TYPE_LABELS[job.serviceType]} · {formatDate(job.jobDate)}
-            </p>
-            <p className="text-[10px] font-mono text-slate-300 mt-1">{jobNumber(report.id)}</p>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+
+              {/* Row 1: Customer | Job Number */}
+              <div>
+                <InfoLabel>Customer</InfoLabel>
+                <p className="text-sm font-bold text-slate-900">{job.customerName || "—"}</p>
+                {job.serviceAddress && (
+                  <p className="text-xs text-slate-500 mt-0.5">{job.serviceAddress}</p>
+                )}
+              </div>
+              <div>
+                <InfoLabel>Job Number</InfoLabel>
+                <p className="text-sm font-mono font-semibold text-slate-700">{jobNumber(report.id)}</p>
+              </div>
+
+              {/* Row 2: Date | Service Address (if no address shown above) */}
+              <div>
+                <InfoLabel>Date of Service</InfoLabel>
+                <p className="text-sm font-semibold text-slate-700">{formatDate(job.jobDate)}</p>
+              </div>
+              <div>
+                <InfoLabel>Service Type</InfoLabel>
+                <p className="text-sm font-semibold text-slate-700">{SERVICE_TYPE_LABELS[job.serviceType]}</p>
+              </div>
+
+              {/* Next Service Due — full width highlighted box */}
+              {job.nextServiceDate && (
+                <div
+                  className="col-span-2 rounded-lg px-3 py-2.5 border"
+                  style={{
+                    backgroundColor: `${brandColor}12`,
+                    borderColor: `${brandColor}40`,
+                  }}
+                >
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: brandColor }}>
+                    Next Service Due
+                  </p>
+                  <p className="text-sm font-bold" style={{ color: brandColor }}>
+                    {formatDate(job.nextServiceDate)}
+                  </p>
+                </div>
+              )}
+
+              {/* Equipment — full width */}
+              {job.equipment?.trim() && (
+                <div className="col-span-2">
+                  <InfoLabel>Equipment / System</InfoLabel>
+                  <p className="text-sm font-semibold text-slate-600">{job.equipment.trim()}</p>
+                </div>
+              )}
+
+            </div>
           </div>
 
-          {/* Customer summary */}
+          {/* Summary */}
           {rpt.customerSummary && (
-            <div className="px-5 py-4 bg-slate-50 border-b border-slate-100">
-              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Summary</p>
+            <div
+              className="px-5 py-4 border-b border-slate-100 border-l-4"
+              style={{ borderLeftColor: brandColor, backgroundColor: "#f1f5f9" }}
+            >
+              <p
+                className="text-[10px] font-bold uppercase tracking-widest mb-2"
+                style={{ color: brandColor }}
+              >
+                Summary
+              </p>
               <p className="text-sm text-slate-700 leading-relaxed">{rpt.customerSummary}</p>
             </div>
           )}
 
           {/* Report sections */}
           <div className="px-5 py-5 space-y-5">
+
             {rpt.findings && (
               <div>
-                <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
-                  Observations
-                </h3>
+                <SectionHeading color={brandColor}>Observations</SectionHeading>
                 <BulletSection text={rpt.findings} />
               </div>
             )}
@@ -177,9 +241,7 @@ export default async function SharedReportPage({
               <>
                 {rpt.findings && <hr className="border-slate-100" />}
                 <div>
-                  <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
-                    Work Performed
-                  </h3>
+                  <SectionHeading color={brandColor}>Work Performed</SectionHeading>
                   <BulletSection text={rpt.workPerformed} />
                 </div>
               </>
@@ -189,9 +251,7 @@ export default async function SharedReportPage({
               <>
                 <hr className="border-slate-100" />
                 <div>
-                  <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-2.5">
-                    Recommendations
-                  </h3>
+                  <SectionHeading color={brandColor}>Recommendations</SectionHeading>
                   <BulletSection text={rpt.recommendations} />
                 </div>
               </>
@@ -202,14 +262,12 @@ export default async function SharedReportPage({
               <>
                 <hr className="border-slate-100" />
                 <div>
-                  <h3 className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-3">
-                    Job Photos
-                  </h3>
-                  <div className="grid grid-cols-3 gap-2">
+                  <SectionHeading color={brandColor}>Job Photos</SectionHeading>
+                  <div className="grid grid-cols-2 gap-2">
                     {photos.map((photo) => (
                       <div
                         key={photo.id}
-                        className="relative aspect-square rounded-xl overflow-hidden bg-slate-100"
+                        className="relative aspect-video rounded-xl overflow-hidden bg-slate-100"
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -217,9 +275,6 @@ export default async function SharedReportPage({
                           alt=""
                           className="w-full h-full object-cover"
                         />
-                        <span className="absolute bottom-1.5 left-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold text-white bg-black/55">
-                          {photo.label === "before" ? "Before" : "After"}
-                        </span>
                       </div>
                     ))}
                   </div>
@@ -229,18 +284,37 @@ export default async function SharedReportPage({
 
             <hr className="border-slate-100" />
 
-            {/* Business contact footer */}
-            <div className="text-xs text-gray-400 space-y-0.5">
-              <p className="font-semibold text-gray-600">{business.businessName}</p>
-              {business.technicianName && (
-                <p>Technician: {business.technicianName}</p>
-              )}
-              {business.licence1Label && business.licence1Number && <p>{business.licence1Label}: {business.licence1Number}</p>}
-              {business.licence2Label && business.licence2Number && <p>{business.licence2Label}: {business.licence2Number}</p>}
-              {business.phone && <p>{business.phone}</p>}
-              {business.email && <p>{business.email}</p>}
-              {business.website && <p>{business.website}</p>}
+            {/* Thank you */}
+            <div className="text-center py-2">
+              <p className="text-base font-semibold text-slate-700">
+                Thank you for choosing{" "}
+                <span className="font-bold text-slate-900">{business.businessName}</span>.
+              </p>
+              <p className="text-sm text-slate-400 mt-1">
+                We appreciate your business and look forward to serving you again.
+              </p>
             </div>
+
+            <hr className="border-slate-100" />
+
+            {/* Business contact footer */}
+            <div className="flex flex-wrap gap-x-2 gap-y-1 justify-center">
+              {[
+                business.businessName,
+                business.technicianName ? `Technician: ${business.technicianName}` : null,
+                business.licence1Label && business.licence1Number ? `${business.licence1Label}: ${business.licence1Number}` : null,
+                business.licence2Label && business.licence2Number ? `${business.licence2Label}: ${business.licence2Number}` : null,
+                business.phone || null,
+                business.email || null,
+                business.website || null,
+              ].filter(Boolean).map((item, i, arr) => (
+                <span key={i} className="flex items-center gap-x-2">
+                  <span className="text-xs text-slate-400">{item}</span>
+                  {i < arr.length - 1 && <span className="text-xs text-slate-200">·</span>}
+                </span>
+              ))}
+            </div>
+
           </div>
         </div>
 
