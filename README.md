@@ -352,7 +352,6 @@ Business profile defaults to **Apex Climate Services** (customisable in Settings
 - [ ] Email/Share tested on iOS and Android
 - [ ] PWA install tested (Add to Home Screen)
 - [ ] Mobile QA on iPhone Safari and Android Chrome
-- [ ] AppGild license gate snippet inserted and tested
 - [ ] PWA icons created: `public/icons/icon-192.png`, `public/icons/icon-512.png`, `public/apple-touch-icon.png`
 
 ### Known Limitations
@@ -372,7 +371,7 @@ Business profile defaults to **Apex Climate Services** (customisable in Settings
 - Multi-technician / team support
 
 ### Deployment Notes
-- Set all environment variables in your hosting provider (Vercel / AppGild)
+- Set all environment variables in your hosting provider (Vercel)
 - Ensure `ANTHROPIC_API_KEY` and `OPENAI_API_KEY` are server-only (no `NEXT_PUBLIC_` prefix)
 - Supabase anon key (`NEXT_PUBLIC_SUPABASE_ANON_KEY`) is safe to expose — it is public by design
 - Never expose `SUPABASE_SERVICE_ROLE_KEY` to the client

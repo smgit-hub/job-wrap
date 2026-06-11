@@ -40,33 +40,6 @@ function getActiveSection(screen: Screen): ActiveSection {
 }
 
 export default function Home() {
-  // ── TODO: AppGild license gate ──────────────────────────────────────────────
-  // The AppGild snippet (~20 lines of JS) goes in app/layout.tsx, NOT here.
-  // It must fire on every route including /login so unlicensed users are blocked
-  // before they see anything.
-  //
-  // Public routes to EXCLUDE from the snippet:
-  //   - /demo      — buyers try before purchasing (no licence needed)
-  //   - /r/[token] — customer-facing share links
-  //   - /privacy   — privacy policy
-  //   - /terms     — terms of service
-  //
-  // How it works (per AppGild):
-  //   1. Buyer subscribes on AppGild → JobWrap appears in their dashboard
-  //   2. They click Open → sent to your live URL with licence key attached
-  //   3. Snippet calls /api/license/verify, confirms key is active → lets them in
-  //   4. They sign into / create their JobWrap account as normal
-  //   5. If subscription lapses → snippet blocks access automatically
-  //
-  // Steps to integrate:
-  //   1. Go through the AppGild upload wizard to Step 5
-  //   2. Copy the customised snippet (it includes your app slug)
-  //   3. Paste it into app/layout.tsx, excluding the public routes above
-  //   4. Add your AppGild product key to .env.local:
-  //        NEXT_PUBLIC_APPGILD_KEY=your-product-key
-  //   5. Redeploy and click "Run integration check" in the wizard
-  // ── end AppGild TODO ────────────────────────────────────────────────────────
-
   const { user, signOut, loading: authLoading } = useAuth();
 
   // Purge reports that have been in trash for more than 7 days
