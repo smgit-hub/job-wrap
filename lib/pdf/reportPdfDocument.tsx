@@ -111,38 +111,48 @@ const s = StyleSheet.create({
   },
   infoHalf: {
     width: "47%",
+    paddingVertical: 7,
+    paddingHorizontal: 0,
   },
   infoFull: {
     width: "100%",
+    paddingVertical: 4,
   },
   infoLabel: {
     fontSize: 7,
     fontFamily: "Helvetica-Bold",
     textTransform: "uppercase",
     letterSpacing: 0.8,
-    marginBottom: 2,
+    marginBottom: 3,
   },
   infoValue: {
     fontSize: 11,
     fontFamily: "Helvetica-Bold",
     color: "#111827",
-    lineHeight: 1.4,
+    lineHeight: 1.35,
+  },
+  infoValueSmall: {
+    fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+    color: "#374151",
+    lineHeight: 1.35,
   },
 
   // ── Next service highlight ──────────────────────────────────────────────────
   nextServiceBox: {
     borderRadius: 5,
-    paddingHorizontal: 8,
-    paddingVertical: 6,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
     width: "47%",
+    borderWidth: 1.5,
   },
 
   // ── Divider ────────────────────────────────────────────────────────────────
   divider: {
     borderTopWidth: 1,
     borderTopColor: "#e5e7eb",
-    marginTop: 10,
-    marginBottom: 10,
+    marginTop: 12,
+    marginBottom: 12,
   },
 
   // ── Section label ──────────────────────────────────────────────────────────
@@ -156,10 +166,11 @@ const s = StyleSheet.create({
 
   // ── Summary block ──────────────────────────────────────────────────────────
   summaryBlock: {
-    backgroundColor: "#f8fafc",
+    backgroundColor: "#f1f5f9",
     borderRadius: 5,
     padding: 14,
-    marginTop: 10,
+    marginTop: 12,
+    marginBottom: 4,
     borderLeftWidth: 4,
   },
   summaryLabel: {
@@ -172,7 +183,7 @@ const s = StyleSheet.create({
   summaryText: {
     fontSize: 10.5,
     color: "#374151",
-    lineHeight: 1.6,
+    lineHeight: 1.65,
   },
 
   // ── Bullet list ────────────────────────────────────────────────────────────
@@ -401,17 +412,17 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
               <Text style={s.infoValue}>{SERVICE_TYPE_LABELS[job.serviceType]}</Text>
             </View>
             {Boolean(job.nextServiceDate) ? (
-              <View style={[s.nextServiceBox, { backgroundColor: nextServiceBg }]}>
+              <View style={[s.nextServiceBox, { backgroundColor: nextServiceBg, borderColor: brandColor }]}>
                 <Text style={[s.infoLabel, { color: brandColor }]}>Next Service Due</Text>
                 <Text style={[s.infoValue, { color: brandColor }]}>{formatDate(job.nextServiceDate!)}</Text>
               </View>
             ) : <View style={s.infoHalf} />}
 
-            {/* Row 4: Equipment (full width) */}
+            {/* Row 4: Equipment (full width, slightly smaller) */}
             {Boolean(equipmentStr) && (
               <View style={s.infoFull}>
                 <Text style={[s.infoLabel, { color: brandColor }]}>Equipment / System</Text>
-                <Text style={s.infoValue}>{equipmentStr}</Text>
+                <Text style={s.infoValueSmall}>{equipmentStr}</Text>
               </View>
             )}
           </View>
