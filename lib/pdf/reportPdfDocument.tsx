@@ -151,8 +151,8 @@ const s = StyleSheet.create({
   divider: {
     borderTopWidth: 1,
     borderTopColor: "#e5e7eb",
-    marginTop: 12,
-    marginBottom: 12,
+    marginTop: 9,
+    marginBottom: 9,
   },
 
   // ── Section label ──────────────────────────────────────────────────────────
@@ -484,7 +484,7 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
               <Text style={s.thankYouSub}>We appreciate your business and look forward to serving you again.</Text>
             </View>
           ) : (
-            <View wrap={false}>
+            <View>
               <Divider />
               <Text style={s.thankYou}>
                 {"Thank you for choosing "}
