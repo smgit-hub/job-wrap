@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
 
 export default function LandingNav() {
-  const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -16,7 +14,7 @@ export default function LandingNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const transparent = !scrolled && !open;
+  const transparent = !scrolled;
 
   return (
     <header
@@ -36,8 +34,8 @@ export default function LandingNav() {
           </span>
         </Link>
 
-        {/* Desktop nav */}
-        <nav className="hidden md:flex items-center gap-6">
+        {/* Nav links — visible on all screen sizes */}
+        <nav className="flex items-center gap-3 sm:gap-6">
           <Link
             href="/login"
             className={`text-sm font-medium transition-colors duration-300 ${transparent ? "text-white/80 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}
@@ -51,36 +49,7 @@ export default function LandingNav() {
             Start free trial
           </Link>
         </nav>
-
-        {/* Mobile menu button */}
-        <button
-          className={`md:hidden p-2 transition-colors duration-300 ${transparent ? "text-white" : "text-slate-600"}`}
-          onClick={() => setOpen(!open)}
-          aria-label="Toggle menu"
-        >
-          {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
       </div>
-
-      {/* Mobile menu */}
-      {open && (
-        <div className="md:hidden border-t border-white/10 bg-slate-950/95 backdrop-blur-sm px-5 py-4 flex flex-col gap-3">
-          <Link
-            href="/login"
-            className="text-sm font-medium text-white/80 py-2"
-            onClick={() => setOpen(false)}
-          >
-            Sign in
-          </Link>
-          <Link
-            href="/signup"
-            className="text-sm font-semibold bg-orange-500 text-white px-4 py-3 rounded-lg text-center"
-            onClick={() => setOpen(false)}
-          >
-            Start free trial
-          </Link>
-        </div>
-      )}
     </header>
   );
 }
