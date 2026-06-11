@@ -100,23 +100,23 @@ const s = StyleSheet.create({
   // ── Body ───────────────────────────────────────────────────────────────────
   body: {
     paddingHorizontal: 40,
-    paddingTop: 12,
+    paddingTop: 8,
   },
 
   // ── Info grid ──────────────────────────────────────────────────────────────
   infoGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    gap: 8,
+    gap: 6,
   },
   infoHalf: {
     width: "47%",
-    paddingVertical: 7,
+    paddingVertical: 5,
     paddingHorizontal: 0,
   },
   infoFull: {
     width: "100%",
-    paddingVertical: 4,
+    paddingVertical: 3,
   },
   infoLabel: {
     fontSize: 7,
@@ -151,8 +151,8 @@ const s = StyleSheet.create({
   divider: {
     borderTopWidth: 1,
     borderTopColor: "#e5e7eb",
-    marginTop: 9,
-    marginBottom: 9,
+    marginTop: 7,
+    marginBottom: 7,
   },
 
   // ── Section label ──────────────────────────────────────────────────────────
@@ -161,16 +161,16 @@ const s = StyleSheet.create({
     fontFamily: "Helvetica-Bold",
     textTransform: "uppercase",
     letterSpacing: 1.2,
-    marginBottom: 8,
+    marginBottom: 6,
   },
 
   // ── Summary block ──────────────────────────────────────────────────────────
   summaryBlock: {
     backgroundColor: "#f1f5f9",
     borderRadius: 5,
-    padding: 14,
-    marginTop: 12,
-    marginBottom: 4,
+    padding: 12,
+    marginTop: 8,
+    marginBottom: 2,
     borderLeftWidth: 4,
   },
   summaryLabel: {
@@ -189,7 +189,7 @@ const s = StyleSheet.create({
   // ── Bullet list ────────────────────────────────────────────────────────────
   bulletRow: {
     flexDirection: "row",
-    marginBottom: 4,
+    marginBottom: 3,
   },
   bulletDot: {
     fontSize: 10,
