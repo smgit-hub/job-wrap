@@ -10,6 +10,8 @@ export default function AppTopBanner() {
 
   if (user?.email !== DEMO_EMAIL) return null;
 
+  return null; // temporarily hidden for screenshots
+
   return (
     <div className="fixed top-0 left-0 right-0 h-10 z-40 bg-orange-500 px-4 flex items-center justify-between gap-3">
       <p className="text-sm font-semibold text-white truncate">
