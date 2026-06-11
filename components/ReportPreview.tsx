@@ -422,7 +422,7 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
 
           {/* Primary: Download PDF */}
           <button
-            onClick={handleExportPdf}
+            onClick={() => { setDemoWallAction("download"); guardAction(handleExportPdf); }}
             disabled={exportState === "generating"}
             className="w-full h-14 rounded-2xl bg-orange-500 hover:bg-orange-600 active:bg-orange-700 disabled:opacity-60 transition-colors shadow-md shadow-orange-200/50 flex items-center justify-center gap-2"
           >
