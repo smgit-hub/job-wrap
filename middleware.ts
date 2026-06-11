@@ -1,32 +1,12 @@
 // ---------------------------------------------------------------------------
-// JobWrap — Auth Middleware (Layer 2 of 2)
+// JobWrap — Auth Middleware
 //
-// ── Access control architecture ──────────────────────────────────────────────
+// Checks the user has a JobWrap account and is signed in.
+// Redirects unauthenticated users to /login.
+// Redirects authenticated users away from /login and /signup.
 //
-// Layer 1 — AppGild licence snippet (app/layout.tsx, Step 5 of upload wizard)
-//   • Gates the ENTIRE app behind a valid AppGild licence key
-//   • No public routes — no whitelist, no exceptions
-//   • /demo, /privacy, /terms are all behind the licence gate
-//   • The AppGild reviewer uses their private bypass to access /demo
-//   • Buyers access the app via My Purchases → Open after subscribing
-//   • DO NOT add public route exclusions expecting them to work — the
-//     AppGild snippet runs before anything else and blocks unlicensed visitors
-//
-// Layer 2 — This file (Supabase session auth)
-//   • Runs AFTER the AppGild snippet confirms a valid licence
-//   • Checks the user has a JobWrap account and is signed in
-//   • Redirects unauthenticated users to /login
-//   • Redirects authenticated users away from /login and /signup
-//
-// ── What is excluded from this middleware ────────────────────────────────────
-//
-// The matcher below excludes routes that must bypass THIS layer only:
-//   _next/static, _next/image  — Next.js internals (must always be reachable)
-//   favicon.ico, manifest.json, icons/  — PWA assets
-//   api/  — API routes handle their own Supabase auth (Bearer token + cookie)
-//
-// Note: /r/, /demo, /privacy, /terms are listed in the matcher exclusion only
-// as a legacy remnant. They are all gated by the AppGild snippet at Layer 1.
+// Public routes (no auth required): /, /demo, /contact, /privacy, /terms, /pricing
+// API routes handle their own auth via Bearer token + cookie.
 // ---------------------------------------------------------------------------
 
 import { NextResponse } from "next/server";
@@ -78,9 +58,16 @@ export async function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/signup");
+  const isPublicRoute =
+    pathname === "/" ||
+    pathname.startsWith("/pricing") ||
+    pathname.startsWith("/contact") ||
+    pathname.startsWith("/privacy") ||
+    pathname.startsWith("/terms") ||
+    pathname.startsWith("/demo");
 
-  // Redirect unauthenticated users to /login (except on auth routes)
-  if (!user && !isAuthRoute) {
+  // Redirect unauthenticated users to /login (except on auth or public routes)
+  if (!user && !isAuthRoute && !isPublicRoute) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
@@ -93,7 +80,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Excludes Next.js internals, PWA assets, and API routes (which auth themselves).
-  // All other routes pass through this middleware for Supabase session checks.
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|manifest.json|icons/|api/|r/|privacy|terms|demo).*)"],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|manifest.json|icons/|api/|r/).*)"],
 };
