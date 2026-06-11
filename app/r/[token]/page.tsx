@@ -155,7 +155,7 @@ export default async function SharedReportPage({
             </div>
           </div>
 
-          {/* Info grid */}
+          {/* Info grid — matches PDF layout */}
           <div className="px-5 pt-5 pb-4 border-b border-slate-100">
             <div className="grid grid-cols-2 gap-x-4 gap-y-4">
 
@@ -163,33 +163,33 @@ export default async function SharedReportPage({
               <div>
                 <InfoLabel color={brandColor}>Customer</InfoLabel>
                 <p className="text-sm font-bold text-slate-900">{job.customerName || "—"}</p>
-                {job.serviceAddress && (
-                  <p className="text-xs text-slate-500 mt-0.5">{job.serviceAddress}</p>
-                )}
               </div>
               <div>
                 <InfoLabel color={brandColor}>Job Number</InfoLabel>
                 <p className="text-sm font-mono font-semibold text-slate-700">{jobNumber(report.id)}</p>
               </div>
 
-              {/* Row 2: Date | Service Address (if no address shown above) */}
+              {/* Row 2: Date of Service | Service Address */}
               <div>
                 <InfoLabel color={brandColor}>Date of Service</InfoLabel>
                 <p className="text-sm font-semibold text-slate-700">{formatDate(job.jobDate)}</p>
               </div>
+              {job.serviceAddress ? (
+                <div>
+                  <InfoLabel color={brandColor}>Service Address</InfoLabel>
+                  <p className="text-sm font-semibold text-slate-700">{job.serviceAddress}</p>
+                </div>
+              ) : <div />}
+
+              {/* Row 3: Service Type | Next Service Due (highlighted) */}
               <div>
                 <InfoLabel color={brandColor}>Service Type</InfoLabel>
                 <p className="text-sm font-semibold text-slate-700">{SERVICE_TYPE_LABELS[job.serviceType]}</p>
               </div>
-
-              {/* Next Service Due — full width highlighted box */}
-              {job.nextServiceDate && (
+              {job.nextServiceDate ? (
                 <div
-                  className="col-span-2 rounded-lg px-3 py-2.5 border"
-                  style={{
-                    backgroundColor: `${brandColor}12`,
-                    borderColor: `${brandColor}40`,
-                  }}
+                  className="rounded-lg px-3 py-2.5 border"
+                  style={{ backgroundColor: `${brandColor}12`, borderColor: `${brandColor}40` }}
                 >
                   <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: brandColor }}>
                     Next Service Due
@@ -198,9 +198,9 @@ export default async function SharedReportPage({
                     {formatDate(job.nextServiceDate)}
                   </p>
                 </div>
-              )}
+              ) : <div />}
 
-              {/* Equipment — full width */}
+              {/* Row 4: Equipment (full width) */}
               {job.equipment?.trim() && (
                 <div className="col-span-2">
                   <InfoLabel color={brandColor}>Equipment / System</InfoLabel>

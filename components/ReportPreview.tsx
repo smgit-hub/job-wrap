@@ -258,35 +258,44 @@ export default function ReportPreview({ report, isNewReport, onBack, onEdit, onD
             </div>
           </div>
 
-          {/* Info grid */}
+          {/* Info grid — matches PDF layout */}
           <div className="px-5 pt-5 pb-4 border-b border-slate-100">
             <div className="grid grid-cols-2 gap-x-4 gap-y-4">
+              {/* Row 1: Customer | Job Number */}
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: HEADER_COLOR }}>Customer</p>
                 <p className="text-sm font-bold text-slate-900">{job.customerName || "—"}</p>
-                {job.serviceAddress && <p className="text-xs text-slate-500 mt-0.5">{job.serviceAddress}</p>}
               </div>
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: HEADER_COLOR }}>Job Number</p>
                 <p className="text-sm font-mono font-semibold text-slate-700">{"JW-" + report.id.replace(/[^a-zA-Z0-9]/g, "").slice(-6).toUpperCase()}</p>
               </div>
+              {/* Row 2: Date of Service | Service Address */}
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: HEADER_COLOR }}>Date of Service</p>
                 <p className="text-sm font-semibold text-slate-700">{formatDate(job.jobDate)}</p>
               </div>
+              {job.serviceAddress ? (
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: HEADER_COLOR }}>Service Address</p>
+                  <p className="text-sm font-semibold text-slate-700">{job.serviceAddress}</p>
+                </div>
+              ) : <div />}
+              {/* Row 3: Service Type | Next Service Due (highlighted) */}
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: HEADER_COLOR }}>Service Type</p>
                 <p className="text-sm font-semibold text-slate-700">{SERVICE_TYPE_LABELS[job.serviceType]}</p>
               </div>
-              {job.nextServiceDate && (
+              {job.nextServiceDate ? (
                 <div
-                  className="col-span-2 rounded-lg px-3 py-2.5 border"
+                  className="rounded-lg px-3 py-2.5 border"
                   style={{ backgroundColor: `${HEADER_COLOR}12`, borderColor: `${HEADER_COLOR}40` }}
                 >
                   <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: HEADER_COLOR }}>Next Service Due</p>
                   <p className="text-sm font-bold" style={{ color: HEADER_COLOR }}>{formatDate(job.nextServiceDate)}</p>
                 </div>
-              )}
+              ) : <div />}
+              {/* Row 4: Equipment (full width) */}
               {job.equipment?.trim() && (
                 <div className="col-span-2">
                   <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color: HEADER_COLOR }}>Equipment / System</p>
