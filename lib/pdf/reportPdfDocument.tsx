@@ -36,10 +36,10 @@ const s = StyleSheet.create({
   page: {
     fontFamily: "Helvetica",
     backgroundColor: "#ffffff",
-    paddingBottom: 36, // space for fixed page-number footer
+    paddingBottom: 44,
   },
 
-  // ── Header ─────────────────────────────────────────────────────────────────
+  // ── Full header (page 1 only) ───────────────────────────────────────────────
   header: {
     paddingHorizontal: 40,
     paddingTop: 18,
@@ -53,7 +53,6 @@ const s = StyleSheet.create({
     height: 64,
     borderRadius: 10,
   },
-  // "SERVICE REPORT" label — small, above the business name
   headerLabel: {
     fontSize: 8,
     fontFamily: "Helvetica-Bold",
@@ -62,7 +61,6 @@ const s = StyleSheet.create({
     letterSpacing: 1.2,
     marginBottom: 5,
   },
-  // Business name — the hero element
   headerBiz: {
     fontSize: 20,
     fontFamily: "Helvetica-Bold",
@@ -78,6 +76,25 @@ const s = StyleSheet.create({
     color: "rgba(255,255,255,0.45)",
     marginTop: 4,
     letterSpacing: 0.3,
+  },
+
+  // ── Slim bar (page 2+ only) ─────────────────────────────────────────────────
+  slimBar: {
+    paddingHorizontal: 40,
+    paddingVertical: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  slimBarBiz: {
+    fontSize: 10,
+    fontFamily: "Helvetica-Bold",
+    color: "#ffffff",
+    letterSpacing: 0.3,
+  },
+  slimBarSub: {
+    fontSize: 8,
+    color: "rgba(255,255,255,0.60)",
   },
 
   // ── Body ───────────────────────────────────────────────────────────────────
@@ -112,30 +129,45 @@ const s = StyleSheet.create({
     lineHeight: 1.4,
   },
 
+  // ── Next service highlight ──────────────────────────────────────────────────
+  nextServiceBox: {
+    borderRadius: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    width: "47%",
+  },
+
   // ── Divider ────────────────────────────────────────────────────────────────
   divider: {
     borderTopWidth: 1,
     borderTopColor: "#e5e7eb",
     marginTop: 10,
-    marginBottom: 8,
+    marginBottom: 10,
   },
 
   // ── Section label ──────────────────────────────────────────────────────────
   sectionLabel: {
-    fontSize: 7,
+    fontSize: 8.5,
     fontFamily: "Helvetica-Bold",
     textTransform: "uppercase",
-    letterSpacing: 0.8,
-    marginBottom: 6,
+    letterSpacing: 1.2,
+    marginBottom: 8,
   },
 
   // ── Summary block ──────────────────────────────────────────────────────────
   summaryBlock: {
     backgroundColor: "#f8fafc",
     borderRadius: 5,
-    padding: 12,
+    padding: 14,
     marginTop: 10,
-    borderLeftWidth: 3,
+    borderLeftWidth: 4,
+  },
+  summaryLabel: {
+    fontSize: 8.5,
+    fontFamily: "Helvetica-Bold",
+    textTransform: "uppercase",
+    letterSpacing: 1.2,
+    marginBottom: 6,
   },
   summaryText: {
     fontSize: 10.5,
@@ -146,7 +178,7 @@ const s = StyleSheet.create({
   // ── Bullet list ────────────────────────────────────────────────────────────
   bulletRow: {
     flexDirection: "row",
-    marginBottom: 3,
+    marginBottom: 4,
   },
   bulletDot: {
     fontSize: 10,
@@ -163,42 +195,7 @@ const s = StyleSheet.create({
     flex: 1,
   },
 
-  // ── Photos ─────────────────────────────────────────────────────────────────
-  photosGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginTop: 6,
-  },
-  photoWrap: {
-    width: "31%",
-    height: 120,
-    position: "relative",
-    borderRadius: 6,
-    overflow: "hidden",
-  },
-  photoImg: {
-    width: "100%",
-    height: 120,
-    objectFit: "cover",
-    objectPositionY: "center",
-  },
-  photoLabelWrap: {
-    position: "absolute",
-    bottom: 5,
-    left: 5,
-    backgroundColor: "rgba(0,0,0,0.55)",
-    borderRadius: 99,
-    paddingHorizontal: 5,
-    paddingVertical: 2,
-  },
-  photoLabelText: {
-    fontSize: 7,
-    fontFamily: "Helvetica-Bold",
-    color: "#ffffff",
-  },
-
-  // ── In-flow footer (thank you + contacts) ──────────────────────────────────
+  // ── Thank you ──────────────────────────────────────────────────────────────
   thankYou: {
     fontSize: 11,
     color: "#374151",
@@ -216,29 +213,6 @@ const s = StyleSheet.create({
     color: "#9ca3af",
     textAlign: "center",
     lineHeight: 1.4,
-  },
-  footerRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    justifyContent: "center",
-    gap: 4,
-    borderTopWidth: 1,
-    borderTopColor: "#e5e7eb",
-    paddingTop: 8,
-  },
-  footerItem: {
-    fontSize: 7.5,
-    color: "#9ca3af",
-  },
-  footerSep: {
-    fontSize: 7.5,
-    color: "#d1d5db",
-  },
-  generated: {
-    fontSize: 7.5,
-    color: "#9ca3af",
-    textAlign: "center",
-    marginTop: 6,
   },
 
   // ── Fixed footer (bottom of every page) ───────────────────────────────────
@@ -258,16 +232,19 @@ const s = StyleSheet.create({
     paddingTop: 5,
     marginBottom: 3,
   },
-
-  // ── Fixed page-number bar (bottom of every page) ───────────────────────────
+  footerItem: {
+    fontSize: 7.5,
+    color: "#9ca3af",
+  },
+  footerSep: {
+    fontSize: 7.5,
+    color: "#d1d5db",
+  },
   pageBar: {
-    position: "absolute",
-    bottom: 12,
-    left: 40,
-    right: 40,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    marginTop: 2,
   },
   pageBarBrand: {
     fontSize: 7.5,
@@ -305,15 +282,23 @@ function Divider() {
 // ── Main document ────────────────────────────────────────────────────────────
 
 function jobNumber(id: string): string {
-  // Strip non-alphanumeric chars, take last 6, uppercase — e.g. "JW-A1B2C3"
   const clean = id.replace(/[^a-zA-Z0-9]/g, "");
   return "JW-" + clean.slice(-6).toUpperCase();
+}
+
+// Lighten a hex brand color to ~10% opacity for the next service box background
+function hexToRgba(hex: string, alpha: number): string {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return `rgba(${r},${g},${b},${alpha})`;
 }
 
 export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocumentProps) {
   const { business, job, report: rpt } = report;
   const brandColor = safeBrandColor(business.brandColor);
   const equipmentStr = job.equipment?.trim() ?? "";
+  const nextServiceBg = hexToRgba(brandColor, 0.08);
 
   const footerItems = [
     business.businessName,
@@ -339,7 +324,7 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
               </React.Fragment>
             ))}
           </View>
-          <View style={[s.pageBar, { position: "relative", bottom: 0, left: 0, right: 0, marginTop: 2 }]}>
+          <View style={s.pageBar}>
             <Text style={s.pageBarBrand}>{`Report generated ${new Date().toLocaleDateString("en-CA")}`}</Text>
             <Text
               style={s.pageBarNum}
@@ -350,8 +335,23 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
           </View>
         </View>
 
-        {/* ── Header ────────────────────────────────────────────────────── */}
-        <View style={[s.header, { backgroundColor: brandColor }]}>
+        {/* ── Slim bar — page 2+ only ────────────────────────────────────── */}
+        <View
+          fixed
+          render={({ pageNumber }) =>
+            pageNumber > 1 ? (
+              <View style={[s.slimBar, { backgroundColor: brandColor }]}>
+                <Text style={s.slimBarBiz}>{business.businessName}</Text>
+                {Boolean(business.technicianName) && (
+                  <Text style={s.slimBarSub}>Technician: {business.technicianName}</Text>
+                )}
+              </View>
+            ) : null
+          }
+        />
+
+        {/* ── Full header — page 1 only ──────────────────────────────────── */}
+        <View style={[s.header, { backgroundColor: brandColor }]} fixed={false}>
           {business.logoUrl && !business.logoUrl.includes("image/svg") && (
             // eslint-disable-next-line jsx-a11y/alt-text
             <Image src={business.logoUrl} style={s.logo} />
@@ -371,54 +371,55 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
         {/* ── Body ──────────────────────────────────────────────────────── */}
         <View style={s.body}>
 
-          {/* Customer / job info */}
+          {/* Info grid — consistent 2-column layout */}
           <View style={s.infoGrid}>
+            {/* Row 1: Customer | Job Number */}
             <View style={s.infoHalf}>
               <Text style={[s.infoLabel, { color: brandColor }]}>Customer</Text>
               <Text style={s.infoValue}>{job.customerName}</Text>
             </View>
-
             <View style={s.infoHalf}>
               <Text style={[s.infoLabel, { color: brandColor }]}>Job Number</Text>
               <Text style={s.infoValue}>{jobNumber(report.id)}</Text>
             </View>
 
+            {/* Row 2: Date of Service | Service Address */}
             <View style={s.infoHalf}>
               <Text style={[s.infoLabel, { color: brandColor }]}>Date of Service</Text>
               <Text style={s.infoValue}>{formatDate(job.jobDate)}</Text>
             </View>
-
             {Boolean(job.serviceAddress) ? (
               <View style={s.infoHalf}>
                 <Text style={[s.infoLabel, { color: brandColor }]}>Service Address</Text>
                 <Text style={s.infoValue}>{job.serviceAddress}</Text>
               </View>
-            ) : null}
+            ) : <View style={s.infoHalf} />}
 
-            <View style={job.serviceAddress ? s.infoHalf : s.infoFull}>
+            {/* Row 3: Service Type | Next Service Due (highlighted) */}
+            <View style={s.infoHalf}>
               <Text style={[s.infoLabel, { color: brandColor }]}>Service Type</Text>
               <Text style={s.infoValue}>{SERVICE_TYPE_LABELS[job.serviceType]}</Text>
             </View>
+            {Boolean(job.nextServiceDate) ? (
+              <View style={[s.nextServiceBox, { backgroundColor: nextServiceBg }]}>
+                <Text style={[s.infoLabel, { color: brandColor }]}>Next Service Due</Text>
+                <Text style={[s.infoValue, { color: brandColor }]}>{formatDate(job.nextServiceDate!)}</Text>
+              </View>
+            ) : <View style={s.infoHalf} />}
 
+            {/* Row 4: Equipment (full width) */}
             {Boolean(equipmentStr) && (
               <View style={s.infoFull}>
                 <Text style={[s.infoLabel, { color: brandColor }]}>Equipment / System</Text>
                 <Text style={s.infoValue}>{equipmentStr}</Text>
               </View>
             )}
-
-            {Boolean(job.nextServiceDate) && (
-              <View style={s.infoHalf}>
-                <Text style={[s.infoLabel, { color: brandColor }]}>Next Service Due</Text>
-                <Text style={s.infoValue}>{formatDate(job.nextServiceDate!)}</Text>
-              </View>
-            )}
           </View>
 
-          {/* Customer summary */}
+          {/* Summary */}
           {Boolean(rpt.customerSummary) && (
             <View style={[s.summaryBlock, { borderLeftColor: brandColor }]}>
-              <Text style={[s.sectionLabel, { color: brandColor }]}>Summary</Text>
+              <Text style={[s.summaryLabel, { color: brandColor }]}>Summary</Text>
               <Text style={s.summaryText}>{rpt.customerSummary}</Text>
             </View>
           )}
@@ -450,32 +451,38 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
             </>
           )}
 
-          {/* Job Photos — wrap={false} prevents photos being split across pages */}
-          {photos.length > 0 && (
+          {/* Job Photos + Thank you — kept together to avoid orphaned content */}
+          {photos.length > 0 ? (
             <View wrap={false}>
               <Divider />
               <Text style={[s.sectionLabel, { color: brandColor }]}>Job Photos</Text>
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 10 }}>
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 10, marginTop: 6 }}>
                 {photos.map((photo) => (
-                  <View key={photo.id} style={{ width: "47%", height: 180, borderRadius: 6, overflow: "hidden" }}>
+                  <View key={photo.id} style={{ width: "47%", height: 220, borderRadius: 6, overflow: "hidden" }}>
                     {/* eslint-disable-next-line jsx-a11y/alt-text */}
-                    <Image src={photo.dataUrl} style={{ width: "100%", height: 180, objectFit: "cover" }} />
+                    <Image src={photo.dataUrl} style={{ width: "100%", height: 220, objectFit: "cover" }} />
                   </View>
                 ))}
               </View>
+              <Divider />
+              <Text style={s.thankYou}>
+                {"Thank you for choosing "}
+                <Text style={s.thankYouBiz}>{business.businessName}</Text>
+                {"."}
+              </Text>
+              <Text style={s.thankYouSub}>We appreciate your business and look forward to serving you again.</Text>
+            </View>
+          ) : (
+            <View wrap={false}>
+              <Divider />
+              <Text style={s.thankYou}>
+                {"Thank you for choosing "}
+                <Text style={s.thankYouBiz}>{business.businessName}</Text>
+                {"."}
+              </Text>
+              <Text style={s.thankYouSub}>We appreciate your business and look forward to serving you again.</Text>
             </View>
           )}
-
-          {/* Thank you line */}
-          <View wrap={false}>
-            <Divider />
-            <Text style={s.thankYou}>
-              {"Thank you for choosing "}
-              <Text style={s.thankYouBiz}>{business.businessName}</Text>
-              {"."}
-            </Text>
-            <Text style={s.thankYouSub}>We appreciate your business and look forward to serving you again.</Text>
-          </View>
 
         </View>
       </Page>
