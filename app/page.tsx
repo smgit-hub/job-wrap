@@ -140,7 +140,7 @@ export default function LandingPage() {
 
         {/* Mobile: 2 key phones + numbered steps */}
         <div className="lg:hidden">
-          <div className="grid grid-cols-2 gap-4 mb-10">
+          <div className="grid grid-cols-2 gap-4 mb-10 items-end">
             {[HOW_IT_WORKS[2], HOW_IT_WORKS[4]].map((item) => (
               <div key={item.src} className="flex flex-col gap-2">
                 <p className="text-sm font-semibold text-slate-600 text-center">{item.title}</p>
