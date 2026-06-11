@@ -42,9 +42,9 @@ function BulletSection({ text }: { text: string }) {
   );
 }
 
-function InfoLabel({ children }: { children: React.ReactNode }) {
+function InfoLabel({ children, color }: { children: React.ReactNode; color: string }) {
   return (
-    <p className="text-[10px] font-bold uppercase tracking-widest mb-1 text-slate-400">
+    <p className="text-[10px] font-bold uppercase tracking-widest mb-1" style={{ color }}>
       {children}
     </p>
   );
@@ -161,24 +161,24 @@ export default async function SharedReportPage({
 
               {/* Row 1: Customer | Job Number */}
               <div>
-                <InfoLabel>Customer</InfoLabel>
+                <InfoLabel color={brandColor}>Customer</InfoLabel>
                 <p className="text-sm font-bold text-slate-900">{job.customerName || "—"}</p>
                 {job.serviceAddress && (
                   <p className="text-xs text-slate-500 mt-0.5">{job.serviceAddress}</p>
                 )}
               </div>
               <div>
-                <InfoLabel>Job Number</InfoLabel>
+                <InfoLabel color={brandColor}>Job Number</InfoLabel>
                 <p className="text-sm font-mono font-semibold text-slate-700">{jobNumber(report.id)}</p>
               </div>
 
               {/* Row 2: Date | Service Address (if no address shown above) */}
               <div>
-                <InfoLabel>Date of Service</InfoLabel>
+                <InfoLabel color={brandColor}>Date of Service</InfoLabel>
                 <p className="text-sm font-semibold text-slate-700">{formatDate(job.jobDate)}</p>
               </div>
               <div>
-                <InfoLabel>Service Type</InfoLabel>
+                <InfoLabel color={brandColor}>Service Type</InfoLabel>
                 <p className="text-sm font-semibold text-slate-700">{SERVICE_TYPE_LABELS[job.serviceType]}</p>
               </div>
 
@@ -203,7 +203,7 @@ export default async function SharedReportPage({
               {/* Equipment — full width */}
               {job.equipment?.trim() && (
                 <div className="col-span-2">
-                  <InfoLabel>Equipment / System</InfoLabel>
+                  <InfoLabel color={brandColor}>Equipment / System</InfoLabel>
                   <p className="text-sm font-semibold text-slate-600">{job.equipment.trim()}</p>
                 </div>
               )}
@@ -298,7 +298,7 @@ export default async function SharedReportPage({
             <hr className="border-slate-100" />
 
             {/* Business contact footer */}
-            <div className="flex flex-wrap gap-x-2 gap-y-1 justify-center">
+            <div className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 border-t border-slate-100 pt-3">
               {[
                 business.businessName,
                 business.technicianName ? `Technician: ${business.technicianName}` : null,
@@ -308,9 +308,9 @@ export default async function SharedReportPage({
                 business.email || null,
                 business.website || null,
               ].filter(Boolean).map((item, i, arr) => (
-                <span key={i} className="flex items-center gap-x-2">
-                  <span className="text-xs text-slate-400">{item}</span>
-                  {i < arr.length - 1 && <span className="text-xs text-slate-200">·</span>}
+                <span key={i} className="flex items-center gap-x-1.5">
+                  <span className="text-[10px] text-slate-400">{item}</span>
+                  {i < arr.length - 1 && <span className="text-[10px] text-slate-300">·</span>}
                 </span>
               ))}
             </div>
