@@ -73,7 +73,7 @@ export default function LandingPage() {
       <section className="relative min-h-[85vh] flex items-center overflow-hidden">
         <Image src="/screenshots/hero-bg.jpg" alt="" fill className="object-cover object-center" priority />
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/60 to-slate-950/20" />
-        <div className="relative z-10 w-full max-w-6xl mx-auto px-5 pt-24 pb-8 md:pt-32 md:pb-20">
+        <div className="relative z-10 w-full max-w-6xl mx-auto px-5 pt-20 pb-8 md:pt-24 md:pb-20">
           <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
             <div className="flex-1 text-center lg:text-left">
               <div className="inline-flex items-center gap-2 bg-white/10 text-orange-300 text-xs font-semibold px-3 py-1.5 rounded-full mb-6 backdrop-blur-sm border border-white/10">
@@ -285,10 +285,10 @@ export default function LandingPage() {
             {/* PDF pages — show both on desktop, page 1 only on mobile */}
             <div className="flex-1 flex gap-4 items-start">
               <div className="flex-1 rounded-xl overflow-hidden shadow-xl shadow-slate-300/50 ring-1 ring-slate-200 bg-white">
-                <Image src="/screenshots/report-page1.png" alt="Service report page 1" width={2480} height={3508} className="w-full h-auto" />
+                <Image src="/screenshots/report-page1.png" alt="Service report page 1" width={565} height={800} className="w-full h-auto" />
               </div>
               <div className="hidden sm:block flex-1 rounded-xl overflow-hidden shadow-xl shadow-slate-300/50 ring-1 ring-slate-200 bg-white">
-                <Image src="/screenshots/report-page2.png" alt="Service report page 2" width={2480} height={3508} className="w-full h-auto" />
+                <Image src="/screenshots/report-page2.png" alt="Service report page 2" width={565} height={800} className="w-full h-auto" />
               </div>
             </div>
           </div>
