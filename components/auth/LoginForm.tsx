@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signInWithPassword, resetPassword } from "@/lib/supabase/auth";
+import LandingFooter from "@/components/landing/LandingFooter";
 
 interface LoginFormProps {
   onSuccess: () => void;
@@ -52,7 +53,7 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
 
   if (showForgot) {
     return (
-      <div className="min-h-screen bg-slate-100 flex flex-col">
+      <div className="min-h-screen bg-white flex flex-col">
         <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full px-6 py-12">
           <div className="flex items-center gap-2.5 mb-10">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -129,7 +130,7 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
   // page flashing during the navigation to /app.
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center gap-5 text-center">
+      <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-5 text-center">
         <div className="w-20 h-20 rounded-3xl bg-orange-50 flex items-center justify-center">
           <Sparkles className="w-10 h-10 text-orange-400 animate-pulse" />
         </div>
@@ -143,14 +144,14 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full px-6 py-12">
         {/* Logo */}
-        <div className="flex items-center gap-2.5 mb-10">
+        <Link href="/" className="flex items-center gap-2.5 mb-10 w-fit">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icons/icon-192.png?v=3" alt="JobWrap" className="w-10 h-10 shrink-0 object-cover" />
           <span className="text-2xl font-bold text-slate-900">JobWrap</span>
-        </div>
+        </Link>
 
         <h1 className="text-2xl font-bold text-slate-900 mb-1">Sign in</h1>
         <p className="text-slate-500 text-sm mb-6">For air conditioning & HVAC technicians.</p>
@@ -232,12 +233,8 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
           </button>
         </p>
 
-        <p className="text-center text-xs text-slate-500 mt-4">
-          <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
-            {" · "}
-          <Link href="/terms" className="hover:underline">Terms of Service</Link>
-        </p>
       </div>
+      <LandingFooter />
     </div>
   );
 }

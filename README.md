@@ -67,7 +67,6 @@ app/
   api/generate-report/route.ts       — AI generation API route (server-side)
   api/export-pdf/route.ts            — Server-side PDF generation via @react-pdf/renderer
   api/share-report/route.ts          — Shared report link creation (requires Supabase)
-  api/extract-equipment/route.ts     — Vision OCR for equipment nameplates
 
 components/
   Dashboard.tsx          — Report list + new report CTA

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { CheckCircle2, Upload, X, Palette, LogOut, Eye, EyeOff, Loader2, ChevronDown, ChevronUp } from "lucide-react";
+import { CheckCircle2, Upload, X, Palette, LogOut, Eye, EyeOff, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,9 +57,8 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
   const [saved, setSaved] = useState(false);
   const [logoLoading, setLogoLoading] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
-  const { isConfigured, signOut } = useAuth();
+  const { isConfigured, signOut, user } = useAuth();
   // ── Account: Change Password ─────────────────────────────────────────────
-  const [accountExpanded, setAccountExpanded] = useState(false);
   const [pwNew, setPwNew] = useState("");
   const [pwConfirm, setPwConfirm] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -166,134 +165,6 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
             )}
           </div>
         </div>
-
-        {/* ── Account ─────────────────────────────────────────────────────── */}
-        {isConfigured && (
-          <>
-            <button
-              type="button"
-              onClick={() => setAccountExpanded((v) => !v)}
-              className="w-full flex items-center gap-3 pt-2"
-            >
-              <h2 className="text-xl font-bold text-slate-900 shrink-0">Account</h2>
-              <div className="flex-1 h-px bg-slate-300" />
-              {accountExpanded ? <ChevronUp className="w-4 h-4 text-slate-400 shrink-0" /> : <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />}
-            </button>
-
-            {accountExpanded && (
-            <Card className="border border-slate-100 shadow-card">
-              <CardContent className="px-4 pb-4 pt-4 space-y-5">
-
-                {/* Your name */}
-                <div className="space-y-3">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Your Name</p>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="account-name">Name shown on reports</Label>
-                    <Input
-                      id="account-name"
-                      value={form.technicianName}
-                      onChange={(e) => update("technicianName", e.target.value)}
-                      placeholder="e.g. Alex Morgan"
-                      className="h-11 text-base"
-                    />
-                  </div>
-                </div>
-
-                <div className="h-px bg-slate-100" />
-
-                {/* Change Password */}
-                <div className="space-y-3">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Change Password</p>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="pw-new">New password</Label>
-                    <div className="relative">
-                      <Input
-                        id="pw-new"
-                        type={showPw ? "text" : "password"}
-                        value={pwNew}
-                        onChange={(e) => setPwNew(e.target.value)}
-                        placeholder="Min. 8 characters"
-                        autoComplete="new-password"
-                        className="h-11 text-base pr-11"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPw((v) => !v)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
-                        tabIndex={-1}
-                      >
-                        {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="pw-confirm">Confirm new password</Label>
-                    <Input
-                      id="pw-confirm"
-                      type={showPw ? "text" : "password"}
-                      value={pwConfirm}
-                      onChange={(e) => setPwConfirm(e.target.value)}
-                      placeholder="••••••••"
-                      autoComplete="new-password"
-                      className="h-11 text-base"
-                    />
-                  </div>
-                  {pwError && (
-                    <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{pwError}</p>
-                  )}
-                  {pwState === "saved" && (
-                    <p className="text-sm text-green-600 bg-green-50 border border-green-100 rounded-xl px-3 py-2 flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 shrink-0" /> Password updated successfully.
-                    </p>
-                  )}
-                  <button
-                    onClick={handleChangePassword}
-                    disabled={pwState === "saving" || !pwNew || !pwConfirm}
-                    className="w-full h-11 rounded-xl bg-slate-900 text-white text-sm font-semibold flex items-center justify-center gap-2 active:bg-slate-700 transition-colors disabled:opacity-40"
-                  >
-                    {pwState === "saving" ? <><Loader2 className="w-4 h-4 animate-spin" /> Updating…</> : "Update Password"}
-                  </button>
-                </div>
-
-                <div className="h-px bg-slate-100" />
-
-                {/* Change Email */}
-                <div className="space-y-3">
-                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Change Email</p>
-                  <div className="space-y-1.5">
-                    <Label htmlFor="new-email">New email address</Label>
-                    <Input
-                      id="new-email"
-                      type="email"
-                      value={newEmail}
-                      onChange={(e) => setNewEmail(e.target.value)}
-                      placeholder="new@example.com"
-                      autoComplete="email"
-                      className="h-11 text-base"
-                    />
-                  </div>
-                  {emailError && (
-                    <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{emailError}</p>
-                  )}
-                  {emailState === "sent" && (
-                    <p className="text-sm text-green-600 bg-green-50 border border-green-100 rounded-xl px-3 py-2 flex items-center gap-2">
-                      <CheckCircle2 className="w-4 h-4 shrink-0" /> Confirmation sent — check your new inbox to confirm.
-                    </p>
-                  )}
-                  <button
-                    onClick={handleChangeEmail}
-                    disabled={emailState === "saving" || !newEmail}
-                    className="w-full h-11 rounded-xl bg-slate-900 text-white text-sm font-semibold flex items-center justify-center gap-2 active:bg-slate-700 transition-colors disabled:opacity-40"
-                  >
-                    {emailState === "saving" ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</> : "Update Email"}
-                  </button>
-                </div>
-
-              </CardContent>
-            </Card>
-            )}
-          </>
-        )}
 
         {/* ── Business ─────────────────────────────────────────────────────── */}
         <div className="flex items-center gap-3 pt-2">
@@ -488,22 +359,121 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
 
 
 
-        {/* Support & legal links */}
-        <div className="flex items-center justify-center gap-4 pb-4 pt-2">
-          <a
-            href="mailto:jobwrap@atomicmail.io"
-            className="text-sm text-slate-500 hover:text-orange-500 transition-colors font-medium"
-          >
-            Contact support
-          </a>
-          <span className="text-slate-300">·</span>
-          <a href="/privacy" target="_blank" className="text-sm text-slate-500 hover:text-orange-500 transition-colors">
-            Privacy Policy
-          </a>
-          <span className="text-slate-300">·</span>
-          <a href="/terms" target="_blank" className="text-sm text-slate-500 hover:text-orange-500 transition-colors">
-            Terms
-          </a>
+        {/* ── Account ─────────────────────────────────────────────────────── */}
+        {isConfigured && (
+          <>
+            <div className="flex items-center gap-3 pt-2">
+              <h2 className="text-xl font-bold text-slate-900 shrink-0">Account</h2>
+              <div className="flex-1 h-px bg-slate-300" />
+            </div>
+
+            <Card className="border border-slate-100 shadow-card">
+              <CardContent className="px-4 pb-4 pt-4 space-y-5">
+
+                {/* Change Password */}
+                <div className="space-y-3">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Change Password</p>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="pw-new">New password</Label>
+                    <div className="relative">
+                      <Input
+                        id="pw-new"
+                        type={showPw ? "text" : "password"}
+                        value={pwNew}
+                        onChange={(e) => setPwNew(e.target.value)}
+                        placeholder="Min. 8 characters"
+                        autoComplete="new-password"
+                        className="h-11 text-base pr-11"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPw((v) => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500"
+                        tabIndex={-1}
+                      >
+                        {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="pw-confirm">Confirm new password</Label>
+                    <Input
+                      id="pw-confirm"
+                      type={showPw ? "text" : "password"}
+                      value={pwConfirm}
+                      onChange={(e) => setPwConfirm(e.target.value)}
+                      placeholder="••••••••"
+                      autoComplete="new-password"
+                      className="h-11 text-base"
+                    />
+                  </div>
+                  {pwError && (
+                    <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{pwError}</p>
+                  )}
+                  {pwState === "saved" && (
+                    <p className="text-sm text-green-600 bg-green-50 border border-green-100 rounded-xl px-3 py-2 flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" /> Password updated successfully.
+                    </p>
+                  )}
+                  <button
+                    onClick={handleChangePassword}
+                    disabled={pwState === "saving" || !pwNew || !pwConfirm}
+                    className="w-full h-11 rounded-xl bg-slate-900 text-white text-sm font-semibold flex items-center justify-center gap-2 active:bg-slate-700 transition-colors disabled:opacity-40"
+                  >
+                    {pwState === "saving" ? <><Loader2 className="w-4 h-4 animate-spin" /> Updating…</> : "Update Password"}
+                  </button>
+                </div>
+
+                <div className="h-px bg-slate-100" />
+
+                {/* Change Email */}
+                <div className="space-y-3">
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">Change Email</p>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="new-email">New email address</Label>
+                    <Input
+                      id="new-email"
+                      type="email"
+                      value={newEmail}
+                      onChange={(e) => setNewEmail(e.target.value)}
+                      placeholder="new@example.com"
+                      autoComplete="email"
+                      className="h-11 text-base"
+                    />
+                  </div>
+                  {emailError && (
+                    <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">{emailError}</p>
+                  )}
+                  {emailState === "sent" && (
+                    <p className="text-sm text-green-600 bg-green-50 border border-green-100 rounded-xl px-3 py-2 flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 shrink-0" /> Confirmation sent — check your new inbox to confirm.
+                    </p>
+                  )}
+                  <button
+                    onClick={handleChangeEmail}
+                    disabled={emailState === "saving" || !newEmail}
+                    className="w-full h-11 rounded-xl bg-slate-900 text-white text-sm font-semibold flex items-center justify-center gap-2 active:bg-slate-700 transition-colors disabled:opacity-40"
+                  >
+                    {emailState === "saving" ? <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</> : "Update Email"}
+                  </button>
+                </div>
+
+              </CardContent>
+            </Card>
+          </>
+        )}
+
+        {/* ── Help & Support ───────────────────────────────────────────────── */}
+        <div className="flex items-center gap-3 pt-2">
+          <h2 className="text-xl font-bold text-slate-900 shrink-0">Help &amp; Support</h2>
+          <div className="flex-1 h-px bg-slate-300" />
+        </div>
+        <HelpCard userEmail={user?.email ?? ""} userName={form.technicianName} />
+
+        <div className="flex items-center justify-center gap-4 pb-4">
+          <a href="/privacy" target="_blank" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Privacy Policy</a>
+          <span className="text-slate-200">·</span>
+          <a href="/terms" target="_blank" className="text-xs text-slate-400 hover:text-slate-600 transition-colors">Terms of Service</a>
         </div>
 
       </main>
@@ -531,5 +501,63 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         </div>
       </div>
     </>
+  );
+}
+
+function HelpCard({ userEmail, userName }: { userEmail: string; userName: string }) {
+  const [message, setMessage] = useState("");
+  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setStatus("sending");
+    const res = await fetch("/api/contact", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: userName, email: userEmail, message }),
+    });
+    setStatus(res.ok ? "sent" : "error");
+    if (res.ok) setMessage("");
+  }
+
+  return (
+    <Card className="border border-slate-100 shadow-card">
+      <CardContent className="px-4 pb-4 pt-4 space-y-4">
+        {status === "sent" ? (
+          <div className="rounded-xl bg-green-50 border border-green-100 p-4 text-center space-y-2">
+            <p className="text-green-700 font-semibold text-sm">Message sent!</p>
+            <p className="text-green-600 text-xs">We&apos;ll get back to you as soon as we can.</p>
+            <button onClick={() => setStatus("idle")} className="text-xs text-slate-500 hover:text-slate-800 underline">
+              Send another message
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="help-message">How can we help?</Label>
+              <textarea
+                id="help-message"
+                required
+                rows={4}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder="Describe your issue or question…"
+                className="w-full px-3 py-2.5 rounded-lg border border-input text-base focus:outline-none focus:ring-2 focus:ring-orange-400 focus:border-transparent resize-none"
+              />
+            </div>
+            {status === "error" && (
+              <p className="text-sm text-red-600 bg-red-50 border border-red-100 rounded-xl px-3 py-2">Something went wrong. Please try again.</p>
+            )}
+            <button
+              type="submit"
+              disabled={status === "sending" || !message.trim()}
+              className="w-full h-11 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white text-sm font-semibold transition-colors"
+            >
+              {status === "sending" ? "Sending…" : "Send message"}
+            </button>
+          </form>
+        )}
+      </CardContent>
+    </Card>
   );
 }

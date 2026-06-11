@@ -34,7 +34,7 @@ export default function Sidebar({ activeSection, onDashboard, onReports, onCusto
   };
 
   return (
-    <aside className="hidden lg:flex flex-col fixed inset-y-0 left-0 w-60 bg-white border-r border-slate-100 z-30">
+    <aside className="hidden lg:flex flex-col fixed top-10 bottom-0 left-0 w-60 bg-white border-r border-slate-100 z-30">
 
       {/* Brand mark */}
       <div className="px-4 pt-5 pb-4 border-b border-slate-100">

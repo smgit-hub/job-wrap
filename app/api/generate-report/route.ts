@@ -13,6 +13,7 @@ import { NextResponse } from "next/server";
 import { generateReport } from "@/lib/ai/generateReport";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { readBodyWithLimit } from "@/lib/api/readBody";
+import { checkAndIncrementAiUsage } from "@/lib/api/rateLimit";
 import type { ServiceType } from "@/types/report";
 
 const VALID_SERVICE_TYPES = new Set<ServiceType>([
@@ -53,6 +54,23 @@ export async function POST(request: Request) {
   }
   if (!user) {
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+  }
+
+  // Rate limiting
+  const rateLimit = await checkAndIncrementAiUsage(user.id);
+  if (!rateLimit.allowed) {
+    if (rateLimit.reason === "cooldown") {
+      return NextResponse.json(
+        { error: `Please wait ${rateLimit.retryAfterSeconds} seconds before generating another report.` },
+        { status: 429 }
+      );
+    }
+    if (rateLimit.reason === "daily_limit") {
+      return NextResponse.json(
+        { error: "You've reached the daily limit of 20 AI reports. Limit resets at midnight." },
+        { status: 429 }
+      );
+    }
   }
 
   const bodyResult = await readBodyWithLimit(request, MAX_BODY_BYTES);

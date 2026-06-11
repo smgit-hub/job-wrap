@@ -29,7 +29,7 @@ export default function InstallNudge() {
         <img
           src="/icons/icon-192.png?v=3"
           alt=""
-          className="w-11 h-11 rounded-xl shrink-0 object-cover"
+          className="w-11 h-11 shrink-0 object-cover"
         />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-white">Add JobWrap to your home screen</p>

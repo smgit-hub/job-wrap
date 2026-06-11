@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signUp, resendConfirmation } from "@/lib/supabase/auth";
+import LandingFooter from "@/components/landing/LandingFooter";
 
 interface SignupFormProps {
   onSuccess: () => void;
@@ -66,7 +67,7 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
 
   if (verifyPending) {
     return (
-      <div className="min-h-screen bg-slate-100 flex flex-col">
+      <div className="min-h-screen bg-white flex flex-col">
         <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full px-6 py-12">
           <div className="flex items-center gap-2.5 mb-10">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -115,19 +116,20 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
             Back to sign in
           </button>
         </div>
+      <LandingFooter />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 flex flex-col">
+    <div className="min-h-screen bg-white flex flex-col">
       <div className="flex-1 flex flex-col justify-center max-w-sm mx-auto w-full px-6 py-12">
         {/* Logo */}
-        <div className="flex items-center gap-2.5 mb-10">
+        <Link href="/" className="flex items-center gap-2.5 mb-10 w-fit">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icons/icon-192.png?v=3" alt="JobWrap" className="w-10 h-10 shrink-0 object-cover" />
           <span className="text-2xl font-bold text-slate-900">JobWrap</span>
-        </div>
+        </Link>
 
         <h1 className="text-2xl font-bold text-slate-900 mb-1">Create account</h1>
         <p className="text-slate-500 text-sm mb-8">For air conditioning & HVAC technicians.</p>
@@ -208,11 +210,8 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
           </button>
         </p>
 
-        <p className="text-center text-xs text-slate-500 mt-4">
-          By creating an account you agree to our{" "}
-          <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
-        </p>
       </div>
+      <LandingFooter />
     </div>
   );
 }
