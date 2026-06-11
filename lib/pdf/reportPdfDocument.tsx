@@ -462,19 +462,8 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
             </>
           )}
 
-          {/* Thank you — always on page 1, closes the report content */}
-          <View wrap={false}>
-            <Divider />
-            <Text style={s.thankYou}>
-              {"Thank you for choosing "}
-              <Text style={s.thankYouBiz}>{business.businessName}</Text>
-              {"."}
-            </Text>
-            <Text style={s.thankYouSub}>We appreciate your business and look forward to serving you again.</Text>
-          </View>
-
-          {/* Job Photos — own wrap={false} block, pushed to page 2 if needed */}
-          {photos.length > 0 && (
+          {/* Job Photos + Thank you — photos first, thank you always last */}
+          {photos.length > 0 ? (
             <View wrap={false}>
               <Divider />
               <Text style={[s.sectionLabel, { color: brandColor }]}>Job Photos</Text>
@@ -486,6 +475,23 @@ export default function ReportPdfDocument({ report, photos = [] }: ReportPdfDocu
                   </View>
                 ))}
               </View>
+              <Divider />
+              <Text style={s.thankYou}>
+                {"Thank you for choosing "}
+                <Text style={s.thankYouBiz}>{business.businessName}</Text>
+                {"."}
+              </Text>
+              <Text style={s.thankYouSub}>We appreciate your business and look forward to serving you again.</Text>
+            </View>
+          ) : (
+            <View wrap={false}>
+              <Divider />
+              <Text style={s.thankYou}>
+                {"Thank you for choosing "}
+                <Text style={s.thankYouBiz}>{business.businessName}</Text>
+                {"."}
+              </Text>
+              <Text style={s.thankYouSub}>We appreciate your business and look forward to serving you again.</Text>
             </View>
           )}
 
