@@ -274,7 +274,7 @@ export default function Home() {
       />
 
       {/* Content — offset right of sidebar on desktop, pushed down by top banner */}
-      <div className="lg:pl-60 pt-10">
+      <div className="lg:pl-60">
 
       {screen === "dashboard" && (
         <Dashboard
