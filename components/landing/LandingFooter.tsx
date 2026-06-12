@@ -13,11 +13,17 @@ export default function LandingFooter() {
           © {new Date().getFullYear()} JobWrap. All rights reserved.
         </p>
         <nav className="flex items-center justify-center gap-6 text-sm text-slate-500">
+          <Link href="/pricing" className="hover:text-slate-900 transition-colors">
+            Pricing
+          </Link>
           <Link href="/privacy" className="hover:text-slate-900 transition-colors">
             Privacy Policy
           </Link>
           <Link href="/terms" className="hover:text-slate-900 transition-colors">
             Terms of Service
+          </Link>
+          <Link href="/refund-policy" className="hover:text-slate-900 transition-colors">
+            Refund Policy
           </Link>
           <Link href="/contact" className="hover:text-slate-900 transition-colors">
             Contact

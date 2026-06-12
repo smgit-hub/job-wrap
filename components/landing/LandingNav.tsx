@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
-export default function LandingNav() {
+export default function LandingNav({ forcesolid = false }: { forcesolid?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -14,7 +14,7 @@ export default function LandingNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const transparent = !scrolled;
+  const transparent = !forcesolid && !scrolled;
 
   return (
     <header
@@ -36,6 +36,12 @@ export default function LandingNav() {
 
         {/* Nav links — visible on all screen sizes */}
         <nav className="flex items-center gap-3 sm:gap-6">
+          <Link
+            href="/pricing"
+            className={`hidden sm:inline text-sm font-medium transition-colors duration-300 ${transparent ? "text-white/80 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}
+          >
+            Pricing
+          </Link>
           <Link
             href="/login"
             className={`text-sm font-medium transition-colors duration-300 ${transparent ? "text-white/80 hover:text-white" : "text-slate-600 hover:text-slate-900"}`}

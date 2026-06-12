@@ -27,7 +27,9 @@ export default function TermsPage() {
           <Section title="Subscription and payment">
             <p>JobWrap is a paid service. By subscribing, you agree to pay the applicable monthly fee. Your subscription renews automatically each month until cancelled.</p>
             <p>You can cancel at any time. Cancellation takes effect at the end of your current billing period — you won&apos;t be charged again, and you retain access until that period ends.</p>
+            <p>Payments are processed by Paddle. By subscribing you also agree to Paddle&apos;s terms of service. JobWrap does not store your card or payment details.</p>
             <p>We reserve the right to change pricing with reasonable notice. Existing subscribers will be notified before any price change takes effect.</p>
+            <p>For details on cancellations and refunds, see our <Link href="/refund-policy" className="text-orange-500 hover:underline font-medium">Refund Policy</Link>.</p>
           </Section>
 
           <Section title="Your data">
