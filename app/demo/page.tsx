@@ -17,10 +17,12 @@ import { DemoAuthProvider } from "@/components/auth/DemoAuthProvider";
 import AppTopBanner from "@/components/AppTopBanner";
 import AppShell from "@/components/AppShell";
 import { installDemoInterceptor } from "@/lib/demo/fetchInterceptor";
-import { markDemoSessionActive } from "@/lib/db";
+import { markDemoSessionActive, clearDemoSession } from "@/lib/db";
 
 function DemoApp() {
   useEffect(() => {
+    // Always clear and reseed so dates stay fresh on every visit
+    clearDemoSession();
     markDemoSessionActive();
     const uninstall = installDemoInterceptor();
     return uninstall;
