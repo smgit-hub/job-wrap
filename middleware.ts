@@ -64,6 +64,7 @@ export async function middleware(request: NextRequest) {
     pathname.startsWith("/contact") ||
     pathname.startsWith("/privacy") ||
     pathname.startsWith("/terms") ||
+    pathname.startsWith("/refund-policy") ||
     pathname.startsWith("/demo");
 
   // Redirect unauthenticated users to /login (except on auth or public routes)
