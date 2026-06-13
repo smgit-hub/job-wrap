@@ -29,7 +29,7 @@ export default function TermsPage() {
             <p>You can cancel at any time. Cancellation takes effect at the end of your current billing period — you won&apos;t be charged again, and you retain access until that period ends.</p>
             <p>Payments are processed by Paddle. By subscribing you also agree to Paddle&apos;s terms of service. JobWrap does not store your card or payment details.</p>
             <p>We reserve the right to change pricing with reasonable notice. Existing subscribers will be notified before any price change takes effect.</p>
-            <p>For details on cancellations and refunds, see our <Link href="/refund-policy" className="text-orange-500 hover:underline font-medium">Refund Policy</Link>.</p>
+            <p>You are entitled to a full refund within 14 days of being charged. For full details see our <Link href="/refund-policy" className="text-orange-500 hover:underline font-medium">Refund Policy</Link>.</p>
           </Section>
 
           <Section title="Your data">

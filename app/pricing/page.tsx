@@ -33,7 +33,7 @@ const FAQ = [
   },
   {
     q: "Is there a refund if I change my mind?",
-    a: "If you've been charged and haven't used JobWrap during that period, contact us within 7 days and we'll issue a full refund. See our refund policy for full details.",
+    a: "You are entitled to a full refund within 14 days of being charged. See our refund policy for full details.",
     link: { href: "/refund-policy", label: "refund policy" },
   },
   {

@@ -25,20 +25,20 @@ export default function RefundPolicyPage() {
           </Section>
 
           <Section title="Refunds">
-            <p>If you&apos;ve been charged and haven&apos;t used JobWrap during that billing period, <a href="/contact" className="text-orange-500 hover:underline font-medium">contact us</a> within 7 days of the charge and we&apos;ll issue a full refund.</p>
-            <p>Outside of that window, refunds are not provided for partially used subscription periods. If you cancel mid-month, you keep access until the end of the period but are not refunded the remaining days.</p>
+            <p>You are entitled to a full refund within 14 days of being charged. To request a refund, <a href="/contact" className="text-orange-500 hover:underline font-medium">contact us</a> with your account email and we will process it promptly.</p>
+            <p>Payments are processed by Paddle, who acts as the merchant of record. Refunds are handled in accordance with <a href="https://www.paddle.com/legal/refund-policy" className="text-orange-500 hover:underline font-medium" target="_blank" rel="noopener noreferrer">Paddle&apos;s refund policy</a>.</p>
           </Section>
 
           <Section title="Free trial">
-            <p>If JobWrap offers a free trial period, you will not be charged until the trial ends. You can cancel before the trial ends and you won&apos;t be charged at all.</p>
+            <p>Your 14-day free trial starts when you create your account. You will not be charged until the trial ends. Cancel any time during the trial and you won&apos;t be charged at all.</p>
           </Section>
 
-          <Section title="Exceptional circumstances">
-            <p>We&apos;re a small team and we treat every customer fairly. If something went wrong — a billing error, a technical issue that prevented you from using the service, or any other exceptional circumstance — <a href="/contact" className="text-orange-500 hover:underline font-medium">get in touch</a> and we&apos;ll work something out.</p>
+          <Section title="Cancellation">
+            <p>You can cancel your subscription at any time. Your access continues until the end of the current billing period and you will not be charged again.</p>
           </Section>
 
           <Section title="How to request a refund">
-            <p>Email us via the <a href="/contact" className="text-orange-500 hover:underline font-medium">contact page</a> with your account email and a brief description of the issue. We&apos;ll respond within 2 business days.</p>
+            <p>Contact us via the <a href="/contact" className="text-orange-500 hover:underline font-medium">contact page</a> with your account email. We&apos;ll respond within 2 business days.</p>
           </Section>
 
           <div className="border-t border-slate-100 pt-8 space-y-3 text-sm text-slate-500">
