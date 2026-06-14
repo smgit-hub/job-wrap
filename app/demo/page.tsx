@@ -12,7 +12,7 @@
  * - AppShell renders the full app UI
  */
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { DemoAuthProvider } from "@/components/auth/DemoAuthProvider";
 import AppTopBanner from "@/components/AppTopBanner";
 import AppShell from "@/components/AppShell";
@@ -20,10 +20,17 @@ import { installDemoInterceptor } from "@/lib/demo/fetchInterceptor";
 import { markDemoSessionActive, clearDemoSession } from "@/lib/db";
 
 function DemoApp() {
-  useEffect(() => {
-    // Always clear and reseed so dates stay fresh on every visit
+  // Clear synchronously during render so AppShell's useEffect seeds fresh data
+  // (child effects run before parent effects, so clearing in useEffect was wiping
+  // data that AppShell had just seeded)
+  const cleared = useRef(false);
+  if (!cleared.current) {
+    cleared.current = true;
     clearDemoSession();
     markDemoSessionActive();
+  }
+
+  useEffect(() => {
     const uninstall = installDemoInterceptor();
     return uninstall;
   }, []);
