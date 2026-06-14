@@ -108,6 +108,18 @@ export type SharedReportRow = {
 
 export type SharedReportInsert = Omit<SharedReportRow, "id" | "created_at">;
 
+export type SubscriptionRow = {
+  id: string;
+  user_id: string;
+  stripe_customer_id: string;
+  stripe_subscription_id: string;
+  status: string;
+  price_id: string | null;
+  current_period_end: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 // ── Full database schema type (for typed Supabase client) ─────────────────────
 
 export interface Database {
