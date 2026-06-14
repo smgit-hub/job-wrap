@@ -252,8 +252,8 @@ export default function AppShell() {
         onSettings={() => goToScreen("settings")}
       />
 
-      {/* Content — offset right of sidebar on desktop, pushed down by top banner */}
-      <div className="lg:pl-60 pt-10">
+      {/* Content — offset right of sidebar on desktop, pushed down by demo banner when active */}
+      <div className={`lg:pl-60${isDemo ? " pt-10" : ""}`}>
 
         {screen === "dashboard" && (
           <Dashboard
