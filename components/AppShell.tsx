@@ -41,6 +41,7 @@ function getActiveSection(screen: Screen): ActiveSection {
 
 export default function AppShell() {
   const { user, loading: authLoading, isDemo } = useAuth();
+  const isAdmin = Array.isArray(user?.app_metadata?.roles) && (user.app_metadata.roles as string[]).includes("admin");
 
   // Purge reports that have been in trash for more than 7 days
   useState(() => { purgeExpiredDeletedReports(); });
@@ -244,7 +245,7 @@ export default function AppShell() {
   }
 
   // Show loading screen until auth resolves and the initial sync completes.
-  if (!isDemo && trialExpired) {
+  if (!isDemo && !isAdmin && trialExpired) {
     return <PaywallScreen />;
   }
 
@@ -389,8 +390,10 @@ function PaywallScreen() {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-5">
       <div className="max-w-sm w-full space-y-6 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-orange-50 flex items-center justify-center mx-auto">
-          <Sparkles className="w-8 h-8 text-orange-400" />
+        <div className="flex items-center justify-center gap-2.5">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/icons/icon-192.png?v=3" alt="JobWrap" className="w-10 h-10 rounded-xl object-cover" />
+          <span className="text-2xl font-bold text-slate-900">JobWrap</span>
         </div>
         <div className="space-y-2">
           <h1 className="text-2xl font-extrabold text-slate-900">Your trial has ended</h1>
