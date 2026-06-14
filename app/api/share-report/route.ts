@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { readBodyWithLimit } from "@/lib/api/readBody";
 import type { ServiceReport, JobPhoto } from "@/types/report";
 
 // TODO(rate-limiting): add rate limiting (e.g. Upstash) before public launch.
@@ -17,17 +18,9 @@ function generateToken(): string {
     .join("");
 }
 
-// Derive a safe URL from the incoming request.
-// Reads the X-Forwarded-Host header first (set by Vercel/proxies) then falls
-// back to the Host header. Only allows known schemes — never trusts a
-// user-supplied protocol.
-function buildShareUrl(request: NextRequest, token: string): string {
-  const forwardedHost = request.headers.get("x-forwarded-host");
-  const host = forwardedHost ?? request.headers.get("host") ?? "localhost:3000";
-  // Never derive protocol from user-supplied headers
-  const isLocal = host.includes("localhost") || host.includes("127.0.0.1");
-  const protocol = isLocal ? "http" : "https";
-  return `${protocol}://${host}/r/${token}`;
+function buildShareUrl(token: string): string {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://jobwrap.app";
+  return `${appUrl}/r/${token}`;
 }
 
 // Sanity-check the report payload so we don't persist garbage.
@@ -46,12 +39,6 @@ function isValidReport(r: unknown): r is ServiceReport {
 const MAX_BODY_BYTES = 10 * 1024 * 1024;
 
 export async function POST(request: NextRequest) {
-  // Guard against oversized bodies before parsing
-  const contentLength = request.headers.get("content-length");
-  if (contentLength && parseInt(contentLength, 10) > MAX_BODY_BYTES) {
-    return NextResponse.json({ error: "Request body too large" }, { status: 413 });
-  }
-
   const supabase = await getSupabaseServerClient();
   if (!supabase) {
     return NextResponse.json(
@@ -66,13 +53,15 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
   }
 
+  const bodyResult = await readBodyWithLimit(request, MAX_BODY_BYTES);
+  if ("error" in bodyResult) {
+    return NextResponse.json({ error: bodyResult.error }, { status: bodyResult.status });
+  }
+
   let report: ServiceReport;
   let photos: JobPhoto[];
   try {
-    const body = (await request.json()) as {
-      report: unknown;
-      photos?: unknown[];
-    };
+    const body = JSON.parse(bodyResult.text) as { report: unknown; photos?: unknown[] };
     if (!isValidReport(body.report)) {
       return NextResponse.json({ error: "Invalid report data" }, { status: 400 });
     }
@@ -98,6 +87,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Failed to create share link" }, { status: 500 });
   }
 
-  const url = buildShareUrl(request, token);
+  const url = buildShareUrl(token);
   return NextResponse.json({ url, token });
 }

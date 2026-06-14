@@ -4,7 +4,33 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const CONTACT_EMAIL = process.env.CONTACT_EMAIL;
+if (!CONTACT_EMAIL) throw new Error("CONTACT_EMAIL env var is required");
+const CONTACT_EMAIL_SAFE: string = CONTACT_EMAIL;
+
+// Simple in-process rate limit: max 3 submissions per IP per 10 minutes
+const ipSubmissions = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT = 3;
+const RATE_WINDOW_MS = 10 * 60 * 1000;
+
+function isRateLimited(ip: string): boolean {
+  const now = Date.now();
+  const entry = ipSubmissions.get(ip);
+  if (!entry || now > entry.resetAt) {
+    ipSubmissions.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return false;
+  }
+  if (entry.count >= RATE_LIMIT) return true;
+  entry.count++;
+  return false;
+}
+
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (isRateLimited(ip)) {
+    return NextResponse.json({ error: "Too many requests. Please try again later." }, { status: 429 });
+  }
+
   const body = await req.json();
   let { name, email, message } = body as { name?: string; email?: string; message?: string };
 
@@ -28,7 +54,7 @@ export async function POST(req: NextRequest) {
 
   const { error } = await resend.emails.send({
     from: "JobWrap Contact <hello@jobwrap.app>",
-    to: process.env.CONTACT_EMAIL!,
+    to: CONTACT_EMAIL_SAFE,
     replyTo: email.trim(),
     subject: `New message from ${name.trim()}`,
     text: `Name: ${name.trim()}\nEmail: ${email.trim()}\n\n${message.trim()}`,

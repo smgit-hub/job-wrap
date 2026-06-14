@@ -90,11 +90,12 @@ export async function POST(request: Request) {
 
   const { report, photos = [] } = parsedBody;
 
-  // SSRF guard — only allow base64 data URLs or Supabase Storage signed URLs
-  const ALLOWED_PHOTO_ORIGINS = ["data:image/", "https://"];
+  // SSRF guard — only allow base64 data URLs or Supabase Storage URLs
+  const supabaseStorageBase = (process.env.NEXT_PUBLIC_SUPABASE_URL ?? "") + "/storage/v1/object";
   const invalidPhoto = photos.find((p: { dataUrl?: unknown }) => {
     if (typeof p.dataUrl !== "string") return true;
-    return !ALLOWED_PHOTO_ORIGINS.some((prefix) => (p.dataUrl as string).startsWith(prefix));
+    const url = p.dataUrl as string;
+    return !url.startsWith("data:image/") && !url.startsWith(supabaseStorageBase);
   });
   if (invalidPhoto) {
     return Response.json({ error: "Invalid photo data" }, { status: 400 });
