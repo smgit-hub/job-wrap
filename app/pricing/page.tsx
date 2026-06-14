@@ -5,7 +5,7 @@ import LandingFooter from "@/components/landing/LandingFooter";
 
 export const metadata = {
   title: "Pricing — JobWrap",
-  description: "One simple plan. Everything included. Start your 14-day free trial — no credit card required.",
+  description: "One simple plan. Everything included. Start your 14-day free trial.",
 };
 
 const PLAN_FEATURES = [
@@ -21,7 +21,7 @@ const PLAN_FEATURES = [
 const FAQ = [
   {
     q: "Do I need a credit card to start?",
-    a: "No. Your 14-day free trial starts the moment you create an account — no credit card required. You only pay when you choose to continue.",
+    a: "Yes — a card is required to start your trial. You won't be charged until the 14 days are up. Cancel any time before then and you won't pay a thing.",
   },
   {
     q: "What happens after the trial?",
@@ -68,7 +68,7 @@ export default function PricingPage() {
             <span className="text-orange-500">No surprises.</span>
           </h1>
           <p className="text-slate-500 text-lg max-w-md mx-auto">
-            One plan. Everything included. Start free — no credit card required.
+            One plan. Everything included. 14-day free trial — cancel any time.
           </p>
         </section>
 
@@ -101,7 +101,7 @@ export default function PricingPage() {
                 Start 14-day free trial
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <p className="text-center text-slate-400 text-sm mt-3">No credit card required</p>
+              <p className="text-center text-slate-400 text-sm mt-3">Cancel within 14 days for a full refund</p>
             </div>
           </div>
         </section>
@@ -142,7 +142,7 @@ export default function PricingPage() {
             Ready to give it a go?
           </h2>
           <p className="text-slate-500 text-base mb-8">
-            14 days free. No credit card. Cancel any time.
+            14-day free trial. Cancel any time.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
