@@ -25,7 +25,7 @@ const FAQ = [
   },
   {
     q: "What happens after the trial?",
-    a: "At the end of your 14-day trial you'll be prompted to enter payment details to continue. If you don't, your account is paused and your data is kept safely.",
+    a: "Your card is charged automatically when the 14-day trial ends. You can cancel any time before then and won't be charged.",
   },
   {
     q: "Can I cancel any time?",
