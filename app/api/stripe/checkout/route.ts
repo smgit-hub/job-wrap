@@ -20,6 +20,7 @@ export async function POST() {
     mode: "subscription",
     payment_method_types: ["card"],
     line_items: [{ price: priceId, quantity: 1 }],
+    subscription_data: { trial_period_days: 14 },
     customer_email: user.email,
     client_reference_id: user.id,
     success_url: `${process.env.NEXT_PUBLIC_APP_URL}/app?subscribed=1`,
