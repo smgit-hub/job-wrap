@@ -1,9 +1,10 @@
 "use client";
 
-import { LayoutDashboard, FileText, Users, Settings, LogOut, DoorOpen } from "lucide-react";
+import { LayoutDashboard, FileText, Users, Settings, LogOut, DoorOpen, ShieldCheck } from "lucide-react";
 import { getBusinessProfile } from "@/lib/storage";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { cn } from "@/lib/utils";
+
 
 export type ActiveSection = "dashboard" | "reports" | "customers" | "settings";
 
@@ -24,7 +25,8 @@ const NAV_ITEMS = [
 
 export default function Sidebar({ activeSection, onDashboard, onReports, onCustomers, onSettings }: SidebarProps) {
   const profile = getBusinessProfile();
-  const { isConfigured, isDemo, signOut } = useAuth();
+  const { isConfigured, isDemo, signOut, user } = useAuth();
+  const isAdmin = !isDemo && Array.isArray(user?.app_metadata?.roles) && user.app_metadata.roles.includes("admin");
 
   const handlers: Record<ActiveSection, () => void> = {
     dashboard: onDashboard,
@@ -80,6 +82,15 @@ export default function Sidebar({ activeSection, onDashboard, onReports, onCusto
       {/* Sign out / Exit demo */}
       {isConfigured && (
         <div className="px-3 pb-5 border-t border-slate-100 pt-3">
+          {isAdmin && (
+            <a
+              href="/admin"
+              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-slate-50 hover:text-slate-600 transition-colors mb-1"
+            >
+              <ShieldCheck className="w-4 h-4 shrink-0" />
+              Admin
+            </a>
+          )}
           {isDemo ? (
             <button
               onClick={async () => { await signOut(); }}
