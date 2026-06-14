@@ -41,8 +41,8 @@ export default function PrivacyPage() {
           </Section>
 
           <Section title="Payments">
-            <p>Payments are processed by <strong>Paddle</strong>, our payment provider. JobWrap does not store your card details — all payment information is handled directly by Paddle and subject to their privacy policy.</p>
-            <p>Paddle may collect your name, email address, billing address, and payment method details in order to process your subscription.</p>
+            <p>Payments are processed by <strong>Stripe</strong>, our payment provider. JobWrap does not store your card details — all payment information is handled directly by Stripe and subject to their privacy policy.</p>
+            <p>Stripe may collect your name, email address, billing address, and payment method details in order to process your subscription.</p>
           </Section>
 
           <Section title="Sharing">
@@ -50,7 +50,7 @@ export default function PrivacyPage() {
             <ul>
               <li><strong>Anthropic</strong> — for AI report generation, as described above.</li>
               <li><strong>Supabase</strong> — for authentication, data storage, and shared report link hosting.</li>
-              <li><strong>Paddle</strong> — for payment processing and subscription management.</li>
+              <li><strong>Stripe</strong> — for payment processing and subscription management.</li>
             </ul>
           </Section>
 

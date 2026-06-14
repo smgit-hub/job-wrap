@@ -19,22 +19,18 @@ export default function RefundPolicyPage() {
         <p className="text-sm text-slate-400 mb-12">Last updated: June 2026</p>
 
         <div className="space-y-10 text-slate-600 leading-relaxed">
-          <Section title="Cancellation">
-            <p>You can cancel your JobWrap subscription at any time — no lock-in, no questions asked.</p>
-            <p>When you cancel, your subscription remains active until the end of the current billing period. You won&apos;t be charged again after that, and you&apos;ll retain full access until the period ends.</p>
-          </Section>
-
-          <Section title="Refunds">
-            <p>You are entitled to a full refund within 14 days of being charged. To request a refund, <a href="/contact" className="text-orange-500 hover:underline font-medium">contact us</a> with your account email and we will process it promptly.</p>
-            <p>Payments are processed by Paddle, who acts as the merchant of record. Refunds are handled in accordance with <a href="https://www.paddle.com/legal/refund-policy" className="text-orange-500 hover:underline font-medium" target="_blank" rel="noopener noreferrer">Paddle&apos;s refund policy</a>.</p>
-          </Section>
-
           <Section title="Free trial">
             <p>Your 14-day free trial starts when you create your account. You will not be charged until the trial ends. Cancel any time during the trial and you won&apos;t be charged at all.</p>
           </Section>
 
+          <Section title="Refunds">
+            <p>You are entitled to a full refund within 14 days of being charged. To request a refund, <a href="/contact" className="text-orange-500 hover:underline font-medium">contact us</a> with your account email and we will process it promptly.</p>
+            <p>Payments are processed by Stripe. Refunds are returned to the original payment method and typically appear within 5–10 business days.</p>
+          </Section>
+
           <Section title="Cancellation">
-            <p>You can cancel your subscription at any time. Your access continues until the end of the current billing period and you will not be charged again.</p>
+            <p>You can cancel your JobWrap subscription at any time — no lock-in, no questions asked.</p>
+            <p>When you cancel, your subscription remains active until the end of the current billing period. You won&apos;t be charged again after that, and you&apos;ll retain full access until the period ends.</p>
           </Section>
 
           <Section title="How to request a refund">
