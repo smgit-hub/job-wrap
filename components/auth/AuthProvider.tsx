@@ -50,12 +50,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
-    // Load the initial session
+    // Load the initial session, then refresh to pick up latest server-side metadata
     client.auth.getSession().then(({ data }) => {
       userRef.current = data.session?.user ?? null;
       setSession(data.session);
       setUser(data.session?.user ?? null);
       setLoading(false);
+
+      if (data.session) {
+        client.auth.refreshSession().then(({ data: refreshed }) => {
+          if (refreshed.session) {
+            userRef.current = refreshed.session.user;
+            setSession(refreshed.session);
+            setUser(refreshed.session.user);
+          }
+        });
+      }
     });
 
     // Subscribe to auth state changes (login, logout, token refresh)
