@@ -62,6 +62,9 @@ export default async function AdminPage() {
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="max-w-5xl mx-auto px-6 py-12">
+        <a href="/app" className="inline-flex items-center gap-1.5 text-sm text-slate-400 hover:text-slate-600 mb-6 transition-colors">
+          ← Back to app
+        </a>
         <h1 className="text-2xl font-extrabold text-slate-900 mb-1">Admin</h1>
         <p className="text-slate-400 text-sm mb-10">JobWrap usage overview</p>
 
