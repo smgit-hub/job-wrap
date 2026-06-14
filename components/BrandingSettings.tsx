@@ -166,6 +166,17 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
           </div>
         </div>
 
+        {/* ── Subscription ─────────────────────────────────────────────────── */}
+        {isConfigured && (
+          <>
+            <div className="flex items-center gap-3 pt-2">
+              <h2 className="text-xl font-bold text-slate-900 shrink-0">Subscription</h2>
+              <div className="flex-1 h-px bg-slate-300" />
+            </div>
+            <SubscriptionCard />
+          </>
+        )}
+
         {/* ── Business ─────────────────────────────────────────────────────── */}
         <div className="flex items-center gap-3 pt-2">
           <h2 className="text-xl font-bold text-slate-900 shrink-0">Business</h2>
@@ -460,17 +471,6 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
 
               </CardContent>
             </Card>
-          </>
-        )}
-
-        {/* ── Subscription ─────────────────────────────────────────────────── */}
-        {isConfigured && (
-          <>
-            <div className="flex items-center gap-3 pt-2">
-              <h2 className="text-xl font-bold text-slate-900 shrink-0">Subscription</h2>
-              <div className="flex-1 h-px bg-slate-300" />
-            </div>
-            <SubscriptionCard />
           </>
         )}
 
