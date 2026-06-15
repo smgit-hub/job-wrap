@@ -78,7 +78,7 @@ export default function PricingPage() {
             <div className="bg-slate-900 px-8 py-8 text-white">
               <p className="text-slate-400 text-sm font-medium mb-1">Monthly subscription</p>
               <div className="flex items-end gap-1.5">
-                <span className="text-5xl font-extrabold">$12</span>
+                <span className="text-5xl font-extrabold">$9</span>
                 <span className="text-slate-400 text-lg mb-1">/ month</span>
               </div>
               <p className="text-slate-400 text-sm mt-2">USD · billed monthly · cancel any time</p>

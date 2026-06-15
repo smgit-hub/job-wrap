@@ -403,7 +403,7 @@ function PaywallScreen() {
         </div>
         <div className="bg-white rounded-2xl border border-slate-200 p-5 text-left space-y-3">
           <div className="flex items-end gap-1">
-            <span className="text-3xl font-extrabold text-slate-900">$12</span>
+            <span className="text-3xl font-extrabold text-slate-900">$9</span>
             <span className="text-slate-400 text-sm mb-1">/ month</span>
           </div>
           <ul className="space-y-2 text-sm text-slate-600">
