@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
-import { CheckCircle2, Upload, X, Palette, LogOut, Eye, EyeOff, Loader2 } from "lucide-react";
+import { CheckCircle2, Upload, X, Palette, LogOut, Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
@@ -58,6 +58,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
   const [logoLoading, setLogoLoading] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
   const { isConfigured, signOut, user } = useAuth();
+  const isAdmin = Array.isArray(user?.app_metadata?.roles) && (user.app_metadata.roles as string[]).includes("admin");
   // ── Account: Change Password ─────────────────────────────────────────────
   const [pwNew, setPwNew] = useState("");
   const [pwConfirm, setPwConfirm] = useState("");
@@ -153,6 +154,15 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
               <span className="text-sm text-green-600 flex items-center gap-1.5 font-semibold">
                 <CheckCircle2 className="w-4 h-4" /> Saved
               </span>
+            )}
+            {isAdmin && (
+              <a
+                href="/admin"
+                className="flex items-center gap-1.5 text-sm font-medium text-orange-500 hover:text-orange-600 transition-colors"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                Admin
+              </a>
             )}
             {isConfigured && (
               <button
