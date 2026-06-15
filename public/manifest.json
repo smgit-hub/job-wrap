@@ -2,7 +2,7 @@
   "name": "JobWrap — Service Reports in Seconds",
   "short_name": "JobWrap",
   "description": "Talk through the job. JobWrap writes the report. Built for HVAC technicians.",
-  "start_url": "/",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#f1f5f9",
   "theme_color": "#0f172a",
