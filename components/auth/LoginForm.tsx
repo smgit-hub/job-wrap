@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Eye, EyeOff, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -131,9 +131,8 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-5 text-center">
-        <div className="w-20 h-20 rounded-3xl bg-orange-50 flex items-center justify-center">
-          <Sparkles className="w-10 h-10 text-orange-400 animate-pulse" />
-        </div>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/icons/icon-192.png?v=3" alt="JobWrap" className="w-20 h-20 rounded-3xl object-cover" />
         <div className="space-y-1">
           <p className="font-bold text-slate-900 text-lg">JobWrap</p>
           <p className="text-sm text-slate-500">Signing in…</p>
