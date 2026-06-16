@@ -95,7 +95,7 @@ export default function LandingPage() {
                   Try the demo
                 </Link>
               </div>
-              <p className="text-sm text-slate-400 mt-4">14-day free trial. Cancel any time.</p>
+              <p className="text-sm text-slate-400 mt-4">14-day free trial. No credit card required.</p>
             </div>
             <div className="flex-1 flex justify-center">
               <div className="relative w-44 md:w-56 lg:w-72">
@@ -352,7 +352,7 @@ export default function LandingPage() {
                 Start 14-day free trial
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <p className="text-center text-slate-400 text-sm mt-3">Cancel any time</p>
+              <p className="text-center text-slate-400 text-sm mt-3">No credit card required · cancel any time</p>
             </div>
           </div>
         </div>

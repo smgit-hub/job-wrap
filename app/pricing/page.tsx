@@ -21,11 +21,11 @@ const PLAN_FEATURES = [
 const FAQ = [
   {
     q: "Do I need a credit card to start?",
-    a: "Yes — a card is required to start your trial. You won't be charged until the 14 days are up. Cancel any time before then and you won't pay a thing.",
+    a: "No — sign up and start using JobWrap free for 14 days, no card required. You'll only need to add payment details if you decide to continue after your trial.",
   },
   {
     q: "What happens after the trial?",
-    a: "Your card is charged automatically when the 14-day trial ends. You can cancel any time before then and won't be charged.",
+    a: "Once your 14-day trial ends, you'll be asked to subscribe to keep using JobWrap. There's no automatic charge — nothing happens until you choose to add a card and subscribe.",
   },
   {
     q: "Can I cancel any time?",
@@ -68,7 +68,7 @@ export default function PricingPage() {
             <span className="text-orange-500">No surprises.</span>
           </h1>
           <p className="text-slate-500 text-lg max-w-md mx-auto">
-            One plan. Everything included. 14-day free trial — cancel any time.
+            One plan. Everything included. 14-day free trial — no credit card required.
           </p>
         </section>
 
@@ -101,7 +101,7 @@ export default function PricingPage() {
                 Start 14-day free trial
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <p className="text-center text-slate-400 text-sm mt-3">Cancel within 14 days for a full refund</p>
+              <p className="text-center text-slate-400 text-sm mt-3">No credit card required to start</p>
             </div>
           </div>
         </section>
@@ -142,7 +142,7 @@ export default function PricingPage() {
             Ready to give it a go?
           </h2>
           <p className="text-slate-500 text-base mb-8">
-            14-day free trial. Cancel any time.
+            14-day free trial. No credit card required.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
