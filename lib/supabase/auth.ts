@@ -15,6 +15,7 @@
 // consider switching to a secure httpOnly cookie strategy via @supabase/ssr.
 
 import { getSupabaseBrowserClient } from "./client";
+import { clearDemoSession } from "@/lib/db";
 import type { User, Session, AuthError } from "@supabase/supabase-js";
 
 export interface AuthResult {
@@ -49,6 +50,15 @@ export async function signUp(
   if (!client) {
     return { user: null, session: null, error: null };
   }
+
+  // Sign out any existing session first. Without this, signing up a second
+  // account in the same browser while still logged in as someone else can
+  // leave the old session active — the confirmation link then lands the
+  // user back in the app under the OLD account instead of the new one.
+  // Also clear the cached local data so the previous account's reports
+  // can't flash on screen before the new account's data has synced.
+  await client.auth.signOut();
+  clearDemoSession();
 
   const { data, error } = await client.auth.signUp({
     email,
@@ -88,6 +98,9 @@ export async function signOut(): Promise<{ error: AuthError | null }> {
   if (!client) return { error: null };
 
   const { error } = await client.auth.signOut();
+  // Clear cached local data so the next person to sign in on this device
+  // (a different account) doesn't briefly see this account's reports.
+  clearDemoSession();
   return { error };
 }
 
