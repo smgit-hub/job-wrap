@@ -53,7 +53,10 @@ export async function signUp(
   const { data, error } = await client.auth.signUp({
     email,
     password,
-    options: name ? { data: { name } } : undefined,
+    options: {
+      ...(name ? { data: { name } } : {}),
+      emailRedirectTo: `${window.location.origin}/app`,
+    },
   });
   return {
     user: data.user ?? null,

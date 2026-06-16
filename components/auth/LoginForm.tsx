@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { Eye, EyeOff, Mail } from "lucide-react";
@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signInWithPassword, resetPassword } from "@/lib/supabase/auth";
+import { useAuth } from "@/components/auth/AuthProvider";
 import LandingFooter from "@/components/landing/LandingFooter";
 
 interface LoginFormProps {
@@ -16,6 +17,19 @@ interface LoginFormProps {
 }
 
 export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
+  // Safety net: if a confirmation/magic link (or any other flow) lands here
+  // while a session already exists — e.g. detected from the URL hash — skip
+  // the login form and go straight into the app instead of showing a
+  // confusing "please sign in" screen to an already-authenticated user.
+  const { user, loading: authLoading } = useAuth();
+  const redirected = useRef(false);
+  useEffect(() => {
+    if (!authLoading && user && !redirected.current) {
+      redirected.current = true;
+      onSuccess();
+    }
+  }, [authLoading, user, onSuccess]);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -126,9 +140,10 @@ export default function LoginForm({ onSuccess, onSignUp }: LoginFormProps) {
     );
   }
 
-  // Replace the whole form with a spinner once signing in — prevents the login
-  // page flashing during the navigation to /app.
-  if (loading) {
+  // Replace the whole form with a spinner once signing in, or while we're
+  // checking/redirecting an already-authenticated session — prevents the
+  // login page flashing during the navigation to /app.
+  if (loading || (user && !authLoading)) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center gap-5 text-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
