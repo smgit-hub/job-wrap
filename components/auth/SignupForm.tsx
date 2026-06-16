@@ -15,9 +15,9 @@ interface SignupFormProps {
 }
 
 export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -36,11 +36,6 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
     e.preventDefault();
     setError(null);
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match.");
-      return;
-    }
-
     if (password.length < 8) {
       setError("Password must be at least 8 characters.");
       return;
@@ -48,7 +43,7 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
 
     setLoading(true);
 
-    const { user, error: authError } = await signUp(email, password);
+    const { user, error: authError } = await signUp(email, password, name.trim());
 
     if (authError) {
       setError(authError.message);
@@ -137,6 +132,20 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">
+            <Label htmlFor="name">Technician name</Label>
+            <Input
+              id="name"
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="e.g. Alex Morgan"
+              required
+              autoComplete="name"
+              className="h-12 text-base"
+            />
+          </div>
+
+          <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -173,20 +182,6 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-          </div>
-
-          <div className="space-y-1.5">
-            <Label htmlFor="confirmPassword">Confirm password</Label>
-            <Input
-              id="confirmPassword"
-              type={showPassword ? "text" : "password"}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              autoComplete="new-password"
-              className="h-12 text-base"
-            />
           </div>
 
           {error && (

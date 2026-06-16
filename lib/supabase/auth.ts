@@ -42,14 +42,19 @@ export async function signInWithPassword(
 
 export async function signUp(
   email: string,
-  password: string
+  password: string,
+  name?: string
 ): Promise<AuthResult> {
   const client = getSupabaseBrowserClient();
   if (!client) {
     return { user: null, session: null, error: null };
   }
 
-  const { data, error } = await client.auth.signUp({ email, password });
+  const { data, error } = await client.auth.signUp({
+    email,
+    password,
+    options: name ? { data: { name } } : undefined,
+  });
   return {
     user: data.user ?? null,
     session: data.session ?? null,

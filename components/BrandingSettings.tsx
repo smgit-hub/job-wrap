@@ -98,6 +98,15 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
     setTimeout(() => setEmailState("idle"), 5000);
   }
 
+  // Pre-fill technician name from the name captured at signup, if not set yet.
+  useEffect(() => {
+    if (form.technicianName) return;
+    const signupName = (user?.user_metadata as Record<string, unknown> | undefined)?.name;
+    if (typeof signupName === "string" && signupName.trim()) {
+      setForm((prev) => ({ ...prev, technicianName: signupName.trim() }));
+    }
+  }, [user, form.technicianName]);
+
   function update(field: keyof BusinessProfile, value: string) {
     setSaved(false);
     setForm((prev) => ({ ...prev, [field]: value }));
