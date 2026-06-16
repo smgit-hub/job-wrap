@@ -49,7 +49,7 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
 
     setLoading(true);
 
-    const { user, error: authError } = await signUp(email, password, name.trim());
+    const { session, error: authError } = await signUp(email, password, name.trim());
 
     if (authError) {
       setError(authError.message);
@@ -57,7 +57,12 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
       return;
     }
 
-    if (user && !user.confirmed_at) {
+    // No active session means the account isn't usable yet — either it
+    // needs email confirmation, or (after a recent delete/re-signup) Supabase
+    // returned its anti-enumeration "fake success" response. Either way,
+    // showing "check your email" is the correct, safe default. Relying on
+    // user.confirmed_at here was unreliable right after a user was deleted.
+    if (!session) {
       setVerifyPending(true);
       setLoading(false);
       return;
