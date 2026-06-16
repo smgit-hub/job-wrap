@@ -98,18 +98,10 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
               </p>
             </div>
 
-            <a
-              href={`mailto:${email}`}
-              className="w-full h-12 rounded-xl bg-orange-500 text-white text-sm font-semibold flex items-center justify-center gap-2 active:bg-orange-600 transition-colors"
-            >
-              <Mail className="w-4 h-4" />
-              Open Mail app
-            </a>
-
             <button
               onClick={handleResend}
               disabled={resendState !== "idle"}
-              className="w-full h-12 rounded-xl bg-slate-100 text-slate-600 text-sm font-semibold active:bg-slate-200 transition-colors disabled:opacity-60"
+              className="w-full h-12 rounded-xl bg-orange-500 text-white text-sm font-semibold active:bg-orange-600 transition-colors disabled:opacity-60"
             >
               {resendState === "sending" ? "Sending…" : resendState === "sent" ? "Email sent ✓" : "Resend email"}
             </button>
