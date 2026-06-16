@@ -563,28 +563,31 @@ function SubscriptionCard() {
     else setLoading(null);
   }
 
-  const isActive = sub?.status === "active" || sub?.status === "trialing";
+  const isActive = sub?.status === "active";
+  const isTrialing = sub?.status === "trialing";
+  const periodEndLabel = sub?.current_period_end
+    ? new Date(sub.current_period_end).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })
+    : null;
 
   return (
     <Card className="border border-slate-100 shadow-card">
-      <CardContent className="px-4 pb-4 pt-4 space-y-4">
+      <CardContent className="px-4 pb-4 pt-4">
         {sub === undefined ? (
           <p className="text-sm text-slate-400">Loading…</p>
-        ) : isActive ? (
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <span className="inline-block w-2 h-2 rounded-full bg-green-500" />
-              <span className="text-sm font-semibold text-slate-800">Active — $12 / month</span>
+        ) : isActive || isTrialing ? (
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-bold text-slate-900">{isTrialing ? "Free trial" : "Active"}</p>
+              {periodEndLabel && (
+                <p className="text-xs text-slate-400 mt-0.5">
+                  {isTrialing ? `Trial ends ${periodEndLabel}` : `Renews ${periodEndLabel}`} — then $9 USD/month
+                </p>
+              )}
             </div>
-            {sub.current_period_end && (
-              <p className="text-xs text-slate-400">
-                Next billing date: {new Date(sub.current_period_end).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })}
-              </p>
-            )}
             <button
               onClick={openPortal}
               disabled={loading === "portal"}
-              className="w-full h-11 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 disabled:opacity-60 transition-colors"
+              className="shrink-0 h-10 px-4 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 disabled:opacity-60 transition-colors"
             >
               {loading === "portal" ? "Opening…" : "Manage billing"}
             </button>
@@ -596,7 +599,7 @@ function SubscriptionCard() {
             </p>
             <div className="bg-orange-50 rounded-xl px-4 py-3 flex items-center justify-between">
               <span className="text-sm font-bold text-slate-900">JobWrap</span>
-              <span className="text-sm font-bold text-orange-600">$12 / month</span>
+              <span className="text-sm font-bold text-orange-600">$9 / month</span>
             </div>
             <button
               onClick={startCheckout}

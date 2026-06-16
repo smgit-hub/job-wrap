@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { signUp, resendConfirmation } from "@/lib/supabase/auth";
+import { isDisposableEmail } from "@/lib/disposableEmailDomains";
 import LandingFooter from "@/components/landing/LandingFooter";
 
 interface SignupFormProps {
@@ -38,6 +39,11 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
 
     if (password.length < 8) {
       setError("Password must be at least 8 characters.");
+      return;
+    }
+
+    if (isDisposableEmail(email)) {
+      setError("Please use a permanent email address — disposable/temporary email providers aren't supported.");
       return;
     }
 
