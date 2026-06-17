@@ -2,8 +2,10 @@ import LandingFooter from "@/components/landing/LandingFooter";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Terms of Service — JobWrap",
+  title: "Terms of Service",
   description: "Terms and conditions for using JobWrap.",
+  alternates: { canonical: "https://jobwrap.app/terms" },
+  robots: { index: false },
 };
 
 export default function TermsPage() {

@@ -2,8 +2,10 @@ import LandingFooter from "@/components/landing/LandingFooter";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Privacy Policy — JobWrap",
-  description: "How JobWrap handles your data.",
+  title: "Privacy Policy",
+  description: "How JobWrap collects, uses, and protects your data.",
+  alternates: { canonical: "https://jobwrap.app/privacy" },
+  robots: { index: false },
 };
 
 export default function PrivacyPage() {

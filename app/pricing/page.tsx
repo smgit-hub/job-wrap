@@ -4,8 +4,14 @@ import LandingNav from "@/components/landing/LandingNav";
 import LandingFooter from "@/components/landing/LandingFooter";
 
 export const metadata = {
-  title: "Pricing — JobWrap",
-  description: "One simple plan. Everything included. Start your 14-day free trial.",
+  title: "Pricing",
+  description: "One simple plan. Everything included. $9/month after a 14-day free trial — no credit card required.",
+  alternates: { canonical: "https://jobwrap.app/pricing" },
+  openGraph: {
+    url: "https://jobwrap.app/pricing",
+    title: "Pricing — JobWrap",
+    description: "One simple plan. Everything included. $9/month after a 14-day free trial — no credit card required.",
+  },
 };
 
 const PLAN_FEATURES = [

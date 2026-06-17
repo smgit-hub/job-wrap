@@ -4,6 +4,7 @@
 // Public — no auth required. Middleware allows this route through.
 // ---------------------------------------------------------------------------
 
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -13,6 +14,44 @@ import {
 } from "lucide-react";
 import LandingNav from "@/components/landing/LandingNav";
 import LandingFooter from "@/components/landing/LandingFooter";
+
+export const metadata: Metadata = {
+  title: "JobWrap — AI Service Reports for HVAC Technicians",
+  description:
+    "Talk through the job on site. JobWrap turns your voice notes into a professional, branded service report in seconds. 14-day free trial, no credit card required.",
+  alternates: {
+    canonical: "https://jobwrap.app",
+  },
+  openGraph: {
+    url: "https://jobwrap.app",
+    title: "JobWrap — AI Service Reports for HVAC Technicians",
+    description:
+      "Talk through the job on site. JobWrap turns your voice notes into a professional, branded service report in seconds. 14-day free trial, no credit card required.",
+  },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  name: "JobWrap",
+  applicationCategory: "BusinessApplication",
+  operatingSystem: "Web, iOS, Android",
+  url: "https://jobwrap.app",
+  description:
+    "AI-powered service report app for HVAC and air conditioning technicians. Record voice notes on site and get a professional branded report in seconds.",
+  offers: {
+    "@type": "Offer",
+    price: "9.00",
+    priceCurrency: "USD",
+    priceValidUntil: "2026-12-31",
+    availability: "https://schema.org/InStock",
+  },
+  creator: {
+    "@type": "Organization",
+    name: "JobWrap",
+    url: "https://jobwrap.app",
+  },
+};
 
 // ---------------------------------------------------------------------------
 // Data
@@ -67,6 +106,10 @@ function PhoneFrame({ src, alt, priority = false }: { src: string; alt: string; 
 export default function LandingPage() {
   return (
     <div className="bg-white min-h-screen font-sans">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <LandingNav />
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}

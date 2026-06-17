@@ -21,11 +21,68 @@ const font = Plus_Jakarta_Sans({
   display: "swap",
 });
 
+const BASE_URL = "https://jobwrap.app";
+
 export const metadata: Metadata = {
-  title: "JobWrap — Service Reports in Seconds",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "JobWrap — Service Reports in Seconds",
+    template: "%s — JobWrap",
+  },
   description:
-    "Talk through the job. JobWrap writes the report. Built for HVAC technicians.",
+    "Talk through the job on site. JobWrap turns your voice notes into a professional, branded service report in seconds. Built for HVAC & AC technicians.",
+  keywords: [
+    "HVAC service report",
+    "AC technician app",
+    "service report generator",
+    "voice to report",
+    "HVAC software",
+    "air conditioning report",
+    "field service report",
+    "HVAC job report",
+  ],
+  authors: [{ name: "JobWrap", url: BASE_URL }],
+  creator: "JobWrap",
+  publisher: "JobWrap",
   manifest: "/manifest.json",
+  alternates: {
+    canonical: BASE_URL,
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: BASE_URL,
+    siteName: "JobWrap",
+    title: "JobWrap — Service Reports in Seconds",
+    description:
+      "Talk through the job on site. JobWrap turns your voice notes into a professional, branded service report in seconds. Built for HVAC & AC technicians.",
+    images: [
+      {
+        url: "/screenshots/hero-bg.jpg",
+        width: 1200,
+        height: 630,
+        alt: "JobWrap — AI-powered service reports for HVAC technicians",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "JobWrap — Service Reports in Seconds",
+    description:
+      "Talk through the job. JobWrap writes the report. Built for HVAC & AC technicians.",
+    images: ["/screenshots/hero-bg.jpg"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
@@ -36,7 +93,6 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   other: {
-    // Allow PWA install prompt on Android Chrome
     "mobile-web-app-capable": "yes",
   },
 };

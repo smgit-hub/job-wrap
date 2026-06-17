@@ -2,8 +2,10 @@ import LandingFooter from "@/components/landing/LandingFooter";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Refund Policy — JobWrap",
-  description: "JobWrap refund and cancellation policy.",
+  title: "Refund Policy",
+  description: "JobWrap's refund and cancellation policy. Full refund within 14 days of being charged.",
+  alternates: { canonical: "https://jobwrap.app/refund-policy" },
+  robots: { index: false },
 };
 
 export default function RefundPolicyPage() {
