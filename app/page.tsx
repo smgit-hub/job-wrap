@@ -71,7 +71,7 @@ export default function LandingPage() {
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative min-h-[85vh] flex items-center overflow-hidden">
-        <Image src="/screenshots/hero-bg.jpg" alt="" fill className="object-cover object-center" priority />
+        <Image src="/screenshots/hero-bg.jpg" alt="" fill className="object-cover object-[60%_50%]" priority />
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/60 to-slate-950/20" />
         <div className="relative z-10 w-full max-w-6xl mx-auto px-5 pt-20 pb-8 md:pt-24 md:pb-20">
           <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
@@ -97,7 +97,7 @@ export default function LandingPage() {
               </div>
               <p className="text-sm text-slate-400 mt-4">14-day free trial. No credit card required.</p>
             </div>
-            <div className="flex-1 flex justify-center lg:justify-end lg:pr-8">
+            <div className="flex-1 flex justify-center ">
               <div className="relative w-44 md:w-56 lg:w-72">
                 <PhoneFrame src="/screenshots/hero.png" alt="JobWrap — voice recording screen" priority />
                 <div className="absolute -inset-4 bg-orange-500/20 rounded-[3rem] blur-2xl -z-10" />
