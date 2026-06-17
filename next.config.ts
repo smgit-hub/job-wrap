@@ -15,21 +15,31 @@ const securityHeaders = [
     value: "camera=(), microphone=(self), geolocation=()",
   },
   // Content Security Policy — restricts what resources the browser will load.
-  // script-src: self + Next.js inline scripts (required for hydration) + Stripe.js
-  // style-src: self + unsafe-inline (required by Tailwind/CSS-in-JS)
-  // img-src: self + data URIs (base64 photos) + Supabase storage
-  // connect-src: self + Supabase + Stripe APIs
-  // frame-src: Stripe hosted checkout
+  // unsafe-inline is required by Next.js (hydration scripts) and Tailwind (inline styles).
+  // nonce-based CSP would eliminate unsafe-inline but requires per-request middleware —
+  // deferred until traffic justifies the complexity.
   {
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' https://js.stripe.com",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: blob: https://*.supabase.co",
-      "font-src 'self' data:",
-      "connect-src 'self' https://*.supabase.co https://api.stripe.com",
+      // Next.js hydration + Stripe + Google Analytics/Tag Manager
+      "script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com",
+      // Tailwind inline styles + Google Fonts
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      // Images: self, data URIs, blobs, Supabase storage, Google
+      "img-src 'self' data: blob: https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com",
+      // Fonts: self + Google Fonts
+      "font-src 'self' data: https://fonts.gstatic.com",
+      // API calls: self + Supabase + Stripe + GA4 + Vercel Analytics
+      "connect-src 'self' https://*.supabase.co https://api.stripe.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://vitals.vercel-insights.com https://vitals.vercel-analytics.com",
+      // Stripe iframes for hosted checkout
       "frame-src https://js.stripe.com https://hooks.stripe.com",
+      // Service workers
+      "worker-src 'self' blob:",
+      // Prevent base tag hijacking
+      "base-uri 'self'",
+      // Only allow form submissions to self
+      "form-action 'self'",
       "object-src 'none'",
     ].join("; "),
   },
