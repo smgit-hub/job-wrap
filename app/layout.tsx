@@ -12,6 +12,7 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import { AuthProvider } from "@/components/auth/AuthProvider";
 import { Analytics } from "@vercel/analytics/next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 
 const font = Plus_Jakarta_Sans({
@@ -119,6 +120,7 @@ export default function RootLayout({
       <body className="min-h-full bg-white font-sans">
         <AuthProvider>{children}</AuthProvider>
         <Analytics />
+        <GoogleAnalytics gaId="G-W9MJZ22VM8" />
       </body>
     </html>
   );
