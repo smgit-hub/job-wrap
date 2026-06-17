@@ -20,21 +20,8 @@ export default async function OGImage() {
           fontFamily: "sans-serif",
         }}
       >
-        {/* Logo row */}
-        <div style={{ display: "flex", alignItems: "center", gap: 20, marginBottom: 32 }}>
-          <div
-            style={{
-              width: 72,
-              height: 72,
-              borderRadius: 18,
-              background: "#f97316",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <span style={{ color: "white", fontSize: 38, fontWeight: 800 }}>J</span>
-          </div>
+        {/* Wordmark */}
+        <div style={{ display: "flex", marginBottom: 32 }}>
           <span style={{ color: "white", fontSize: 52, fontWeight: 800 }}>JobWrap</span>
         </div>
 
