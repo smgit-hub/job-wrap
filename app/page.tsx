@@ -97,7 +97,7 @@ export default function LandingPage() {
               </div>
               <p className="text-sm text-slate-400 mt-4">14-day free trial. No credit card required.</p>
             </div>
-            <div className="flex-1 flex justify-center">
+            <div className="flex-1 flex justify-center lg:justify-end lg:pr-8">
               <div className="relative w-44 md:w-56 lg:w-72">
                 <PhoneFrame src="/screenshots/hero.png" alt="JobWrap — voice recording screen" priority />
                 <div className="absolute -inset-4 bg-orange-500/20 rounded-[3rem] blur-2xl -z-10" />
