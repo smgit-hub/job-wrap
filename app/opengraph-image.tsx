@@ -41,7 +41,7 @@ export default async function OGImage() {
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
-            padding: "0 72px",
+            padding: "0 40px 0 72px",
             gap: 0,
           }}
         >
@@ -132,7 +132,7 @@ export default async function OGImage() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            paddingRight: 48,
+            paddingRight: 72,
             paddingTop: 40,
             paddingBottom: 40,
           }}
