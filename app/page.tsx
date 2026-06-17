@@ -71,7 +71,7 @@ export default function LandingPage() {
 
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative min-h-[85vh] flex items-center overflow-hidden">
-        <Image src="/screenshots/hero-bg.jpg" alt="" fill className="object-cover object-[70%_50%]" priority />
+        <Image src="/screenshots/hero-bg.jpg" alt="" fill className="object-cover object-[70%_50%] scale-110" priority />
         <div className="absolute inset-0 bg-gradient-to-r from-slate-950/85 via-slate-950/60 to-slate-950/20" />
         <div className="relative z-10 w-full max-w-6xl mx-auto px-5 pt-20 pb-8 md:pt-24 md:pb-20">
           <div className="flex flex-col lg:flex-row items-center gap-6 lg:gap-12">
