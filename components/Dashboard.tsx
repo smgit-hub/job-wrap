@@ -4,7 +4,8 @@ import { useEffect, useState, useMemo } from "react";
 import { FileText, ChevronRight, CheckCircle2, Clock, Calendar, Mic, ArrowRight } from "lucide-react";
 import type { ServiceReport, BusinessProfile } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
-import { getReports, deleteReport, getBusinessProfile, migrateCustomersFromReports, DEFAULT_BUSINESS } from "@/lib/storage";
+import { getReports, getBusinessProfile, migrateCustomersFromReports, DEFAULT_BUSINESS } from "@/lib/storage";
+import { dbDeleteReport } from "@/lib/db";
 import { JobCard } from "@/components/JobCard";
 import type { ReportsFilter } from "@/components/Reports";
 import { cn } from "@/lib/utils";
@@ -92,7 +93,7 @@ export default function Dashboard({ onNewReport, onOpenReport, onSettings, onRep
 
   function handleDelete(e: React.MouseEvent, id: string) {
     e.stopPropagation();
-    deleteReport(id);
+    void dbDeleteReport(id);
     setReports((prev) => prev.filter((r) => r.id !== id));
   }
 

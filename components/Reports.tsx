@@ -3,8 +3,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { FileText, Trash2, RotateCcw, Search, X, RefreshCw } from "lucide-react";
 import type { ServiceReport } from "@/types/report";
-import { getReports, getDeletedReports, deleteReport, restoreReport, purgeReport } from "@/lib/storage";
-import { syncFromSupabase } from "@/lib/db";
+import { getReports, getDeletedReports } from "@/lib/storage";
+import { syncFromSupabase, dbDeleteReport, dbRestoreReport, dbPurgeReport } from "@/lib/db";
 import { JobCard, formatJobDate } from "@/components/JobCard";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
 import { cn } from "@/lib/utils";
@@ -160,17 +160,17 @@ export default function Reports({ initialFilter = "all", onOpenReport }: Reports
 
   function handleDelete(e: React.MouseEvent, id: string) {
     e.stopPropagation();
-    deleteReport(id);
+    void dbDeleteReport(id);
     reload();
   }
 
   function handleRestore(id: string) {
-    restoreReport(id);
+    void dbRestoreReport(id);
     reload();
   }
 
   function handlePurge(id: string) {
-    purgeReport(id);
+    void dbPurgeReport(id);
     reload();
   }
 
