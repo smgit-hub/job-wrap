@@ -83,8 +83,15 @@ function SortableBullet({
   onRemove,
   onMove,
 }: SortableBulletProps) {
+  const [armed, setArmed] = useState(false);
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: item.id });
+
+  useEffect(() => {
+    if (!armed) return;
+    const t = setTimeout(() => setArmed(false), 3000);
+    return () => clearTimeout(t);
+  }, [armed]);
 
   return (
     <div
@@ -145,7 +152,7 @@ function SortableBullet({
             {item.text}
           </button>
           <div className="flex items-center shrink-0 pt-1">
-            {onMove && (
+            {onMove && !armed && (
               <button
                 onClick={() => onMove(item.text)}
                 className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 active:text-blue-400 active:bg-blue-50 transition-colors"
@@ -154,13 +161,31 @@ function SortableBullet({
                 <ArrowRightLeft className="w-3.5 h-3.5" />
               </button>
             )}
-            <button
-              onClick={onRemove}
-              className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 active:text-red-400 active:bg-red-50 transition-colors"
-              aria-label="Delete"
-            >
-              <Trash2 className="w-3.5 h-3.5" />
-            </button>
+            {armed ? (
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setArmed(false)}
+                  className="h-7 px-2 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 active:bg-slate-200 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={onRemove}
+                  className="h-7 px-2 rounded-lg text-xs font-semibold bg-red-500 text-white active:bg-red-600 transition-colors flex items-center gap-1"
+                >
+                  <Trash2 className="w-3 h-3" />
+                  Delete
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setArmed(true)}
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-500 active:text-red-400 active:bg-red-50 transition-colors"
+                aria-label="Delete"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </>
       )}
