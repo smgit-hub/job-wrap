@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { Customer, ServiceReport } from "@/types/report";
 import { SERVICE_TYPE_LABELS } from "@/types/report";
-import { getReports, saveCustomer, deleteCustomer } from "@/lib/storage";
+import { getReports, saveCustomer } from "@/lib/storage";
+import { dbDeleteCustomer } from "@/lib/db";
 import { cn } from "@/lib/utils";
 
 interface CustomerProfileProps {
@@ -208,7 +209,7 @@ export default function CustomerProfile({
                 </button>
                 <button
                   type="button"
-                  onClick={() => { deleteCustomer(customer.id); onBack(); }}
+                  onClick={() => { void dbDeleteCustomer(customer.id); onBack(); }}
                   className="flex-1 h-10 rounded-xl bg-red-500 text-sm font-semibold text-white active:bg-red-600 transition-colors"
                 >
                   Delete
