@@ -212,21 +212,51 @@ function EmailPreview({ type, template, subject, message }: {
   subject?: string;
   message?: string;
 }) {
-  const title = type === "template"
-    ? template === "welcome" ? "Welcome to JobWrap!"
-      : template === "getting-started" ? "3 steps to get the most out of JobWrap"
-      : subject || "What's new in JobWrap"
-    : subject || "Your subject here";
+  if (type === "template" && template === "welcome") {
+    return (
+      <div className="border border-slate-200 rounded-xl overflow-hidden text-sm">
+        <div className="bg-orange-500 px-6 py-4">
+          <span className="text-white font-extrabold text-base tracking-tight">JobWrap</span>
+        </div>
+        <div className="bg-white px-6 py-6 space-y-3">
+          <p className="text-slate-900 font-bold text-lg">Hey [name], welcome to JobWrap 👋</p>
+          <p className="text-slate-500 leading-relaxed">Thanks for signing up. JobWrap is built for tradies who want to spend less time on paperwork and more time on the tools.</p>
+          <p className="text-slate-500 leading-relaxed">Here&apos;s how it works: you do the job, open the app, tap <strong>+</strong>, and speak a quick voice note about what you found and what you did. JobWrap turns that into a professional service report — formatted, branded with your logo, and ready to send to your customer in seconds.</p>
+          <p className="text-slate-500 leading-relaxed">No typing up notes at the end of the day. No chasing customers for signatures. Just tap, talk, done.</p>
+          <div>
+            <span className="inline-block mt-2 px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold text-sm">Create your first report →</span>
+          </div>
+          <p className="text-slate-400 text-xs pt-2 leading-relaxed">If you have any questions or run into anything, just reply to this email — I read every one.<br /><br />Sean<br /><span className="text-slate-300">Founder, JobWrap</span></p>
+        </div>
+      </div>
+    );
+  }
 
-  const body = type === "template"
-    ? template === "welcome"
-      ? "Really glad you're here. Creating professional service reports used to mean paperwork — JobWrap makes it fast, easy, and shareable."
-      : template === "getting-started"
-      ? "Here's how to hit the ground running."
-      : message || "Your announcement here…"
-    : message || "Your message here…";
+  if (type === "template" && template === "getting-started") {
+    return (
+      <div className="border border-slate-200 rounded-xl overflow-hidden text-sm">
+        <div className="bg-orange-500 px-6 py-4">
+          <span className="text-white font-extrabold text-base tracking-tight">JobWrap</span>
+        </div>
+        <div className="bg-white px-6 py-6 space-y-3">
+          <p className="text-slate-900 font-bold text-lg">3 steps to get the most out of JobWrap</p>
+          <p className="text-slate-500 leading-relaxed">Hey [name], here&apos;s how to hit the ground running:</p>
+          <ol className="text-slate-500 leading-relaxed space-y-2 pl-4 list-decimal">
+            <li><strong>Set up your branding</strong> — Go to Settings and add your business name, logo, and brand colour. It takes two minutes and makes every report look professional.</li>
+            <li><strong>Create your first report</strong> — Tap the <strong>+</strong> button, enter the job details, then use voice notes to describe what you found and what you did. JobWrap turns that into a structured service report automatically.</li>
+            <li><strong>Send it to your customer</strong> — From the report preview, tap the share button to email a PDF, download it, or copy a shareable link — all in one tap.</li>
+          </ol>
+          <div>
+            <span className="inline-block mt-2 px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold text-sm">Open JobWrap →</span>
+          </div>
+          <p className="text-slate-400 text-xs pt-2 leading-relaxed">If you get stuck, just reply to this email — I read every one.<br /><br />Sean</p>
+        </div>
+      </div>
+    );
+  }
 
-  const cta = type === "template" ? (template === "welcome" ? "Go to JobWrap →" : "Get started →") : "Open JobWrap →";
+  const title = type === "template" ? (subject || "What's new in JobWrap") : (subject || "Your subject here");
+  const body = type === "template" ? (message || "Your announcement here…") : (message || "Your message here…");
 
   return (
     <div className="border border-slate-200 rounded-xl overflow-hidden text-sm">
@@ -237,7 +267,7 @@ function EmailPreview({ type, template, subject, message }: {
         <p className="text-slate-900 font-bold text-lg">{title}</p>
         <p className="text-slate-500 leading-relaxed">{body}</p>
         <div>
-          <span className="inline-block mt-2 px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold text-sm">{cta}</span>
+          <span className="inline-block mt-2 px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold text-sm">Open JobWrap →</span>
         </div>
         <p className="text-slate-400 text-xs pt-2">
           This message was sent to you by the JobWrap team.{" "}
