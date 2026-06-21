@@ -35,6 +35,7 @@ function welcomeHtml(name: string) {
     <p style="margin-top:32px;color:#94a3b8;font-size:14px;line-height:1.6">If you have any questions or run into anything, just reply to this email — I read every one.<br><br>Sean<br><span style="color:#cbd5e1">Founder, JobWrap</span></p>
   </div>
 </div>`;
+}
 
 function gettingStartedHtml(name: string) {
   return `
