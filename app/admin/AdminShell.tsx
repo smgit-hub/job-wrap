@@ -219,7 +219,7 @@ function EmailPreview({ type, template, subject, message }: {
           <span className="text-white font-extrabold text-base tracking-tight">JobWrap</span>
         </div>
         <div className="bg-white px-6 py-6 space-y-3">
-          <p className="text-slate-900 font-bold text-lg">Hey [name], welcome to JobWrap 👋</p>
+          <p className="text-slate-900 font-bold text-lg">Welcome to JobWrap 👋</p>
           <p className="text-slate-500 leading-relaxed">Thanks for signing up. JobWrap is built for tradies who want to spend less time on paperwork and more time on the tools.</p>
           <p className="text-slate-500 leading-relaxed">Here&apos;s how it works: you do the job, open the app, tap <strong>+</strong>, and speak a quick voice note about what you found and what you did. JobWrap turns that into a professional service report — formatted, branded with your logo, and ready to send to your customer in seconds.</p>
           <p className="text-slate-500 leading-relaxed">No typing up notes at the end of the day. No chasing customers for signatures. Just tap, talk, done.</p>
@@ -240,7 +240,7 @@ function EmailPreview({ type, template, subject, message }: {
         </div>
         <div className="bg-white px-6 py-6 space-y-3">
           <p className="text-slate-900 font-bold text-lg">3 steps to get the most out of JobWrap</p>
-          <p className="text-slate-500 leading-relaxed">Hey [name], here&apos;s how to hit the ground running:</p>
+          <p className="text-slate-500 leading-relaxed">Here&apos;s how to hit the ground running:</p>
           <ol className="text-slate-500 leading-relaxed space-y-2 pl-4 list-decimal">
             <li><strong>Set up your branding</strong> — Go to Settings and add your business name, logo, and brand colour. It takes two minutes and makes every report look professional.</li>
             <li><strong>Create your first report</strong> — Tap the <strong>+</strong> button, enter the job details, then use voice notes to describe what you found and what you did. JobWrap turns that into a structured service report automatically.</li>
