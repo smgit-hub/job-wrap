@@ -27,18 +27,14 @@ function welcomeHtml(name: string) {
     <span style="color:#fff;font-size:20px;font-weight:800;letter-spacing:-0.5px">JobWrap</span>
   </div>
   <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px">
-    <h2 style="margin:0 0 12px;font-size:22px;color:#0f172a">Welcome to JobWrap${name ? `, ${name}` : ""}!</h2>
-    <p style="color:#475569;line-height:1.6">Really glad you're here. Creating professional service reports used to mean paperwork — JobWrap makes it fast, easy, and shareable.</p>
-    <ul style="color:#475569;line-height:2;padding-left:20px">
-      <li>Create a service report in under 2 minutes</li>
-      <li>Share a professional PDF with your customer instantly</li>
-      <li>Keep all your jobs organised in one place</li>
-    </ul>
-    <a href="${APP_URL}/app" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#f97316;color:#fff;border-radius:8px;text-decoration:none;font-weight:700">Go to JobWrap →</a>
-    <p style="margin-top:32px;color:#94a3b8;font-size:14px">If you have any questions, just hit reply — I read every one.<br>Sean</p>
+    <h2 style="margin:0 0 16px;font-size:22px;color:#0f172a">Hey${name ? ` ${name}` : ""}, welcome to JobWrap 👋</h2>
+    <p style="color:#475569;line-height:1.7;margin:0 0 16px">Thanks for signing up. JobWrap is built for tradies who want to spend less time on paperwork and more time on the tools.</p>
+    <p style="color:#475569;line-height:1.7;margin:0 0 16px">Here's how it works: you do the job, open the app, tap <strong>+</strong>, and speak a quick voice note about what you found and what you did. JobWrap turns that into a professional service report — formatted, branded with your logo, and ready to send to your customer in seconds.</p>
+    <p style="color:#475569;line-height:1.7;margin:0 0 24px">No typing up notes at the end of the day. No chasing customers for signatures. Just tap, talk, done.</p>
+    <a href="${APP_URL}/app" style="display:inline-block;padding:12px 24px;background:#f97316;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;font-size:15px">Create your first report →</a>
+    <p style="margin-top:32px;color:#94a3b8;font-size:14px;line-height:1.6">If you have any questions or run into anything, just reply to this email — I read every one.<br><br>Sean<br><span style="color:#cbd5e1">Founder, JobWrap</span></p>
   </div>
 </div>`;
-}
 
 function gettingStartedHtml(name: string) {
   return `
