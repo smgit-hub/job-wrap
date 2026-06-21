@@ -49,13 +49,13 @@ function gettingStartedHtml(name: string) {
   <div style="background:#fff;padding:32px;border:1px solid #e2e8f0;border-top:none;border-radius:0 0 12px 12px">
     <h2 style="margin:0 0 12px;font-size:22px;color:#0f172a">3 steps to get the most out of JobWrap</h2>
     <p style="color:#475569;line-height:1.6">Hey${name ? ` ${name}` : ""}, here's how to hit the ground running:</p>
-    <ol style="color:#475569;line-height:2;padding-left:20px">
-      <li><strong>Add your branding</strong> — Upload your logo and set your brand colour in Settings so every report looks like you.</li>
-      <li><strong>Create your first report</strong> — Tap the + button, fill in the job details, and you're done.</li>
-      <li><strong>Share with your customer</strong> — Send a professional PDF directly from the app in one tap.</li>
+    <ol style="color:#475569;line-height:1.8;padding-left:20px">
+      <li style="margin-bottom:12px"><strong>Set up your branding</strong> — Go to Settings and add your business name, logo, and brand colour. It takes two minutes and makes every report look professional.</li>
+      <li style="margin-bottom:12px"><strong>Create your first report</strong> — Tap the <strong>+</strong> button, enter the job details, then use voice notes to describe what you found and what you did. JobWrap turns that into a structured service report automatically.</li>
+      <li style="margin-bottom:12px"><strong>Send it to your customer</strong> — From the report preview, tap the share button to email a PDF, download it, or copy a shareable link — all in one tap.</li>
     </ol>
-    <a href="${APP_URL}/app" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#f97316;color:#fff;border-radius:8px;text-decoration:none;font-weight:700">Get started →</a>
-    <p style="margin-top:32px;color:#94a3b8;font-size:14px">Sean — JobWrap</p>
+    <a href="${APP_URL}/app" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#f97316;color:#fff;border-radius:8px;text-decoration:none;font-weight:700">Open JobWrap →</a>
+    <p style="margin-top:32px;color:#94a3b8;font-size:14px">If you get stuck, just reply to this email — I read every one.<br>Sean</p>
   </div>
 </div>`;
 }

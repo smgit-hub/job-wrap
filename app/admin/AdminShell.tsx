@@ -222,7 +222,7 @@ function EmailPreview({ type, template, subject, message }: {
     ? template === "welcome"
       ? "Really glad you're here. Creating professional service reports used to mean paperwork — JobWrap makes it fast, easy, and shareable."
       : template === "getting-started"
-      ? "Here's how to hit the ground running with JobWrap."
+      ? "Here's how to hit the ground running."
       : message || "Your announcement here…"
     : message || "Your message here…";
 
