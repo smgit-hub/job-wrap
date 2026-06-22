@@ -57,6 +57,12 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
       return;
     }
 
+    void fetch("/api/auth/welcome", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }),
+    });
+
     // No active session means the account isn't usable yet — either it
     // needs email confirmation, or (after a recent delete/re-signup) Supabase
     // returned its anti-enumeration "fake success" response. Either way,
