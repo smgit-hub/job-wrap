@@ -9,15 +9,12 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   // Basic permissions policy — restricts access to camera/mic to same-origin
   // The app uses microphone (Web Speech API) so it is allowed for same-origin.
-  // TODO(security): tighten this once a formal feature set is finalised.
   {
     key: "Permissions-Policy",
     value: "camera=(), microphone=(self), geolocation=()",
   },
   // Content Security Policy — restricts what resources the browser will load.
   // unsafe-inline is required by Next.js (hydration scripts) and Tailwind (inline styles).
-  // nonce-based CSP would eliminate unsafe-inline but requires per-request middleware —
-  // deferred until traffic justifies the complexity.
   {
     key: "Content-Security-Policy",
     value: [

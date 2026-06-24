@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { readBodyWithLimit } from "@/lib/api/readBody";
+import { inProcessRateLimit } from "@/lib/api/rateLimit";
 import type { ServiceReport, JobPhoto } from "@/types/report";
 
-// TODO(rate-limiting): add rate limiting (e.g. Upstash) before public launch.
-// Suggested limit: 20 shares/user/hour.
+// 20 share links per user per hour
+const SHARE_RATE_LIMIT = 20;
+const SHARE_RATE_WINDOW_MS = 60 * 60 * 1000;
 
 // Share links expire after 90 days.
 const SHARE_LINK_TTL_DAYS = 90;
@@ -51,6 +53,10 @@ export async function POST(request: NextRequest) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
     return NextResponse.json({ error: "Unauthorised" }, { status: 401 });
+  }
+
+  if (!inProcessRateLimit(`share:${user.id}`, SHARE_RATE_LIMIT, SHARE_RATE_WINDOW_MS)) {
+    return NextResponse.json({ error: "Too many requests — please try again later." }, { status: 429 });
   }
 
   const bodyResult = await readBodyWithLimit(request, MAX_BODY_BYTES);

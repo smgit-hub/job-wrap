@@ -1,9 +1,7 @@
 // Next.js App Router API route — POST /api/generate-report
 // Runs on the Node.js runtime (server-side only).
 // API keys are never exposed to the client.
-//
-// TODO (future): add rate limiting (e.g. Upstash) before public deployment.
-//
+
 // Maximum accepted request body (32 KB) — well above any realistic job notes payload.
 const MAX_BODY_BYTES = 32 * 1024;
 

@@ -20,6 +20,36 @@
 
 import { createClient } from "@supabase/supabase-js";
 
+// ── Simple in-process rate limiter ────────────────────────────────────────────
+// Used for PDF export and share-report. Keyed by user ID.
+// Resets on cold start — good enough for Vercel serverless abuse prevention.
+
+interface InProcessBucket {
+  count: number;
+  windowStart: number;
+}
+
+const buckets = new Map<string, InProcessBucket>();
+
+export function inProcessRateLimit(
+  key: string,
+  limit: number,
+  windowMs: number,
+): boolean {
+  const now = Date.now();
+  const bucket = buckets.get(key);
+
+  if (!bucket || now - bucket.windowStart > windowMs) {
+    buckets.set(key, { count: 1, windowStart: now });
+    return true;
+  }
+
+  if (bucket.count >= limit) return false;
+
+  bucket.count++;
+  return true;
+}
+
 const DAILY_LIMIT = 20;
 const COOLDOWN_SECONDS = 30;
 

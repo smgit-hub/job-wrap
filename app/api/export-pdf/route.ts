@@ -2,18 +2,21 @@
 // Accepts { report: ServiceReport, photos: JobPhoto[] } JSON.
 // Returns a binary PDF stream generated server-side via @react-pdf/renderer.
 // Running in Node.js runtime — @react-pdf/renderer is in serverExternalPackages.
-//
-// TODO(rate-limiting): add rate limiting (e.g. Upstash) before public launch.
 
 // Maximum accepted request body size (10 MB) to prevent OOM on the server.
 // A typical report + 6 base64 JPEG photos is well under 5 MB.
 const MAX_BODY_BYTES = 10 * 1024 * 1024;
+
+// 20 PDF exports per user per hour
+const PDF_RATE_LIMIT = 20;
+const PDF_RATE_WINDOW_MS = 60 * 60 * 1000;
 
 import React from "react";
 import { renderToBuffer } from "@react-pdf/renderer";
 import type { DocumentProps } from "@react-pdf/renderer";
 import ReportPdfDocument from "@/lib/pdf/reportPdfDocument";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { inProcessRateLimit } from "@/lib/api/rateLimit";
 import { readBodyWithLimit } from "@/lib/api/readBody";
 import type { ServiceReport, JobPhoto } from "@/types/report";
 
@@ -71,6 +74,10 @@ export async function POST(request: Request) {
   }
   if (!user) {
     return Response.json({ error: "Unauthorised" }, { status: 401 });
+  }
+
+  if (!inProcessRateLimit(`pdf:${user.id}`, PDF_RATE_LIMIT, PDF_RATE_WINDOW_MS)) {
+    return Response.json({ error: "Too many requests — please try again later." }, { status: 429 });
   }
 
   const bodyResult = await readBodyWithLimit(request, MAX_BODY_BYTES);
