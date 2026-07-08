@@ -3,6 +3,8 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://jobwrap.app";
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "Sean @ JobWrap <hello@jobwrap.app>";
+const REPLY_TO = process.env.RESEND_REPLY_TO ?? "hello@jobwrap.app";
 
 // Simple in-process rate limit — max 1 welcome email per address per 10 minutes
 const sent = new Map<string, number>();
@@ -38,8 +40,9 @@ export async function POST(req: NextRequest) {
 </div>`;
 
   await resend.emails.send({
-    from: "Sean @ JobWrap <hello@jobwrap.app>",
+    from: FROM_EMAIL,
     to: email,
+    replyTo: REPLY_TO,
     subject: "Welcome to JobWrap!",
     html,
   });

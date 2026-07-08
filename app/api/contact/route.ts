@@ -4,9 +4,11 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const CONTACT_EMAIL = process.env.CONTACT_EMAIL;
-if (!CONTACT_EMAIL) throw new Error("CONTACT_EMAIL env var is required");
-const CONTACT_EMAIL_SAFE: string = CONTACT_EMAIL;
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "JobWrap Contact <hello@jobwrap.app>";
+
+const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL;
+if (!CONTACT_TO_EMAIL) throw new Error("CONTACT_TO_EMAIL env var is required");
+const CONTACT_TO_EMAIL_SAFE: string = CONTACT_TO_EMAIL;
 
 // Simple in-process rate limit: max 3 submissions per IP per 10 minutes
 const ipSubmissions = new Map<string, { count: number; resetAt: number }>();
@@ -53,8 +55,8 @@ export async function POST(req: NextRequest) {
   }
 
   const { error } = await resend.emails.send({
-    from: "JobWrap Contact <hello@jobwrap.app>",
-    to: CONTACT_EMAIL_SAFE,
+    from: FROM_EMAIL,
+    to: CONTACT_TO_EMAIL_SAFE,
     replyTo: email.trim(),
     subject: `New message from ${name.trim()}`,
     text: `Name: ${name.trim()}\nEmail: ${email.trim()}\n\n${message.trim()}`,

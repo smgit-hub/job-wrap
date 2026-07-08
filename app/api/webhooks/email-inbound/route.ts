@@ -3,9 +3,8 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "JobWrap <notifications@jobwrapp.app>";
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL ?? "JobWrap <hello@jobwrap.app>";
 const FORWARD_TO = process.env.RESEND_FORWARD_TO ?? "";
-const REPLY_TO = process.env.RESEND_REPLY_TO ?? "notifications@jobwrapp.app";
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,10 +37,13 @@ export async function POST(req: NextRequest) {
 
     const forwardedText = `From: ${from}\nSubject: ${subject}\n\n${textBody}`;
 
+    // Reply-to the original sender so replying to the forwarded email reaches them, not a dead address
+    const senderEmail = from.match(/<(.+)>/)?.[1] ?? from;
+
     await resend.emails.send({
       from: FROM_EMAIL,
       to: FORWARD_TO,
-      replyTo: REPLY_TO,
+      replyTo: senderEmail,
       subject: `Fwd: ${subject}`,
       ...(forwardedHtml ? { html: forwardedHtml } : {}),
       text: forwardedText,
