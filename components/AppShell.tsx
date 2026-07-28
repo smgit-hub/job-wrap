@@ -79,15 +79,36 @@ export default function AppShell() {
       .then(() => { setSyncDone(true); setSyncVersion(v => v + 1); })
       .catch((err) => { console.warn("[AppShell] startup sync failed:", err); setSyncDone(true); });
 
+    // Sync when the user returns to the app/tab
+    function handleVisibilityChange() {
+      if (document.visibilityState === "visible") {
+        syncFromSupabase().then(() => setSyncVersion(v => v + 1));
+      }
+    }
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, [isDemo]);
+
+  useEffect(() => {
+    if (isDemo) return;
+
+    // user isn't resolved yet (e.g. auth still rehydrating on page refresh) —
+    // wait for it rather than permanently giving up, since this effect won't
+    // re-run again once user becomes available unless it's in the deps.
+    if (!user) { setSubStatus("loading"); return; }
+
+    let cancelled = false;
+
     // Check subscription status and trial expiry
     import("@/lib/supabase/client").then(({ getSupabaseBrowserClient }) => {
       const client = getSupabaseBrowserClient();
-      if (!client || !user) { setSubStatus(null); return; }
+      if (!client) { if (!cancelled) setSubStatus(null); return; }
 
       Promise.all([
         client.from("subscriptions").select("status").eq("user_id", user.id).maybeSingle(),
         client.from("profiles").select("created_at").eq("id", user.id).maybeSingle(),
       ]).then(([subRes, profileRes]) => {
+        if (cancelled) return;
         const status = (subRes.data as { status: string } | null)?.status ?? null;
         setSubStatus(status);
         const isActive = status === "active" || status === "trialing";
@@ -101,15 +122,8 @@ export default function AppShell() {
       });
     });
 
-    // Sync when the user returns to the app/tab
-    function handleVisibilityChange() {
-      if (document.visibilityState === "visible") {
-        syncFromSupabase().then(() => setSyncVersion(v => v + 1));
-      }
-    }
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
-  }, [isDemo]);
+    return () => { cancelled = true; };
+  }, [isDemo, user]);
 
   const [screen, setScreen] = useState<Screen>("dashboard");
   const [navStack, setNavStack] = useState<Screen[]>([]);
