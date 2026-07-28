@@ -537,6 +537,7 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
 function SubscriptionCard() {
   const [loading, setLoading] = useState<"checkout" | "portal" | null>(null);
   const [sub, setSub] = useState<{ status: string; current_period_end: string | null } | null | undefined>(undefined);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
   useEffect(() => {
     const client = getSupabaseBrowserClient();
@@ -549,10 +550,14 @@ function SubscriptionCard() {
 
   async function startCheckout() {
     setLoading("checkout");
+    setCheckoutError(null);
     const res = await fetch("/api/stripe/checkout", { method: "POST" });
-    const { url } = await res.json();
-    if (url) window.location.href = url;
-    else setLoading(null);
+    const body = await res.json();
+    if (body.url) window.location.href = body.url;
+    else {
+      setCheckoutError(body.error ?? "Something went wrong. Please try again.");
+      setLoading(null);
+    }
   }
 
   async function openPortal() {
@@ -608,6 +613,9 @@ function SubscriptionCard() {
             >
               {loading === "checkout" ? "Redirecting…" : "Subscribe now"}
             </button>
+            {checkoutError && (
+              <p className="text-center text-xs text-red-500">{checkoutError}</p>
+            )}
             <p className="text-center text-xs text-slate-400">Cancel any time · 14-day refund guarantee</p>
           </div>
         )}

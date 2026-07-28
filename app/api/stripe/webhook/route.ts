@@ -28,7 +28,8 @@ async function upsertSubscription(
     stripe_subscription_id: subscription.id,
     status: subscription.status,
     price_id: item?.price.id ?? null,
-    current_period_end: new Date((subscription as unknown as { current_period_end: number }).current_period_end * 1000).toISOString(),
+    // current_period_end lives on the subscription item, not the subscription itself.
+    current_period_end: item ? new Date(item.current_period_end * 1000).toISOString() : null,
   }, { onConflict: "user_id" });
 }
 
