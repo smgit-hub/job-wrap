@@ -8,7 +8,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import {
-  Mic, FileText, Share2, CalendarCheck, Check, ArrowRight,
+  Mic, FileText, Share2, CalendarCheck, ArrowRight,
   Users, Palette, ShieldCheck, Camera, Hash, Heart, Phone,
   Sparkles, ClipboardList, Pencil,
 } from "lucide-react";
@@ -74,16 +74,6 @@ const FEATURES = [
   { icon: CalendarCheck, title: "Never miss a follow-up",         body: "Set next service dates and get reminded before they're due." },
 ];
 
-const FEATURES_INCLUDED = [
-  "Unlimited reports",
-  "AI report generation",
-  "Branded PDF export",
-  "Business branding on every report",
-  "Customer & equipment history",
-  "Next service date reminders",
-  "Works on any phone — no app store needed",
-];
-
 // ---------------------------------------------------------------------------
 // Shared components
 // ---------------------------------------------------------------------------
@@ -132,7 +122,7 @@ export default function LandingPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <Link href="/signup" className="inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-base shadow-lg shadow-orange-900/40">
-                  Get started free <ArrowRight className="w-4 h-4" />
+                  Get started <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link href="/demo" className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-base backdrop-blur-sm border border-white/20">
                   Try the demo
@@ -362,34 +352,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── What's included ──────────────────────────────────────────────── */}
-      <section className="bg-slate-50 py-16 md:py-24 px-5" id="included">
-        <div className="max-w-md mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
-            Everything you need.{" "}
-            <span className="text-orange-500">Free to use.</span>
-          </h2>
-          <p className="text-slate-500 text-lg mb-10">Sign up and start writing reports in minutes.</p>
-
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-lg px-8 py-8 text-left">
-            <ul className="space-y-3 mb-8">
-              {FEATURES_INCLUDED.map((feat) => (
-                <li key={feat} className="flex items-center gap-3">
-                  <div className="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
-                    <Check className="w-3 h-3 text-orange-600" />
-                  </div>
-                  <span className="text-slate-700 text-sm">{feat}</span>
-                </li>
-              ))}
-            </ul>
-            <Link href="/signup" className="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-xl transition-colors text-base">
-              Get started free
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
       {/* ── Final CTA ────────────────────────────────────────────────────── */}
       <section className="py-16 md:py-24 px-5 max-w-2xl mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-4">
@@ -400,7 +362,7 @@ export default function LandingPage() {
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/signup" className="inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-base">
-            Get started free <ArrowRight className="w-4 h-4" />
+            Get started <ArrowRight className="w-4 h-4" />
           </Link>
           <Link href="/demo" className="inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold px-7 py-3.5 rounded-xl transition-colors text-base">
             Try the demo first

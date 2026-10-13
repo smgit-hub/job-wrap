@@ -136,8 +136,7 @@ export default function SignupForm({ onSuccess, onSignIn }: SignupFormProps) {
         </Link>
 
         <h1 className="text-2xl font-bold text-slate-900 mb-1">Create account</h1>
-        <p className="text-slate-500 text-sm mb-1">For air conditioning &amp; HVAC technicians.</p>
-        <p className="text-slate-400 text-xs mb-8">Free to use</p>
+        <p className="text-slate-500 text-sm mb-8">For air conditioning &amp; HVAC technicians.</p>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-1.5">

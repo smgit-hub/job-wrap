@@ -11,21 +11,21 @@ interface Props {
 const ACTION_COPY: Record<NonNullable<Props["action"]>, { title: string; body: string }> = {
   record: {
     title: "Ready to record your first job?",
-    body: "Create a free account to record voice notes and generate your own reports.",
+    body: "Create an account to record voice notes and generate your own reports.",
   },
   download: {
     title: "Want to keep this report?",
-    body: "Create a free account to download branded PDFs and send them to your customers.",
+    body: "Create an account to download branded PDFs and send them to your customers.",
   },
   send: {
     title: "Want to send this to a customer?",
-    body: "Create a free account to send professional service reports directly from the app.",
+    body: "Create an account to send professional service reports directly from the app.",
   },
 };
 
 const LIMIT_COPY = {
-  title: "You've used your 2 free reports",
-  body: "Create a free account to keep generating reports, download PDFs, and send them to your customers.",
+  title: "You've reached the demo limit",
+  body: "Create an account to keep generating reports, download PDFs, and send them to your customers.",
 };
 
 export default function DemoSignupWall({ action = "record", reason = "action", onClose }: Props) {
@@ -58,7 +58,7 @@ export default function DemoSignupWall({ action = "record", reason = "action", o
             onClick={handleSignup}
             className="w-full h-14 rounded-2xl bg-orange-500 active:bg-orange-600 transition-colors text-base font-bold text-white"
           >
-            Create free account
+            Create account
           </button>
           <button
             onClick={onClose}

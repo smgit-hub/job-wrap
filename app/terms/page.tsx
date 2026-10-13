@@ -26,7 +26,7 @@ export default function TermsPage() {
             <p>By creating an account or using JobWrap, you agree to these terms.</p>
           </Section>
 
-          <Section title="Free service">
+          <Section title="Using JobWrap">
             <p>JobWrap is free to use. It is provided as-is, and we may update, change or discontinue features from time to time.</p>
           </Section>
 

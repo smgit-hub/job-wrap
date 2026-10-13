@@ -20,7 +20,7 @@ export default function AppTopBanner() {
         href="/signup"
         className="text-xs font-bold text-white bg-white/20 hover:bg-white/30 rounded-lg px-3 py-1.5 transition-colors shrink-0"
       >
-        Create free account →
+        Create account →
       </Link>
     </div>
   );

@@ -265,7 +265,7 @@ export { getStoredPhotos };
 
 // ── Demo session cleanup ───────────────────────────────────────────────────────
 //
-// Called when a demo user clicks "Create free account". Wipes all localStorage
+// Called when a demo user clicks "Create account". Wipes all localStorage
 // so their demo-session data doesn't get migrated into their new real account.
 
 const DEMO_FLAG_KEY = "jobwrap_demo_active";

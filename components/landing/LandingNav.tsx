@@ -46,7 +46,7 @@ export default function LandingNav({ forcesolid = false }: { forcesolid?: boolea
             href="/signup"
             className="text-sm font-semibold bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg transition-colors"
           >
-            Get started free
+            Get started
           </Link>
         </nav>
       </div>
