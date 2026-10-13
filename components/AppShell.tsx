@@ -40,8 +40,7 @@ function getActiveSection(screen: Screen): ActiveSection {
 }
 
 export default function AppShell() {
-  const { user, loading: authLoading, isDemo } = useAuth();
-  const isAdmin = Array.isArray(user?.app_metadata?.roles) && (user.app_metadata.roles as string[]).includes("admin");
+  const { loading: authLoading, isDemo } = useAuth();
 
   // Purge reports that have been in trash for more than 7 days
   useState(() => { purgeExpiredDeletedReports(); });
@@ -51,10 +50,6 @@ export default function AppShell() {
   // If localStorage already has data, we show it immediately and sync silently.
   const [syncDone, setSyncDone] = useState(false);
   const [syncVersion, setSyncVersion] = useState(0);
-
-  // Subscription / trial state — null = loading, false = no sub, string = status
-  const [subStatus, setSubStatus] = useState<string | null | "loading">("loading");
-  const [trialExpired, setTrialExpired] = useState(false);
 
   useEffect(() => {
     if (isDemo) {
@@ -88,42 +83,6 @@ export default function AppShell() {
     document.addEventListener("visibilitychange", handleVisibilityChange);
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, [isDemo]);
-
-  useEffect(() => {
-    if (isDemo) return;
-
-    // user isn't resolved yet (e.g. auth still rehydrating on page refresh) —
-    // wait for it rather than permanently giving up, since this effect won't
-    // re-run again once user becomes available unless it's in the deps.
-    if (!user) { setSubStatus("loading"); return; }
-
-    let cancelled = false;
-
-    // Check subscription status and trial expiry
-    import("@/lib/supabase/client").then(({ getSupabaseBrowserClient }) => {
-      const client = getSupabaseBrowserClient();
-      if (!client) { if (!cancelled) setSubStatus(null); return; }
-
-      Promise.all([
-        client.from("subscriptions").select("status").eq("user_id", user.id).maybeSingle(),
-        client.from("profiles").select("created_at").eq("id", user.id).maybeSingle(),
-      ]).then(([subRes, profileRes]) => {
-        if (cancelled) return;
-        const status = (subRes.data as { status: string } | null)?.status ?? null;
-        setSubStatus(status);
-        const isActive = status === "active" || status === "trialing";
-        if (!isActive) {
-          const createdAt = (profileRes.data as { created_at: string } | null)?.created_at;
-          if (createdAt) {
-            const daysSinceSignup = (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24);
-            setTrialExpired(daysSinceSignup > 14);
-          }
-        }
-      });
-    });
-
-    return () => { cancelled = true; };
-  }, [isDemo, user]);
 
   const [screen, setScreen] = useState<Screen>("dashboard");
   const [navStack, setNavStack] = useState<Screen[]>([]);
@@ -258,8 +217,8 @@ export default function AppShell() {
     goToScreen("dashboard");
   }
 
-  // Show loading screen until auth, sync, and subscription check all complete.
-  if (authLoading || !syncDone || (!isDemo && !isAdmin && subStatus === "loading")) {
+  // Show loading screen until auth and sync complete.
+  if (authLoading || !syncDone) {
     return (
       <div className="min-h-screen bg-slate-100 flex flex-col items-center justify-center gap-5 text-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -271,10 +230,6 @@ export default function AppShell() {
         <Loader2 className="w-5 h-5 text-slate-500 animate-spin" />
       </div>
     );
-  }
-
-  if (!isDemo && !isAdmin && trialExpired) {
-    return <PaywallScreen />;
   }
 
   return (
@@ -386,57 +341,5 @@ export default function AppShell() {
 
       <InstallNudge />
     </>
-  );
-}
-
-function PaywallScreen() {
-  const [loading, setLoading] = useState(false);
-
-  async function startCheckout() {
-    setLoading(true);
-    const res = await fetch("/api/stripe/checkout", { method: "POST" });
-    const { url } = await res.json();
-    if (url) window.location.href = url;
-    else setLoading(false);
-  }
-
-  return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center px-5">
-      <div className="max-w-sm w-full space-y-6 text-center">
-        <div className="flex items-center justify-center gap-2.5">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/icons/icon-192.png?v=3" alt="JobWrap" className="w-10 h-10 rounded-xl object-cover" />
-          <span className="text-2xl font-bold text-slate-900">JobWrap</span>
-        </div>
-        <div className="space-y-2">
-          <h1 className="text-2xl font-extrabold text-slate-900">Your trial has ended</h1>
-          <p className="text-slate-500 text-sm leading-relaxed">
-            Subscribe to keep full access to JobWrap — unlimited reports, AI generation, and PDF export.
-          </p>
-        </div>
-        <div className="bg-white rounded-2xl border border-slate-200 p-5 text-left space-y-3">
-          <div className="flex items-end gap-1">
-            <span className="text-3xl font-extrabold text-slate-900">$9</span>
-            <span className="text-slate-400 text-sm mb-1">/ month</span>
-          </div>
-          <ul className="space-y-2 text-sm text-slate-600">
-            {["Unlimited reports", "AI report generation", "Branded PDF export", "Cancel any time"].map((f) => (
-              <li key={f} className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-full bg-orange-100 flex items-center justify-center shrink-0 text-orange-600 text-xs">✓</span>
-                {f}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <button
-          onClick={startCheckout}
-          disabled={loading}
-          className="w-full h-12 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white font-semibold transition-colors"
-        >
-          {loading ? "Redirecting…" : "Subscribe now"}
-        </button>
-        <p className="text-xs text-slate-400">14-day refund guarantee · Secure payment via Stripe</p>
-      </div>
-    </div>
   );
 }

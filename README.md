@@ -33,7 +33,6 @@ Trade technicians spend 20–40 minutes per job writing up service reports. Most
 | Voice | Web Speech API (browser-native) |
 | PDF | @react-pdf/renderer (server-side) |
 | Email | Resend |
-| Payments | Stripe |
 | Deployment | Vercel |
 
 ---

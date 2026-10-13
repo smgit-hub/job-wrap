@@ -5,7 +5,7 @@
 // Redirects unauthenticated users to /login.
 // Redirects authenticated users away from /login and /signup.
 //
-// Public routes (no auth required): /, /demo, /contact, /privacy, /terms, /pricing
+// Public routes (no auth required): /, /demo, /contact, /privacy, /terms
 // API routes handle their own auth via Bearer token + cookie.
 // ---------------------------------------------------------------------------
 
@@ -60,11 +60,9 @@ export async function middleware(request: NextRequest) {
   const isAuthRoute = pathname.startsWith("/login") || pathname.startsWith("/signup");
   const isPublicRoute =
     pathname === "/" ||
-    pathname.startsWith("/pricing") ||
     pathname.startsWith("/contact") ||
     pathname.startsWith("/privacy") ||
     pathname.startsWith("/terms") ||
-    pathname.startsWith("/refund-policy") ||
     pathname.startsWith("/demo");
 
   // Redirect unauthenticated users to /login (except on auth or public routes)

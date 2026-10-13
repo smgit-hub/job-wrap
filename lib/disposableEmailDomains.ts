@@ -2,8 +2,8 @@
 // Disposable / throwaway email domain blocklist
 //
 // Not exhaustive — this is a cheap first line of defense against the laziest
-// repeat-signup abuse (creating unlimited free trial accounts to dodge
-// payment). It will not stop someone using a real Gmail address with +
+// repeat-signup abuse (mass-creating throwaway accounts to spam the
+// free service). It will not stop someone using a real Gmail address with +
 // aliasing, or a less common temp-mail provider. Pair with the Supabase
 // Auth IP-based signup rate limit (Dashboard → Authentication → Rate Limits)
 // for a second layer.

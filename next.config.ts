@@ -19,18 +19,17 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      // Next.js hydration + Stripe + Google Analytics/Tag Manager
-      "script-src 'self' 'unsafe-inline' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com",
+      // Next.js hydration + Google Analytics/Tag Manager
+      "script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com https://ssl.google-analytics.com",
       // Tailwind inline styles + Google Fonts
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       // Images: self, data URIs, blobs, Supabase storage, Google
       "img-src 'self' data: blob: https://*.supabase.co https://www.google-analytics.com https://www.googletagmanager.com",
       // Fonts: self + Google Fonts
       "font-src 'self' data: https://fonts.gstatic.com",
-      // API calls: self + Supabase + Stripe + GA4 + Vercel Analytics
-      "connect-src 'self' https://*.supabase.co https://api.stripe.com https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://vitals.vercel-insights.com https://vitals.vercel-analytics.com",
-      // Stripe iframes for hosted checkout
-      "frame-src https://js.stripe.com https://hooks.stripe.com",
+      // API calls: self + Supabase + GA4 + Vercel Analytics
+      "connect-src 'self' https://*.supabase.co https://www.google-analytics.com https://analytics.google.com https://stats.g.doubleclick.net https://vitals.vercel-insights.com https://vitals.vercel-analytics.com",
+      "frame-src 'none'",
       // Service workers
       "worker-src 'self' blob:",
       // Prevent base tag hijacking
@@ -46,6 +45,12 @@ const nextConfig: NextConfig = {
   serverExternalPackages: ["@react-pdf/renderer"],
   images: { unoptimized: true },
 
+  async redirects() {
+    return [
+      { source: "/pricing", destination: "/#pricing", permanent: true },
+      { source: "/refund-policy", destination: "/terms", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

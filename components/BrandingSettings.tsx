@@ -185,17 +185,6 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
           </div>
         </div>
 
-        {/* ── Subscription ─────────────────────────────────────────────────── */}
-        {isConfigured && (
-          <>
-            <div className="flex items-center gap-3 pt-2">
-              <h2 className="text-xl font-bold text-slate-900 shrink-0">Subscription</h2>
-              <div className="flex-1 h-px bg-slate-300" />
-            </div>
-            <SubscriptionCard />
-          </>
-        )}
-
         {/* ── Business ─────────────────────────────────────────────────────── */}
         <div className="flex items-center gap-3 pt-2">
           <h2 className="text-xl font-bold text-slate-900 shrink-0">Business</h2>
@@ -531,96 +520,6 @@ export default function BrandingSettings({ profile, onBack, onSave }: BrandingSe
         </div>
       </div>
     </>
-  );
-}
-
-function SubscriptionCard() {
-  const [loading, setLoading] = useState<"checkout" | "portal" | null>(null);
-  const [sub, setSub] = useState<{ status: string; current_period_end: string | null } | null | undefined>(undefined);
-  const [checkoutError, setCheckoutError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const client = getSupabaseBrowserClient();
-    if (!client) { setSub(null); return; }
-    client.from("subscriptions").select("status, current_period_end").maybeSingle().then(({ data }) => {
-      if (!data) { setSub(null); return; }
-      setSub({ status: String(data.status ?? ""), current_period_end: data.current_period_end ? String(data.current_period_end) : null });
-    });
-  }, []);
-
-  async function startCheckout() {
-    setLoading("checkout");
-    setCheckoutError(null);
-    const res = await fetch("/api/stripe/checkout", { method: "POST" });
-    const body = await res.json();
-    if (body.url) window.location.href = body.url;
-    else {
-      setCheckoutError(body.error ?? "Something went wrong. Please try again.");
-      setLoading(null);
-    }
-  }
-
-  async function openPortal() {
-    setLoading("portal");
-    const res = await fetch("/api/stripe/portal", { method: "POST" });
-    const { url } = await res.json();
-    if (url) window.location.href = url;
-    else setLoading(null);
-  }
-
-  const isActive = sub?.status === "active";
-  const isTrialing = sub?.status === "trialing";
-  const periodEndLabel = sub?.current_period_end
-    ? new Date(sub.current_period_end).toLocaleDateString("en-AU", { day: "numeric", month: "long", year: "numeric" })
-    : null;
-
-  return (
-    <Card className="border border-slate-100 shadow-card">
-      <CardContent className="px-4 pb-4 pt-4">
-        {sub === undefined ? (
-          <p className="text-sm text-slate-400">Loading…</p>
-        ) : isActive || isTrialing ? (
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-bold text-slate-900">{isTrialing ? "Free trial" : "Active"}</p>
-              {periodEndLabel && (
-                <p className="text-xs text-slate-400 mt-0.5">
-                  {isTrialing ? `Trial ends ${periodEndLabel}` : `Renews ${periodEndLabel}`} — then $9 USD/month
-                </p>
-              )}
-            </div>
-            <button
-              onClick={openPortal}
-              disabled={loading === "portal"}
-              className="shrink-0 h-10 px-4 rounded-xl border border-slate-200 text-slate-600 text-sm font-semibold hover:bg-slate-50 disabled:opacity-60 transition-colors"
-            >
-              {loading === "portal" ? "Opening…" : "Manage billing"}
-            </button>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            <p className="text-sm text-slate-600">
-              You&apos;re on a free account. Subscribe to keep full access to JobWrap.
-            </p>
-            <div className="bg-orange-50 rounded-xl px-4 py-3 flex items-center justify-between">
-              <span className="text-sm font-bold text-slate-900">JobWrap</span>
-              <span className="text-sm font-bold text-orange-600">$9 / month</span>
-            </div>
-            <button
-              onClick={startCheckout}
-              disabled={loading === "checkout"}
-              className="w-full h-11 rounded-xl bg-orange-500 hover:bg-orange-600 disabled:opacity-60 text-white text-sm font-semibold transition-colors"
-            >
-              {loading === "checkout" ? "Redirecting…" : "Subscribe now"}
-            </button>
-            {checkoutError && (
-              <p className="text-center text-xs text-red-500">{checkoutError}</p>
-            )}
-            <p className="text-center text-xs text-slate-400">Cancel any time · 14-day refund guarantee</p>
-          </div>
-        )}
-      </CardContent>
-    </Card>
   );
 }
 

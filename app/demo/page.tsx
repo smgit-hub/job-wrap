@@ -8,7 +8,7 @@
  * - DemoAuthProvider supplies a fake user so useAuth() works everywhere
  * - installDemoInterceptor() catches /api/* calls and returns mock responses
  * - markDemoSessionActive() flags localStorage so real login clears demo data
- * - AppTopBanner shows the demo upgrade banner (reads isDemo from context)
+ * - AppTopBanner shows the demo sign-up banner (reads isDemo from context)
  * - AppShell renders the full app UI
  */
 

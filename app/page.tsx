@@ -18,7 +18,7 @@ import LandingFooter from "@/components/landing/LandingFooter";
 export const metadata: Metadata = {
   title: "JobWrap — AI Service Reports for HVAC Technicians",
   description:
-    "Talk through the job on site. JobWrap turns your voice notes into a professional, branded service report in seconds. 14-day free trial, no credit card required.",
+    "Talk through the job on site. JobWrap turns your voice notes into a professional, branded service report in seconds. Free to use, no credit card required.",
   alternates: {
     canonical: "https://jobwrap.app",
   },
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     url: "https://jobwrap.app",
     title: "JobWrap — AI Service Reports for HVAC Technicians",
     description:
-      "Talk through the job on site. JobWrap turns your voice notes into a professional, branded service report in seconds. 14-day free trial, no credit card required.",
+      "Talk through the job on site. JobWrap turns your voice notes into a professional, branded service report in seconds. Free to use, no credit card required.",
   },
 };
 
@@ -132,13 +132,13 @@ export default function LandingPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <Link href="/signup" className="inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-base shadow-lg shadow-orange-900/40">
-                  Start free — 14 days free <ArrowRight className="w-4 h-4" />
+                  Get started free <ArrowRight className="w-4 h-4" />
                 </Link>
                 <Link href="/demo" className="inline-flex items-center justify-center gap-2 bg-white/10 hover:bg-white/20 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-base backdrop-blur-sm border border-white/20">
                   Try the demo
                 </Link>
               </div>
-              <p className="text-sm text-slate-400 mt-4">14-day free trial. No credit card required.</p>
+              <p className="text-sm text-slate-400 mt-4">Free to use. No credit card required.</p>
             </div>
             <div className="flex-1 flex justify-center ">
               <div className="relative w-44 md:w-56 lg:w-72">
@@ -366,19 +366,18 @@ export default function LandingPage() {
       <section className="bg-slate-50 py-16 md:py-24 px-5" id="pricing">
         <div className="max-w-md mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
-            Simple pricing.{" "}
-            <span className="text-orange-500">No surprises.</span>
+            Completely free.{" "}
+            <span className="text-orange-500">No catch.</span>
           </h2>
-          <p className="text-slate-500 text-lg mb-10">One plan. Everything included. Cancel any time.</p>
+          <p className="text-slate-500 text-lg mb-10">Everything included. No credit card required.</p>
 
           <div className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden text-left">
             <div className="bg-slate-900 px-8 py-8 text-white">
-              <p className="text-slate-400 text-sm font-medium mb-1">Monthly</p>
+              <p className="text-slate-400 text-sm font-medium mb-1">Free for everyone</p>
               <div className="flex items-end gap-1.5">
-                <span className="text-5xl font-extrabold">$9</span>
-                <span className="text-slate-400 text-lg mb-1">/ month</span>
+                <span className="text-5xl font-extrabold">$0</span>
               </div>
-              <p className="text-slate-400 text-sm mt-2">USD · billed monthly · cancel any time</p>
+              <p className="text-slate-400 text-sm mt-2">No trial, no credit card, no catch</p>
             </div>
             <div className="px-8 py-8">
               <ul className="space-y-3 mb-8">
@@ -392,10 +391,10 @@ export default function LandingPage() {
                 ))}
               </ul>
               <Link href="/signup" className="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-xl transition-colors text-base">
-                Start 14-day free trial
+                Get started free
                 <ArrowRight className="w-4 h-4" />
               </Link>
-              <p className="text-center text-slate-400 text-sm mt-3">No credit card required · cancel any time</p>
+              <p className="text-center text-slate-400 text-sm mt-3">No credit card required</p>
             </div>
           </div>
         </div>
@@ -411,7 +410,7 @@ export default function LandingPage() {
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/signup" className="inline-flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold px-7 py-3.5 rounded-xl transition-colors text-base">
-            Start free — 14 days free <ArrowRight className="w-4 h-4" />
+            Get started free <ArrowRight className="w-4 h-4" />
           </Link>
           <Link href="/demo" className="inline-flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-semibold px-7 py-3.5 rounded-xl transition-colors text-base">
             Try the demo first

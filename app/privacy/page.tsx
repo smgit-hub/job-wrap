@@ -42,17 +42,11 @@ export default function PrivacyPage() {
             <p>Account credentials and all cloud data are protected by encryption at rest and in transit.</p>
           </Section>
 
-          <Section title="Payments">
-            <p>Payments are processed by <strong>Stripe</strong>, our payment provider. JobWrap does not store your card details — all payment information is handled directly by Stripe and subject to their privacy policy.</p>
-            <p>Stripe may collect your name, email address, billing address, and payment method details in order to process your subscription.</p>
-          </Section>
-
           <Section title="Sharing">
             <p>We do not sell, rent, or share your personal data with third parties for marketing purposes. Data is only shared with:</p>
             <ul>
               <li><strong>Anthropic</strong> — for AI report generation, as described above.</li>
               <li><strong>Supabase</strong> — for authentication, data storage, and shared report link hosting.</li>
-              <li><strong>Stripe</strong> — for payment processing and subscription management.</li>
             </ul>
           </Section>
 

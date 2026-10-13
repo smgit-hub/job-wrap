@@ -26,12 +26,8 @@ export default function TermsPage() {
             <p>By creating an account or using JobWrap, you agree to these terms.</p>
           </Section>
 
-          <Section title="Subscription and payment">
-            <p>JobWrap is a paid service. By subscribing, you agree to pay the applicable monthly fee. Your subscription renews automatically each month until cancelled.</p>
-            <p>You can cancel at any time. Cancellation takes effect at the end of your current billing period — you won&apos;t be charged again, and you retain access until that period ends.</p>
-            <p>Payments are processed by Stripe. By subscribing you also agree to Stripe&apos;s terms of service. JobWrap does not store your card or payment details.</p>
-            <p>We reserve the right to change pricing with reasonable notice. Existing subscribers will be notified before any price change takes effect.</p>
-            <p>You are entitled to a full refund within 14 days of being charged. For full details see our <Link href="/refund-policy" className="text-orange-500 hover:underline font-medium">Refund Policy</Link>.</p>
+          <Section title="Free service">
+            <p>JobWrap is currently free to use. We may introduce paid plans in future, but we will give reasonable notice before charging for anything, and you will never be charged without opting in.</p>
           </Section>
 
           <Section title="Your data">
@@ -65,7 +61,7 @@ export default function TermsPage() {
 
           <Section title="Limitation of liability">
             <p>JobWrap is provided &ldquo;as is&rdquo;. To the fullest extent permitted by law, we are not liable for any indirect, incidental, or consequential damages arising from your use of the service, including loss of data or business.</p>
-            <p>Our total liability to you for any claim will not exceed the amount you paid us in the 3 months preceding the claim.</p>
+            <p>Our total liability to you for any claim will not exceed the amount you paid us in the 3 months preceding the claim (which, while JobWrap is free, is nil).</p>
           </Section>
 
           <Section title="Changes to these terms">
