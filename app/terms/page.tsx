@@ -27,7 +27,7 @@ export default function TermsPage() {
           </Section>
 
           <Section title="Free service">
-            <p>JobWrap is currently free to use. We may introduce paid plans in future, but we will give reasonable notice before charging for anything, and you will never be charged without opting in.</p>
+            <p>JobWrap is free to use. It is provided as-is, and we may update, change or discontinue features from time to time.</p>
           </Section>
 
           <Section title="Your data">
@@ -61,7 +61,7 @@ export default function TermsPage() {
 
           <Section title="Limitation of liability">
             <p>JobWrap is provided &ldquo;as is&rdquo;. To the fullest extent permitted by law, we are not liable for any indirect, incidental, or consequential damages arising from your use of the service, including loss of data or business.</p>
-            <p>Our total liability to you for any claim will not exceed the amount you paid us in the 3 months preceding the claim (which, while JobWrap is free, is nil).</p>
+            <p>Our total liability to you for any claim is limited to the maximum extent permitted by law.</p>
           </Section>
 
           <Section title="Changes to these terms">

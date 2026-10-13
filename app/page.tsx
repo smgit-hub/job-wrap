@@ -18,7 +18,7 @@ import LandingFooter from "@/components/landing/LandingFooter";
 export const metadata: Metadata = {
   title: "JobWrap — AI Service Reports for HVAC Technicians",
   description:
-    "Talk through the job on site. JobWrap turns your voice notes into a professional, branded service report in seconds. Free to use, no credit card required.",
+    "Talk through the job on site. JobWrap turns your voice notes into a professional, branded service report in seconds. Free to use.",
   alternates: {
     canonical: "https://jobwrap.app",
   },
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     url: "https://jobwrap.app",
     title: "JobWrap — AI Service Reports for HVAC Technicians",
     description:
-      "Talk through the job on site. JobWrap turns your voice notes into a professional, branded service report in seconds. Free to use, no credit card required.",
+      "Talk through the job on site. JobWrap turns your voice notes into a professional, branded service report in seconds. Free to use.",
   },
 };
 
@@ -74,7 +74,7 @@ const FEATURES = [
   { icon: CalendarCheck, title: "Never miss a follow-up",         body: "Set next service dates and get reminded before they're due." },
 ];
 
-const PLAN_FEATURES = [
+const FEATURES_INCLUDED = [
   "Unlimited reports",
   "AI report generation",
   "Branded PDF export",
@@ -138,7 +138,7 @@ export default function LandingPage() {
                   Try the demo
                 </Link>
               </div>
-              <p className="text-sm text-slate-400 mt-4">Free to use. No credit card required.</p>
+              <p className="text-sm text-slate-400 mt-4">Free to use.</p>
             </div>
             <div className="flex-1 flex justify-center ">
               <div className="relative w-44 md:w-56 lg:w-72">
@@ -362,40 +362,30 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ── Pricing ──────────────────────────────────────────────────────── */}
-      <section className="bg-slate-50 py-16 md:py-24 px-5" id="pricing">
+      {/* ── What's included ──────────────────────────────────────────────── */}
+      <section className="bg-slate-50 py-16 md:py-24 px-5" id="included">
         <div className="max-w-md mx-auto text-center">
           <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight mb-3">
-            Completely free.{" "}
-            <span className="text-orange-500">No catch.</span>
+            Everything you need.{" "}
+            <span className="text-orange-500">Free to use.</span>
           </h2>
-          <p className="text-slate-500 text-lg mb-10">Everything included. No credit card required.</p>
+          <p className="text-slate-500 text-lg mb-10">Sign up and start writing reports in minutes.</p>
 
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden text-left">
-            <div className="bg-slate-900 px-8 py-8 text-white">
-              <p className="text-slate-400 text-sm font-medium mb-1">Free for everyone</p>
-              <div className="flex items-end gap-1.5">
-                <span className="text-5xl font-extrabold">$0</span>
-              </div>
-              <p className="text-slate-400 text-sm mt-2">No trial, no credit card, no catch</p>
-            </div>
-            <div className="px-8 py-8">
-              <ul className="space-y-3 mb-8">
-                {PLAN_FEATURES.map((feat) => (
-                  <li key={feat} className="flex items-center gap-3">
-                    <div className="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
-                      <Check className="w-3 h-3 text-orange-600" />
-                    </div>
-                    <span className="text-slate-700 text-sm">{feat}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link href="/signup" className="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-xl transition-colors text-base">
-                Get started free
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-              <p className="text-center text-slate-400 text-sm mt-3">No credit card required</p>
-            </div>
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-lg px-8 py-8 text-left">
+            <ul className="space-y-3 mb-8">
+              {FEATURES_INCLUDED.map((feat) => (
+                <li key={feat} className="flex items-center gap-3">
+                  <div className="w-5 h-5 rounded-full bg-orange-100 flex items-center justify-center shrink-0">
+                    <Check className="w-3 h-3 text-orange-600" />
+                  </div>
+                  <span className="text-slate-700 text-sm">{feat}</span>
+                </li>
+              ))}
+            </ul>
+            <Link href="/signup" className="flex items-center justify-center gap-2 w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-4 rounded-xl transition-colors text-base">
+              Get started free
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </section>

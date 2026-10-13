@@ -59,7 +59,7 @@ export default async function OGImage() {
           }}
         >
           <span style={{ color: "white", fontSize: 22, fontWeight: 700 }}>
-            Free to use · no credit card · jobwrap.app
+            Free to use · jobwrap.app
           </span>
         </div>
       </div>
